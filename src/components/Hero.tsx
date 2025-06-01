@@ -1,0 +1,104 @@
+"use client";
+
+import { useState } from "react";
+import { Button } from "./ui/Button";
+import { useTranslations } from "next-intl";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Search } from "lucide-react";
+
+export const HeroSection = () => {
+  const t = useTranslations("HomePage.hero");
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const onSearch = () => {
+    if (searchQuery.trim()) {
+      router.push(`/churches?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  return (
+    <section className="relative h-[90vh] min-h-[600px] w-full bg-[#F0FAF5]">
+      {/* Background image overlay */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <Image
+          src="/assets/images/nigeria-map-bg.jpeg"
+          alt="Nigeria map background"
+          fill
+          className="object-cover opacity-10"
+          priority
+        />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center ">
+        {/* Logo */}
+        <div className="mb-0 w-32 md:w-44">
+          <Image
+            src="/assets/images/logo.png"
+            alt="TEIC Global Logo"
+            width={180}
+            height={32}
+            className="w-full h-auto"
+            priority
+          />
+        </div>
+
+        {/* Headline */}
+        <h1 className="text-2xl md:text-4xl lg:text-4xl font-bold text-[#1A365D]  leading-snug max-w-4xl">
+          {t("headline1")} <br className="hidden md:block" />
+          {t("headline2")}
+          <span className="inline-block w-2" />
+          <span className="text-[#2D9C6F]">{t("headline3")}</span>
+        </h1>
+
+        {/* Subtitle */}
+        <p className="text-base md:text-lg text-[#444] max-w-2xl mx-auto mt-3 mb-8">
+          {t("subtitle")}
+        </p>
+
+        {/* Search Input + Button */}
+        <div className="flex items-center max-w-xl w-full mx-auto mb-6">
+          <input
+            type="text"
+            placeholder={
+              t("searchPlaceholder") || "Search churches by name, location..."
+            }
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") onSearch();
+            }}
+            className="flex-grow px-5 py-3 rounded-full border border-[#7FC242] focus:outline-none focus:ring-2 focus:ring-[#7FC242]/60 text-base text-gray-800"
+          />
+          <button
+            onClick={onSearch}
+            aria-label="Search Churches"
+            className="ml-3 rounded-full bg-[#7FC242] hover:bg-[#5A7D2C] text-white p-3 flex items-center justify-center transition cursor-pointer"
+          >
+            <Search size={20} />
+          </button>
+        </div>
+
+        {/* CTA Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Button
+            variant="primary"
+            onClick={() => router.push("/updates")}
+            className="px-8 py-3 text-base rounded-md"
+          >
+            {t("ctaEmail")}
+          </Button>
+
+          <Button
+            variant="outline"
+            onClick={() => router.push("/list-your-church")}
+            className="px-8 py-3 text-base rounded-md border-2"
+          >
+            {t("ctaCall")}
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+};

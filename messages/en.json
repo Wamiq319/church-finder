@@ -1,0 +1,130 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "services": "Services",
+    "contact": "Contact",
+    "events": "Events"
+  },
+  "HomePage": {
+    "hero": {
+      "headline1": "Find Churches",
+      "headline2": "Across Nigeria",
+      "headline3": "That Welcome You",
+      "subtitle": "Discover and connect with churches—worship with your local community and beyond.",
+      "searchPlaceholder": "Search churches by name, location...",
+      "ctaEmail": "Get Church Updates",
+      "ctaCall": "List Your Church"
+    },
+    "featured": {
+      "title": "Featured Churches",
+      "subtitle": "Discover beautiful churches across Nigeria",
+      "viewDetails": "View Details"
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "subtitle": "Discover churches in just a few simple steps",
+      "steps": {
+        "search": {
+          "title": "Search",
+          "description": "Find churches near you by location or name."
+        },
+        "viewDetails": {
+          "title": "View Details",
+          "description": "Explore church profiles, services, and more."
+        },
+        "connect": {
+          "title": "Connect",
+          "description": "Get in touch or follow churches online."
+        },
+        "visit": {
+          "title": "Visit",
+          "description": "Attend services and events in person."
+        }
+      }
+    },
+    "listYourChurchCTA": {
+      "title": "List Your Church With Us",
+      "subtitle": "Grow your congregation and connect with your community.",
+      "benefits": [
+        "Increase visibility among local seekers",
+        "Share your events and services easily",
+        "Engage with potential new members online",
+        "Access simple tools to manage your listing"
+      ],
+      "buttonText": "Get Started Today"
+    }
+  },
+  "Events": {
+    "upcomingEvents": "Upcoming Church Events",
+    "upcomingEventsSubtitle": "Join us for these special gatherings",
+    "viewDetails": "View details",
+    "seeAllEvents": "See All Events"
+  },
+  "Footer": {
+    "company": {
+      "title": "Our Church Finder",
+      "description": "Helping you find the perfect church community across Nigeria with ease and confidence."
+    },
+    "links": {
+      "title": "Quick Links",
+      "items": ["home", "about", "events", "contact"],
+      "names": {
+        "home": "Home",
+        "about": "About Us",
+        "events": "Events",
+        "contact": "Contact"
+      }
+    },
+    "services": {
+      "title": "Services",
+      "names": {
+        "church_search": "Church Search",
+        "event_listings": "Event Listings",
+        "church_listings": "Church Listings",
+        "community_support": "Community Support"
+      }
+    },
+    "contact": {
+      "title": "Contact Us",
+      "address": "123 Church St, Lagos, Nigeria",
+      "phone": "+234 123 4567",
+      "email": "info@churchfinder.ng"
+    },
+    "copyright": "Church Finder. All rights reserved."
+  },
+  "CTAs": {
+    "listYourChurch": {
+      "title": "List Your Church With Us Today",
+      "subtitle": "Join hundreds of churches reaching new members through our platform",
+      "benefits": {
+        "visibility": "Boost your church's online visibility",
+        "community": "Connect with your local community",
+        "support": "Dedicated support team to help you"
+      },
+      "buttonText": "Get Started - It's Free",
+      "additionalText": "No credit card required. Setup takes less than 5 minutes."
+    }
+  },
+  "Testimonials": {
+    "title": "What People Are Saying",
+    "subtitle": "Hear from church leaders and members about their experiences",
+    "testimonials": {
+      "1": {
+        "quote": "This platform helped our small church reach so many new members in our community. We've doubled our attendance in just 3 months!",
+        "name": "Pastor James Adekunle",
+        "role": "Lead Pastor, Grace Assembly"
+      },
+      "2": {
+        "quote": "As someone new to Lagos, I found my perfect church home through this service. The detailed information made decision-making easy.",
+        "name": "Chioma Nwosu",
+        "role": "Church Member"
+      },
+      "3": {
+        "quote": "The listing process was incredibly simple, and we immediately saw an increase in visitors to our services.",
+        "name": "Rev. Daniel Okeke",
+        "role": "Senior Pastor, Redeemed Chapel"
+      }
+    }
+  }
+}
