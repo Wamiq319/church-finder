@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 export const ListYourChurchCTA = () => {
-  const t = useTranslations("CTAs.listYourChurch");
+  const t = useTranslations("HomePage.listYourChurchCTA");
   const router = useRouter();
 
   const benefits = [

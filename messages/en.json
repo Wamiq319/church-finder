@@ -4,7 +4,8 @@
     "about": "About",
     "services": "Services",
     "contact": "Contact",
-    "events": "Events"
+    "events": "Events",
+    "churches": "Churches"
   },
   "HomePage": {
     "hero": {
@@ -44,23 +45,49 @@
       }
     },
     "listYourChurchCTA": {
-      "title": "List Your Church With Us",
-      "subtitle": "Grow your congregation and connect with your community.",
-      "benefits": [
-        "Increase visibility among local seekers",
-        "Share your events and services easily",
-        "Engage with potential new members online",
-        "Access simple tools to manage your listing"
-      ],
-      "buttonText": "Get Started Today"
+      "title": "List Your Church With Us Today",
+      "subtitle": "Join hundreds of churches reaching new members through our platform",
+      "benefits": {
+        "visibility": "Boost your church's online visibility",
+        "community": "Connect with your local community",
+        "support": "Dedicated support team to help you"
+      },
+      "buttonText": "Get Started - It's Free",
+      "additionalText": "No credit card required. Setup takes less than 5 minutes."
+    },
+
+    "upcomingEvents": {
+      "upcomingEventsTitle": "Upcoming Church Events",
+      "upcomingEventsSubtitle": "Join us for these special gatherings",
+      "viewDetails": "View details",
+      "seeAllEvents": "See All Events"
+    },
+    "Testimonials": {
+      "title": "What People Are Saying",
+      "subtitle": "Hear from church leaders and members about their experiences",
+      "testimonials": {
+        "1": {
+          "quote": "This platform helped our small church reach so many new members in our community. We've doubled our attendance in just 3 months!",
+          "name": "Pastor James Adekunle",
+          "role": "Lead Pastor, Grace Assembly"
+        },
+        "2": {
+          "quote": "As someone new to Lagos, I found my perfect church home through this service. The detailed information made decision-making easy.",
+          "name": "Chioma Nwosu",
+          "role": "Church Member"
+        },
+        "3": {
+          "quote": "The listing process was incredibly simple, and we immediately saw an increase in visitors to our services.",
+          "name": "Rev. Daniel Okeke",
+          "role": "Senior Pastor, Redeemed Chapel"
+        }
+      }
     }
   },
-  "Events": {
-    "upcomingEvents": "Upcoming Church Events",
-    "upcomingEventsSubtitle": "Join us for these special gatherings",
-    "viewDetails": "View details",
-    "seeAllEvents": "See All Events"
+  "ChurchesPage": {
+    "allChurches": "All Churches"
   },
+
   "Footer": {
     "company": {
       "title": "Our Church Finder",
@@ -93,38 +120,46 @@
     },
     "copyright": "Church Finder. All rights reserved."
   },
-  "CTAs": {
-    "listYourChurch": {
-      "title": "List Your Church With Us Today",
-      "subtitle": "Join hundreds of churches reaching new members through our platform",
-      "benefits": {
-        "visibility": "Boost your church's online visibility",
-        "community": "Connect with your local community",
-        "support": "Dedicated support team to help you"
-      },
-      "buttonText": "Get Started - It's Free",
-      "additionalText": "No credit card required. Setup takes less than 5 minutes."
-    }
+  "Common": {
+    "upcomingEvents": "Upcoming Events",
+    "previous": "Previous",
+    "page": "Page",
+    "next": "Next",
+    "of": "of",
+    "viewDetails": "View Details"
   },
-  "Testimonials": {
-    "title": "What People Are Saying",
-    "subtitle": "Hear from church leaders and members about their experiences",
-    "testimonials": {
-      "1": {
-        "quote": "This platform helped our small church reach so many new members in our community. We've doubled our attendance in just 3 months!",
-        "name": "Pastor James Adekunle",
-        "role": "Lead Pastor, Grace Assembly"
-      },
-      "2": {
-        "quote": "As someone new to Lagos, I found my perfect church home through this service. The detailed information made decision-making easy.",
-        "name": "Chioma Nwosu",
-        "role": "Church Member"
-      },
-      "3": {
-        "quote": "The listing process was incredibly simple, and we immediately saw an increase in visitors to our services.",
-        "name": "Rev. Daniel Okeke",
-        "role": "Senior Pastor, Redeemed Chapel"
-      }
-    }
+  "EventsPage": {
+    "allEvents": "AllEvents"
+  },
+  "churchDetailPage": {
+    "aboutTitle": "About Our Church",
+    "servicesTitle": "Worship Services",
+    "locationTitle": "Location & Directions",
+    "openInMaps": "Open in Google Maps",
+    "pastorTitle": "Our Pastor",
+    "contactTitle": "Contact Information",
+    "registerTitle": "Register Your Church",
+    "registerDescription": "Join our directory and connect with your community",
+    "registerBenefit1": "Free listing in our directory",
+    "registerBenefit2": "Manage your church profile",
+    "registerBenefit3": "Reach more people in your area",
+    "registerButton": "Register Now",
+    "registerFree": "100% Free - No hidden fees"
+  },
+  "eventDetailPage": { 
+    "hostChurchTitle":"Hosted By",
+    "aboutTitle": "About the Event",
+    "eventDetailsTitle": "Event Details",
+    "locationTitle": "Location",
+    "openInMaps": "Open in Google Maps",
+    "organizerTitle": "Event Organizer",
+    "timingTitle": "Date & Time",
+    "registerTitle": "Register Now",
+    "registerDescription": "Secure your spot at this exciting event!",
+    "registerBenefit1": "Guaranteed entry",
+    "registerBenefit2": "Early access to special sessions",
+    "registerBenefit3": "Event updates and reminders",
+    "registerButton": "Register for Event",
+    "registerFree": "Registration is completely free"
   }
 }

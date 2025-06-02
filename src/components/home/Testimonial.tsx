@@ -4,7 +4,7 @@ import { Star, Quote } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 export const TestimonialsSection = () => {
-  const t = useTranslations("Testimonials");
+  const t = useTranslations("HomePage.Testimonials");
 
   const testimonials = [
     {

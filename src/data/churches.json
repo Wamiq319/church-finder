@@ -1,0 +1,263 @@
+[
+  {
+    "id": "1",
+    "name": "St. Andrew's Church",
+    "address": "12 Church St, Lagos Island",
+    "city": "Lagos",
+    "state": "Nigeria",
+    "location": "Lagos, Nigeria",
+    "image": "/assets/images/churches/st-andrews.jpg",
+    "slug": "st-andrews-anglican-church",
+    "description": "A historic Anglican church known for community outreach and spiritual growth.",
+    "services": ["Sunday Worship - 9 AM", "Bible Study - Wednesdays 6 PM"],
+    "pastor": {
+      "name": "Rev. John Doe",
+      "email": "john.doe@standrewslagos.org",
+      "phone": "+234 801 234 5678"
+    },
+    "contact": {
+      "email": "contact@standrewslagos.org",
+      "phone": "+234 802 345 6789"
+    }
+  },
+  {
+    "id": "2",
+    "name": "RCCG Abuja",
+    "address": "45 Redemption Rd, Central Abuja",
+    "city": "Abuja",
+    "state": "Nigeria",
+    "location": "Abuja, Nigeria",
+    "image": "/assets/images/churches/st-andrews2.jpg",
+    "slug": "rccg-abuja",
+    "description": "Vibrant RCCG congregation offering dynamic worship and youth engagement.",
+    "services": ["Sunday Service - 10 AM", "Friday Night Vigil - 10 PM"],
+    "pastor": {
+      "name": "Pastor Sarah Adewale",
+      "email": "sarah.adewale@rccgabuja.org",
+      "phone": "+234 803 456 7890"
+    },
+    "contact": {
+      "email": "info@rccgabuja.org",
+      "phone": "+234 804 567 8901"
+    }
+  },
+  {
+    "id": "3",
+    "name": "Living Faith PH",
+    "address": "78 Victory Blvd, Port Harcourt",
+    "city": "Port Harcourt",
+    "state": "Nigeria",
+    "location": "Port Harcourt, Nigeria",
+    "image": "/assets/images/churches/st-andrews.jpg",
+    "slug": "living-faith-ph",
+    "description": "Energetic worship with a focus on faith and prosperity teachings.",
+    "services": [
+      "Sunday Celebration - 8 AM",
+      "Midweek Communion - Thursday 6 PM"
+    ],
+    "pastor": {
+      "name": "Bishop David Nwankwo",
+      "email": "david.nwankwo@livingfaithph.org",
+      "phone": "+234 805 678 1234"
+    },
+    "contact": {
+      "email": "livingfaithph@gmail.com",
+      "phone": "+234 806 789 2345"
+    }
+  },
+  {
+    "id": "4",
+    "name": "Divine Mercy Church",
+    "address": "101 Mercy Lane, Enugu",
+    "city": "Enugu",
+    "state": "Nigeria",
+    "location": "Enugu, Nigeria",
+    "image": "/assets/images/churches/st-andrews2.jpg",
+    "slug": "divine-mercy-enugu",
+    "description": "Catholic parish offering Mass, confession, and community services.",
+    "services": ["Mass - Daily 7 AM", "Sunday Mass - 9 AM & 11 AM"],
+    "pastor": {
+      "name": "Fr. Emmanuel Obinna",
+      "email": "emmanuel.obinna@divinemercy.org",
+      "phone": "+234 807 123 4567"
+    },
+    "contact": {
+      "email": "divinemercyenugu@gmail.com",
+      "phone": "+234 808 234 5678"
+    }
+  },
+  {
+    "id": "5",
+    "name": "MFM Ibadan",
+    "address": "22 Fire Rd, Ibadan",
+    "city": "Ibadan",
+    "state": "Nigeria",
+    "location": "Ibadan, Nigeria",
+    "image": "/assets/images/churches/st-andrews.jpg",
+    "slug": "mfm-ibadan",
+    "description": "Deliverance-focused ministry passionate about prayer and warfare.",
+    "services": [
+      "Sunday Service - 7 AM",
+      "Power Must Change Hands - 1st Sat 7 AM"
+    ],
+    "pastor": {
+      "name": "Dr. Elijah Balogun",
+      "email": "elijah.balogun@mfm.org",
+      "phone": "+234 809 345 6789"
+    },
+    "contact": {
+      "email": "mfmibadan@firemail.org",
+      "phone": "+234 810 456 7890"
+    }
+  },
+  {
+    "id": "6",
+    "name": "Deeper Life Kano",
+    "address": "55 Holiness St, Kano",
+    "city": "Kano",
+    "state": "Nigeria",
+    "location": "Kano, Nigeria",
+    "image": "/assets/images/churches/st-andrews2.jpg",
+    "slug": "deeper-life-kano",
+    "description": "Bible-believing church promoting holiness and deep scriptural teaching.",
+    "services": ["Sunday Worship - 8 AM", "Monday Bible Study - 6 PM"],
+    "pastor": {
+      "name": "Pastor Grace Musa",
+      "email": "grace.musa@deeperlife.org",
+      "phone": "+234 811 567 8901"
+    },
+    "contact": {
+      "email": "deeperlifekano@yahoo.com",
+      "phone": "+234 812 678 9012"
+    }
+  },
+  {
+    "id": "7",
+    "name": "Christ Apostolic",
+    "address": "7 Faith Ave, Kaduna",
+    "city": "Kaduna",
+    "state": "Nigeria",
+    "location": "Kaduna, Nigeria",
+    "image": "/assets/images/churches/st-andrews.jpg",
+    "slug": "christ-apostolic-kaduna",
+    "description": "A strong Pentecostal church emphasizing healing and deliverance.",
+    "services": ["Sunday Service - 9 AM", "Prayer Meeting - Fridays 7 PM"],
+    "pastor": {
+      "name": "Rev. Samuel Obi",
+      "email": "samuel.obi@cac.org",
+      "phone": "+234 813 789 0123"
+    },
+    "contact": {
+      "email": "info@cac.org",
+      "phone": "+234 814 890 1234"
+    }
+  },
+  {
+    "id": "8",
+    "name": "Lighthouse Chapel",
+    "address": "89 Beacon Rd, Warri",
+    "city": "Warri",
+    "state": "Nigeria",
+    "location": "Warri, Nigeria",
+    "image": "/assets/images/churches/st-andrews2.jpg",
+    "slug": "lighthouse-chapel-warri",
+    "description": "Known for youth outreach programs and community involvement.",
+    "services": [
+      "Sunday Worship - 10 AM",
+      "Youth Fellowship - Wednesdays 5 PM"
+    ],
+    "pastor": {
+      "name": "Pastor Esther Akpan",
+      "email": "esther.akpan@lighthouse.org",
+      "phone": "+234 815 901 2345"
+    },
+    "contact": {
+      "email": "contact@lighthouse.org",
+      "phone": "+234 816 012 3456"
+    }
+  },
+  {
+    "id": "9",
+    "name": "Faith Tabernacle",
+    "address": "140 Faith St, Oyo",
+    "city": "Oyo",
+    "state": "Nigeria",
+    "location": "Oyo, Nigeria",
+    "image": "/assets/images/churches/st-andrews.jpg",
+    "slug": "faith-tabernacle-oyo",
+    "description": "Large congregation known for vibrant worship and teaching.",
+    "services": ["Sunday Worship - 8 AM", "Bible Study - Thursdays 6 PM"],
+    "pastor": {
+      "name": "Bishop Joseph Adeyemi",
+      "email": "joseph.adeyemi@faithtabernacle.org",
+      "phone": "+234 817 123 4567"
+    },
+    "contact": {
+      "email": "info@faithtabernacle.org",
+      "phone": "+234 818 234 5678"
+    }
+  },
+  {
+    "id": "10",
+    "name": "New Covenant",
+    "address": "34 Grace St, Benin City",
+    "city": "Benin City",
+    "state": "Nigeria",
+    "location": "Benin City, Nigeria",
+    "image": "/assets/images/churches/st-andrews2.jpg",
+    "slug": "new-covenant-benin",
+    "description": "Dynamic church focused on community transformation and discipleship.",
+    "services": ["Sunday Service - 9 AM", "Midweek Prayer - Wednesdays 6 PM"],
+    "pastor": {
+      "name": "Pastor Michael Eze",
+      "email": "michael.eze@newcovenant.org",
+      "phone": "+234 819 345 6789"
+    },
+    "contact": {
+      "email": "contact@newcovenant.org",
+      "phone": "+234 820 456 7890"
+    }
+  },
+  {
+    "id": "11",
+    "name": "City of Refuge",
+    "address": "56 Haven Rd, Jos",
+    "city": "Jos",
+    "state": "Nigeria",
+    "location": "Jos, Nigeria",
+    "image": "/assets/images/churches/st-andrews.jpg",
+    "slug": "city-of-refuge-jos",
+    "description": "Church with emphasis on refuge and spiritual healing.",
+    "services": ["Sunday Worship - 10 AM", "Healing Service - Fridays 7 PM"],
+    "pastor": {
+      "name": "Rev. Peter Okafor",
+      "email": "peter.okafor@cityofrefuge.org",
+      "phone": "+234 821 567 8901"
+    },
+    "contact": {
+      "email": "info@cityofrefuge.org",
+      "phone": "+234 822 678 9012"
+    }
+  },
+  {
+    "id": "12",
+    "name": "Grace Bible",
+    "address": "77 Grace St, Abeokuta",
+    "city": "Abeokuta",
+    "state": "Nigeria",
+    "location": "Abeokuta, Nigeria",
+    "image": "/assets/images/churches/st-andrews2.jpg",
+    "slug": "grace-bible-abeokuta",
+    "description": "Bible-centered church focusing on grace and love.",
+    "services": ["Sunday Service - 9 AM", "Wednesday Bible Study - 6 PM"],
+    "pastor": {
+      "name": "Pastor Linda Eze",
+      "email": "linda.eze@gracebible.org",
+      "phone": "+234 823 789 0123"
+    },
+    "contact": {
+      "email": "contact@gracebible.org",
+      "phone": "+234 824 890 1234"
+    }
+  }
+]
