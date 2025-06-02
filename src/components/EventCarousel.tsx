@@ -1,11 +1,6 @@
 "use client";
-import {
-  CalendarDays,
-  ChevronLeft,
-  ChevronRight,
-  MapPin,
-  ArrowRight,
-} from "lucide-react";
+
+import { CalendarDays, MapPin, ArrowRight } from "lucide-react";
 import { Button } from "./ui/Button";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -34,9 +29,12 @@ export function EventCarousel({ events }: { events: any[] }) {
     }, 5000);
     return () => clearInterval(interval);
   }, [banners.length]);
-  console.log("Banners:", banners);
+
   return (
     <div className="relative mb-12 rounded-xl overflow-hidden shadow-lg">
+      {/* Green bar at the top */}
+      <div className="absolute top-0 left-0 right-0 h-2  z-10"></div>
+
       <div className="relative h-64 md:h-80 w-full">
         <Image
           width={1200}
@@ -47,23 +45,23 @@ export function EventCarousel({ events }: { events: any[] }) {
         />
         <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center px-6">
           <div className="max-w-2xl text-center text-white">
-            <h2 className="text-2xl md:text-3xl font-bold mb-2">
+            <h2 className="text-xl md:text-3xl font-bold mb-2 whitespace-nowrap overflow-hidden text-ellipsis">
               {banners[current].title}
             </h2>
-            <div className="flex justify-center gap-6 mb-4">
-              <span className="flex items-center">
-                <CalendarDays className="h-5 w-5 mr-1" />
+            <div className="flex flex-wrap justify-center gap-2 md:gap-6 mb-4 whitespace-nowrap">
+              <span className="flex items-center text-sm md:text-base">
+                <CalendarDays className="h-4 w-4 md:h-5 md:w-5 mr-1" />
                 {banners[current].date}
               </span>
-              <span className="flex items-center">
-                <MapPin className="h-5 w-5 mr-1" />
+              <span className="flex items-center text-sm md:text-base">
+                <MapPin className="h-4 w-4 md:h-5 md:w-5 mr-1" />
                 {banners[current].location}
               </span>
             </div>
             <Button
               variant="primary"
               rounded
-              className="px-8 py-3 text-lg"
+              className="px-6 py-2 md:px-8 md:py-3 text-sm md:text-lg"
               onClick={() => router.push(`/events/${banners[current].slug}`)}
             >
               View Event Details <ArrowRight className="ml-2" />
@@ -71,26 +69,14 @@ export function EventCarousel({ events }: { events: any[] }) {
           </div>
         </div>
       </div>
-      <button
-        onClick={() =>
-          setCurrent((current - 1 + banners.length) % banners.length)
-        }
-        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-80 rounded-full p-2 shadow-md hover:bg-opacity-100 transition-all"
-      >
-        <ChevronLeft className="h-6 w-6 text-gray-800" />
-      </button>
-      <button
-        onClick={() => setCurrent((current + 1) % banners.length)}
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-80 rounded-full p-2 shadow-md hover:bg-opacity-100 transition-all"
-      >
-        <ChevronRight className="h-6 w-6 text-gray-800" />
-      </button>
-      <div className="absolute bottom-4 w-full flex justify-center space-x-2">
+
+      {/* Navigation dots */}
+      <div className="absolute bottom-4 cursor-pointer w-full flex justify-center space-x-2">
         {banners.map((_, i) => (
           <button
             key={i}
             onClick={() => setCurrent(i)}
-            className={`h-2 w-2 rounded-full ${
+            className={`h-2 w-2 rounded-full cursor-pointer ${
               i === current ? "bg-white w-6" : "bg-white bg-opacity-50"
             }`}
           />
