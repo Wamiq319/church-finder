@@ -10,6 +10,8 @@ declare module "next-auth" {
     email: string;
     role: "admin" | "church_admin" | "user";
     church?: mongoose.Types.ObjectId;
+    churchStatus?: string | null;
+    churchStep?: number | null;
   }
 
   interface Session {
@@ -19,6 +21,8 @@ declare module "next-auth" {
       email: string;
       role: "admin" | "church_admin" | "user";
       church?: string;
+      churchStatus?: string | null;
+      churchStep?: number | null;
     } & DefaultSession["user"];
   }
 }
@@ -30,5 +34,7 @@ declare module "next-auth/jwt" {
     email: string;
     role: "admin" | "church_admin" | "user";
     church?: string;
+    churchStatus?: string | null;
+    churchStep?: number | null;
   }
 }

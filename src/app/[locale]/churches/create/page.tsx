@@ -25,11 +25,11 @@ import {
 import { ChurchData } from "@/types/church.type";
 import { z } from "zod";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function CreateChurchPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialStep = parseInt(searchParams.get("step") || "1");
+  const { data: session } = useSession();
 
   const [formData, setFormData] = useState<ChurchData>({
     name: "",
@@ -43,103 +43,104 @@ export default function CreateChurchPage() {
     pastorPhone: "",
     contactEmail: "",
     contactPhone: "",
-    services: [""] as [string, ...string[]],
+    services: ["Sunday Service - 9:00 AM"] as [string, ...string[]],
     isFeatured: false,
+    step: 1,
+    status: "draft",
   });
 
-  const [currentStep, setCurrentStep] = useState(initialStep);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [isFeatured, setIsFeatured] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  console.log(currentStep);
-  // Load existing church data if available
-  useEffect(() => {
-    const loadChurchData = async () => {
-      try {
-        const response = await fetch("/api/churches");
-        const data = await response.json();
 
-        if (data.success && data.data) {
-          setFormData(data.data);
-          if (data.data.image) {
-            setImagePreview(data.data.image);
-          }
-          setCurrentStep(data.data.step);
-        }
-      } catch (error) {
-        console.error("Error loading church data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadChurchData();
-  }, []);
-
-  const saveStep = async (step: number) => {
+  // Function to fetch and update church data
+  const fetchChurchData = async () => {
     try {
-      setApiError(null); // Clear any previous errors
-      console.log(step, formData);
-
-      const requestBody = {
-        step,
-        status: step === 4 ? "published" : "draft",
-        ...formData,
-      };
-
-      const response = await fetch("/api/churches", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
+      const response = await fetch(
+        `/api/churches?createdBy=${session?.user?.id}`
+      );
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error("Internal server error");
-      }
-
-      if (data.success) {
-        if (step === 4) {
-          // If final step, redirect to dashboard
+      if (data.success && data.data) {
+        // Check if church is complete and published
+        if (data.data.step > 3 && data.data.status === "published") {
           router.push("/dashboard");
-        } else {
-          // Move to next step
-          setCurrentStep(step + 1);
+          return;
+        }
+
+        // Update formData with backend data
+        setFormData({
+          ...data.data,
+          step: data.data.step + 1, // Increment step for UI
+        });
+
+        if (data.data.image) {
+          setImagePreview(data.data.image);
         }
       }
     } catch (error) {
-      setApiError("Internal server error");
+      console.error("Error loading church data:", error);
+      setApiError("Failed to load church data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Initial data load
+  useEffect(() => {
+    if (session?.user?.id) {
+      fetchChurchData();
+    }
+  }, [session, router]);
+
+  const saveStep = async () => {
+    try {
+      setApiError(null);
+      const response = await fetch("/api/churches", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(data.message || "Failed to save step data.");
+
+      if (data.success) await fetchChurchData();
+    } catch (error) {
+      console.error("Error in saveStep:", error);
+      setApiError(
+        error instanceof Error
+          ? error.message
+          : "Internal server error during save."
+      );
+      throw error;
     }
   };
 
   const nextStep = async () => {
-    if (validateStep(currentStep)) {
-      if (currentStep === 4) {
-        // For step 4, ensure we're sending the final step data
-        await saveStep(4);
-      } else {
-        await saveStep(currentStep);
+    if (validateStep(formData.step)) {
+      try {
+        await saveStep();
+      } catch (error) {
+        console.error("Error in nextStep processing:", error);
       }
     }
   };
 
   const prevStep = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
+    setFormData((prev) => ({ ...prev, step: Math.max(prev.step - 1, 1) }));
   };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev: ChurchData) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
@@ -149,21 +150,17 @@ export default function CreateChurchPage() {
     }
   };
 
-  const handleImageClick = () => {
-    fileInputRef.current?.click();
-  };
+  const handleImageClick = () => fileInputRef.current?.click();
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith("image/")) {
       setUploadError("Please upload an image file");
       return;
     }
 
-    // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
       setUploadError("Image size should be less than 5MB");
       return;
@@ -173,14 +170,10 @@ export default function CreateChurchPage() {
       setIsUploading(true);
       setUploadError(null);
 
-      // Create preview immediately
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
+      reader.onloadend = () => setImagePreview(reader.result as string);
       reader.readAsDataURL(file);
 
-      // Upload to server
       const formData = new FormData();
       formData.append("file", file);
 
@@ -190,15 +183,10 @@ export default function CreateChurchPage() {
       });
 
       const data = await response.json();
-
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error(data.error || data.message || "Failed to upload image");
-      }
 
-      setFormData((prev: ChurchData) => ({
-        ...prev,
-        image: data.data.url,
-      }));
+      setFormData((prev) => ({ ...prev, image: data.data.url }));
     } catch (error) {
       console.error("Error uploading image:", error);
       setUploadError(
@@ -211,7 +199,7 @@ export default function CreateChurchPage() {
   };
 
   const handleServiceChange = (index: number, value: string) => {
-    setFormData((prev: ChurchData) => {
+    setFormData((prev) => {
       const newServices = [...prev.services] as [string, ...string[]];
       newServices[index] = value;
       return { ...prev, services: newServices };
@@ -219,7 +207,7 @@ export default function CreateChurchPage() {
   };
 
   const addServiceField = () => {
-    setFormData((prev: ChurchData) => ({
+    setFormData((prev) => ({
       ...prev,
       services: [...prev.services, ""] as [string, ...string[]],
     }));
@@ -227,7 +215,7 @@ export default function CreateChurchPage() {
 
   const removeServiceField = (index: number) => {
     if (formData.services.length > 1) {
-      setFormData((prev: ChurchData) => ({
+      setFormData((prev) => ({
         ...prev,
         services: prev.services.filter((_, i) => i !== index) as [
           string,
@@ -239,7 +227,6 @@ export default function CreateChurchPage() {
 
   const validateStep = (step: number) => {
     let result;
-    console.log(step);
     switch (step) {
       case 1:
         result = validateBasicInfo(formData);
@@ -259,24 +246,20 @@ export default function CreateChurchPage() {
 
     if (!result.success) {
       const newErrors = result.error.issues.reduce<Record<string, string>>(
-        (acc: Record<string, string>, issue: z.ZodIssue) => {
+        (acc, issue) => {
           acc[issue.path[0]] = issue.message;
           return acc;
         },
         {}
       );
-      console.log("Validation errors:", newErrors);
       setErrors(newErrors);
       return false;
     }
-
     return true;
   };
 
   const handleGetFeatured = () => {
     setFormData((prev) => ({ ...prev, isFeatured: true }));
-    // This will be connected to payment later
-    console.log("User wants to feature their church");
   };
 
   if (isLoading) {
@@ -294,7 +277,7 @@ export default function CreateChurchPage() {
         <div className="h-2 bg-gray-100">
           <div
             className="h-full bg-[#7FC242] transition-all duration-300"
-            style={{ width: `${(currentStep / 4) * 100}%` }}
+            style={{ width: `${(formData.step / 4) * 100}%` }}
           ></div>
         </div>
 
@@ -302,12 +285,12 @@ export default function CreateChurchPage() {
         <div className="p-6 border-b border-gray-100">
           <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
             <Church className="text-[#7FC242]" />
-            {currentStep === 1 && "Basic Information"}
-            {currentStep === 2 && "Location Details"}
-            {currentStep === 3 && "Contact & Services"}
-            {currentStep === 4 && "Promotion"}
+            {formData.step === 1 && "Basic Information"}
+            {formData.step === 2 && "Location Details"}
+            {formData.step === 3 && "Contact & Services"}
+            {formData.step === 4 && "Promotion"}
           </h1>
-          <p className="text-gray-500 mt-1">Step {currentStep} of 4</p>
+          <p className="text-gray-500 mt-1">Step {formData.step} of 4</p>
         </div>
 
         {/* Error Alert */}
@@ -337,7 +320,7 @@ export default function CreateChurchPage() {
         {/* Form Content */}
         <form onSubmit={nextStep} className="p-6">
           {/* Step 1: Basic Information */}
-          {currentStep === 1 && (
+          {formData.step === 1 && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -445,7 +428,7 @@ export default function CreateChurchPage() {
           )}
 
           {/* Step 2: Location */}
-          {currentStep === 2 && (
+          {formData.step === 2 && (
             <div className="space-y-6">
               <Input
                 label="Address*"
@@ -579,7 +562,7 @@ export default function CreateChurchPage() {
           )}
 
           {/* Step 3: Contact & Services */}
-          {currentStep === 3 && (
+          {formData.step === 3 && (
             <div className="space-y-6">
               <h3 className="text-lg font-medium text-[#5A7D2C]">
                 Pastor Details
@@ -650,48 +633,62 @@ export default function CreateChurchPage() {
                 <Clock className="h-5 w-5 text-[#7FC242]" />
                 Service Times*
               </h3>
-              {formData.services.map((service, index) => (
-                <div key={index} className="flex items-center gap-3">
-                  <Input
-                    value={service}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      handleServiceChange(index, e.target.value)
-                    }
-                    placeholder={`Service ${
-                      index + 1
-                    } (e.g., Sunday Worship - 9 AM)`}
-                    rounded
-                    error={
-                      errors.services && !service.trim()
-                        ? "Required"
-                        : undefined
-                    }
-                  />
-                  {formData.services.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeServiceField(index)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
-              ))}
-              <Button
-                type="button"
-                onClick={addServiceField}
-                variant="outline"
-                className="w-full"
-                rounded
-              >
-                Add Another Service
-              </Button>
+              <div className="space-y-4">
+                {formData.services.map((service, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <Input
+                      value={service}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        handleServiceChange(index, e.target.value)
+                      }
+                      placeholder={`Service ${
+                        index + 1
+                      } (e.g., Sunday Worship - 9 AM)`}
+                      rounded
+                      error={
+                        errors.services && !service.trim()
+                          ? "Required"
+                          : undefined
+                      }
+                    />
+                    {formData.services.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeServiceField(index)}
+                        className="text-red-500 hover:text-red-700 p-2"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  onClick={addServiceField}
+                  variant="outline"
+                  className="w-full"
+                  rounded
+                >
+                  Add Another Service Time
+                </Button>
+              </div>
             </div>
           )}
 
           {/* Step 4: Promotion */}
-          {currentStep === 4 && (
+          {formData.step === 4 && (
             <div className="space-y-6">
               <div className="bg-gradient-to-br from-[#F0F7EA] to-[#E0F0FF] border border-[#7FC242] rounded-xl p-6">
                 <div className="flex items-start gap-4">
@@ -742,7 +739,7 @@ export default function CreateChurchPage() {
                   type="button"
                   onClick={async () => {
                     if (validateStep(4)) {
-                      await saveStep(4);
+                      await saveStep();
                     }
                   }}
                   variant="outline"
@@ -764,7 +761,7 @@ export default function CreateChurchPage() {
 
           {/* Navigation Buttons */}
           <div className="mt-8 flex justify-between">
-            {currentStep > 1 ? (
+            {formData.step > 1 ? (
               <Button
                 type="button"
                 onClick={prevStep}
@@ -778,7 +775,7 @@ export default function CreateChurchPage() {
               <div></div>
             )}
 
-            {currentStep < 4 ? (
+            {formData.step < 4 ? (
               <Button
                 type="button"
                 onClick={nextStep}
@@ -794,7 +791,7 @@ export default function CreateChurchPage() {
                   type="button"
                   onClick={async () => {
                     if (validateStep(4)) {
-                      await saveStep(4);
+                      await saveStep();
                     }
                   }}
                   variant="primary"

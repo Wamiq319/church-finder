@@ -127,6 +127,13 @@ const churchSchema: Schema = new Schema(
       ref: "User",
       required: true,
     },
+    events: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Event",
+        default: [],
+      },
+    ],
   },
   {
     timestamps: true,

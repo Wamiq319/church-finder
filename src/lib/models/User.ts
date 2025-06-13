@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
+import bcrypt from "bcryptjs";
 
 interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
@@ -14,30 +15,41 @@ const userSchema: Schema = new Schema(
   {
     email: {
       type: String,
-      required: true,
+      required: [true, "Please provide an email"],
       unique: true,
-      lowercase: true,
       trim: true,
-      match: [/^\S+@\S+\.\S+$/, "Please use a valid email address"],
+      lowercase: true,
+      match: [
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+        "Please provide a valid email",
+      ],
     },
     password: {
       type: String,
-      required: true,
-      minlength: 8,
+      required: [true, "Please provide a password"],
+      select: false,
     },
     role: {
       type: String,
-      enum: [, "church_admin", "user"],
-      default: "church_admin",
+      enum: ["user", "church_admin", "admin"],
+      default: "user",
     },
-
     church: {
       type: Schema.Types.ObjectId,
       ref: "Church",
+      default: null,
     },
   },
   { timestamps: true }
 );
+
+userSchema.pre<IUser>("save", async function (next) {
+  if (!this.isModified("password")) return next();
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
 
 const User: Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>("User", userSchema);

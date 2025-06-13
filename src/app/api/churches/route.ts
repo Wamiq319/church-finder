@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import Church from "@/lib/models/Church";
 import dbConnect from "@/lib/dbConnect";
-
+import User from "@/lib/models/User";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import {
@@ -25,10 +25,10 @@ export async function POST(request: Request) {
     await dbConnect();
     const body = await request.json();
     const { step, ...churchData } = body;
-    console.log(step, churchData);
+    console.log("POST /api/churches - Received data:", body);
 
     // Step-based validation
-    let validationResult;
+    let validationResult: { success: boolean; error?: { issues: any[] } };
     if (step === 1) validationResult = validateBasicInfo(churchData);
     else if (step === 2) validationResult = validateLocation(churchData);
     else if (step === 3) validationResult = validateContact(churchData);
@@ -37,84 +37,124 @@ export async function POST(request: Request) {
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { success: false, message: "Invalid data for this step." },
+        {
+          success: false,
+          message: "Invalid data for this step.",
+          errors: validationResult.error?.issues,
+        },
         { status: 400 }
       );
     }
 
-    // Find existing church for the user
     let church = await Church.findOne({ createdBy: session.user.id });
+    const isNewChurch = !church;
 
-    // Generate slug from church name
-    const generateSlug = (name: string) => {
-      return name
+    const generateSlug = (name: string) =>
+      name
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)/g, "");
-    };
 
-    // Step 1: Create new church if none exists
-    if (step === 1) {
-      if (!church) {
-        // Create new church with only step 1 data
-        church = new Church({
-          name: churchData.name,
-          denomination: churchData.denomination,
-          description: churchData.description,
-          image: churchData.image,
-          step: 1,
-          status: "draft",
-          createdBy: session.user.id,
-          slug: generateSlug(churchData.name),
-        });
-      } else {
-        // Update existing church with step 1 data
-        church.name = churchData.name;
-        church.denomination = churchData.denomination;
-        church.description = churchData.description;
-        church.image = churchData.image;
-        // Update slug if name changes
-        if (church.name !== churchData.name) {
-          church.slug = generateSlug(churchData.name);
-        }
-      }
-    } else {
-      // For steps 2-4, church must exist
-      if (!church) {
+    if (isNewChurch) {
+      if (step !== 1) {
         return NextResponse.json(
-          { success: false, message: "Please complete step 1 first." },
+          {
+            success: false,
+            message: "Please complete step 1 first to create a new church.",
+          },
           { status: 400 }
         );
       }
-
-      // Update church based on step
-      if (step === 2) {
-        church.address = churchData.address;
-        church.state = churchData.state;
-        church.city = churchData.city;
-      } else if (step === 3) {
-        church.pastorName = churchData.pastorName;
-        church.pastorEmail = churchData.pastorEmail;
-        church.pastorPhone = churchData.pastorPhone;
-        church.contactEmail = churchData.contactEmail;
-        church.contactPhone = churchData.contactPhone;
-        church.services = churchData.services;
-      } else if (step === 4) {
-        church.isFeatured = churchData.isFeatured;
-        church.status = "published";
-      }
+      church = new Church({
+        name: churchData.name,
+        denomination: churchData.denomination,
+        description: churchData.description,
+        image: churchData.image,
+        address: "",
+        state: "",
+        city: "",
+        pastorName: "",
+        pastorEmail: "",
+        pastorPhone: "",
+        contactEmail: "",
+        contactPhone: "",
+        services: [],
+        isFeatured: false,
+        step: 1,
+        status: "draft",
+        createdBy: session.user.id,
+        slug: generateSlug(churchData.name),
+        events: [],
+      });
     }
 
-    // Update step
-    church.step = step;
+    if (!church) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Internal server error: Church object is null after initialization.",
+        },
+        { status: 500 }
+      );
+    }
 
-    // Save with validation disabled for partial updates
+    // Update church fields based on the current step
+    if (step === 1) {
+      church.name = churchData.name;
+      church.denomination = churchData.denomination;
+      church.description = churchData.description;
+      church.image = churchData.image;
+      if (church.isModified("name")) {
+        church.slug = generateSlug(churchData.name);
+      }
+    } else if (step === 2) {
+      if (!church || church.step < 1) {
+        return NextResponse.json(
+          { success: false, message: "Please complete previous steps first." },
+          { status: 400 }
+        );
+      }
+      church.address = churchData.address;
+      church.state = churchData.state;
+      church.city = churchData.city;
+    } else if (step === 3) {
+      if (!church || church.step < 2) {
+        return NextResponse.json(
+          { success: false, message: "Please complete previous steps first." },
+          { status: 400 }
+        );
+      }
+      church.pastorName = churchData.pastorName;
+      church.pastorEmail = churchData.pastorEmail;
+      church.pastorPhone = churchData.pastorPhone;
+      church.contactEmail = churchData.contactEmail;
+      church.contactPhone = churchData.contactPhone;
+      church.services = churchData.services;
+    } else if (step === 4) {
+      if (!church || church.step < 3) {
+        return NextResponse.json(
+          { success: false, message: "Please complete previous steps first." },
+          { status: 400 }
+        );
+      }
+      church.isFeatured = churchData.isFeatured;
+      church.status = "published";
+    }
+
+    church.step = step;
+    church.status = step === 4 ? "published" : "draft";
+
     await church.save({ validateBeforeSave: false });
+
+    if (isNewChurch) {
+      await User.findByIdAndUpdate(session.user.id, { church: church._id });
+    }
 
     return NextResponse.json({
       success: true,
       data: {
-        id: church._id,
+        _id: church._id,
         step: church.step,
         status: church.status,
       },
@@ -128,73 +168,44 @@ export async function POST(request: Request) {
   }
 }
 
-// Get church by user ID and step
+// Get churches with advanced filtering
 export async function GET(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
     await dbConnect();
     const { searchParams } = new URL(request.url);
-    const step = searchParams.get("step");
 
-    const query: any = { createdBy: session.user.id };
-    if (step) {
-      query.step = parseInt(step);
-    }
-
-    const church = await Church.findOne(query);
-
-    if (!church) {
+    // Filter by createdBy
+    const createdBy = searchParams.get("createdBy");
+    if (createdBy) {
+      // If createdBy is present, return single church object
+      const church = await Church.findOne({ createdBy });
       return NextResponse.json({
         success: true,
-        data: null,
+        data: church || null,
       });
     }
 
-    return NextResponse.json({
-      success: true,
-      data: church,
-    });
-  } catch (error) {
-    console.error("Error fetching church:", error);
-    return NextResponse.json(
-      { success: false, message: "Error fetching church" },
-      { status: 500 }
-    );
-  }
-}
-
-// Get churches with filtering and pagination
-export async function GET_ALL(request: Request) {
-  try {
-    await dbConnect();
-    const { searchParams } = new URL(request.url);
-
-    // Filter parameters
-    const state = searchParams.get("state");
-    const city = searchParams.get("city");
-    const denomination = searchParams.get("denomination");
-    const search = searchParams.get("search");
-    const isFeatured = searchParams.get("isFeatured");
-    const userId = searchParams.get("userId");
-
-    // Pagination parameters
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
-
-    // Build query
+    // For other cases, use the existing filtering logic
     const query: any = { status: "published" };
-    if (state) query.state = state;
-    if (city) query.city = city;
-    if (denomination) query.denomination = denomination;
-    if (isFeatured) query.isFeatured = isFeatured === "true";
-    if (userId) query.createdBy = userId;
+
+    // Filter by event
+    const eventId = searchParams.get("eventId");
+    if (eventId) {
+      query.events = eventId;
+    }
+
+    // Filter by other fields
+    const filters = ["state", "city", "denomination", "isFeatured"];
+    filters.forEach((filter) => {
+      const value = searchParams.get(filter);
+      if (value) {
+        query[filter] =
+          value === "true" ? true : value === "false" ? false : value;
+      }
+    });
+
+    // Search in name and description
+    const search = searchParams.get("search");
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
@@ -202,16 +213,27 @@ export async function GET_ALL(request: Request) {
       ];
     }
 
-    // Calculate skip value for pagination
+    // Pagination
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
     const skip = (page - 1) * limit;
+
+    // Fields selection
+    const fields = searchParams.get("fields");
+    const projection = fields
+      ? fields.split(",").reduce((acc, field) => {
+          acc[field.trim()] = 1;
+          return acc;
+        }, {} as Record<string, number>)
+      : {};
 
     // Fetch churches with pagination
     const [churches, total] = await Promise.all([
       Church.find(query)
+        .select(projection)
         .sort({ isFeatured: -1, createdAt: -1 })
         .skip(skip)
-        .limit(limit)
-        .select("-__v"),
+        .limit(limit),
       Church.countDocuments(query),
     ]);
 
@@ -229,157 +251,6 @@ export async function GET_ALL(request: Request) {
     });
   } catch (error) {
     console.error("Error fetching churches:", error);
-    return NextResponse.json(
-      { success: false, message: "Internal server error" },
-      { status: 500 }
-    );
-  }
-}
-
-// Get church by ID
-export async function GET_BY_ID(request: Request) {
-  try {
-    await dbConnect();
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
-
-    if (!id) {
-      return NextResponse.json(
-        { success: false, message: "Church ID is required" },
-        { status: 400 }
-      );
-    }
-
-    const church = await Church.findById(id);
-    if (!church) {
-      return NextResponse.json(
-        { success: false, message: "Church not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: church,
-    });
-  } catch (error) {
-    console.error("Error fetching church:", error);
-    return NextResponse.json(
-      { success: false, message: "Internal server error" },
-      { status: 500 }
-    );
-  }
-}
-
-// Get church by user ID (for dashboard)
-export async function GET_BY_USER(request: Request) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    await dbConnect();
-    const church = await Church.findOne({ createdBy: session.user.id });
-
-    if (!church) {
-      return NextResponse.json(
-        { success: false, message: "Church not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: church,
-    });
-  } catch (error) {
-    console.error("Error fetching church:", error);
-    return NextResponse.json(
-      { success: false, message: "Internal server error" },
-      { status: 500 }
-    );
-  }
-}
-
-// Update church
-export async function PUT(request: Request) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    await dbConnect();
-    const body = await request.json();
-    const { id, ...updateData } = body;
-
-    const church = await Church.findOne({
-      _id: id,
-      createdBy: session.user.id,
-    });
-    if (!church) {
-      return NextResponse.json(
-        { success: false, message: "Church not found" },
-        { status: 404 }
-      );
-    }
-
-    Object.assign(church, updateData);
-    await church.save();
-
-    return NextResponse.json({
-      success: true,
-      message: "Church updated successfully",
-      data: church,
-    });
-  } catch (error) {
-    console.error("Error updating church:", error);
-    return NextResponse.json(
-      { success: false, message: "Internal server error" },
-      { status: 500 }
-    );
-  }
-}
-
-// Delete church
-export async function DELETE(request: Request) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    await dbConnect();
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
-
-    const church = await Church.findOneAndDelete({
-      _id: id,
-      createdBy: session.user.id,
-    });
-    if (!church) {
-      return NextResponse.json(
-        { success: false, message: "Church not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: "Church deleted successfully",
-    });
-  } catch (error) {
-    console.error("Error deleting church:", error);
     return NextResponse.json(
       { success: false, message: "Internal server error" },
       { status: 500 }

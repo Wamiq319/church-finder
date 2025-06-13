@@ -21,7 +21,6 @@ export default function ChurchesPage() {
   const [filteredChurches, setFilteredChurches] = useState(churchesData);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const params = useParams();
 
   // Extract unique matching locations
   const locationSuggestions = useMemo(() => {

@@ -50,6 +50,13 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Incorrect password");
           }
 
+          // Get church details if exists
+          let churchDetails = null;
+          if (user.church) {
+            const Church = (await import("@/lib/models/Church")).default;
+            churchDetails = await Church.findById(user.church);
+          }
+
           // Return user data without password
           return {
             id: user._id.toString(),
@@ -57,6 +64,8 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             role: user.role,
             church: user.church,
+            churchStatus: churchDetails?.status || null,
+            churchStep: churchDetails?.step || null,
           };
         } catch (error) {
           console.error("Authentication error:", error);
@@ -70,26 +79,20 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      // Persist user data in the token
+      // Persist only email and id in the token
       if (user) {
         token.id = user.id;
-        token._id = user._id;
-        token.role = user.role;
-        token.church = user.church;
         token.email = user.email;
       }
       return token;
     },
     async session({ session, token }) {
-      // Add user data to the session
+      // Add only email and id to the session
       if (token) {
         session.user = {
           ...session.user,
           id: token.id as string,
-          _id: token._id as string,
           email: token.email as string,
-
-          church: token.church as string,
         };
       }
       return session;

@@ -10,9 +10,11 @@ export interface ChurchData {
   pastorPhone: string;
   contactEmail: string;
   contactPhone: string;
-  services: [string, ...string[]];  
+  services: [string, ...string[]];
   image?: string;
   latitude?: number;
   longitude?: number;
   isFeatured?: boolean;
+  step: number;
+  status: string;
 }

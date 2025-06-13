@@ -100,16 +100,21 @@ export default function Dashboard() {
     const fetchChurchData = async () => {
       if (status === "authenticated") {
         try {
+          // If user has a church but it's not published or step < 4, show creation CTA
+          if (
+            session?.user?.church &&
+            (session?.user?.churchStatus !== "published" ||
+              (session?.user?.churchStep && session.user.churchStep < 4))
+          ) {
+            setLoading(false);
+            return;
+          }
+
           const response = await fetch("/api/churches");
           const data = await response.json();
 
           if (data.success) {
             if (data.data) {
-              // If church exists but step < 4, redirect to create page
-              if (data.data.step < 4) {
-                router.push(`/churches/create?step=${data.data.step}`);
-                return;
-              }
               setChurch(data.data);
             }
           } else {
@@ -142,6 +147,38 @@ export default function Dashboard() {
     return null;
   }
 
+  // Show get started view if:
+  // 1. No church exists
+  // 2. Church exists but not published
+  // 3. Church exists but step < 4
+  if (
+    !session?.user?.church ||
+    session?.user?.churchStatus !== "published" ||
+    (session?.user?.churchStep && session.user.churchStep < 4)
+  ) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-800">
+            Welcome back,{" "}
+            <span className="text-[#7FC242]">
+              {session.user.name || "Pastor"}
+            </span>
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Signed in as{" "}
+            <span className="font-medium">{session.user.email}</span>
+          </p>
+        </div>
+        <div className="space-y-8">
+          <ChurchCreationCTA />
+          <PricingSection />
+        </div>
+      </div>
+    );
+  }
+
+  // Only show church details if church exists, is published, and step is 4
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Welcome Header */}
