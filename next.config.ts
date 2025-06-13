@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    domains: ["source.unsplash.com"], // 👈 Add this line
+    domains: ["res.cloudinary.com"],
   },
 };
 

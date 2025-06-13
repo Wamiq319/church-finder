@@ -37,8 +37,8 @@ export default function Navbar() {
     !isLoading &&
     !session?.user;
 
-  const showDashboardButton =
-    !pathname.includes("dashboard") && !isLoading && session?.user;
+  // Modified to show dashboard button on all pages when user is logged in
+  const showDashboardButton = !isLoading && session?.user;
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/" });

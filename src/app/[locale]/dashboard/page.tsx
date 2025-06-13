@@ -100,13 +100,18 @@ export default function Dashboard() {
     const fetchChurchData = async () => {
       if (status === "authenticated") {
         try {
-          const response = await fetch(
-            "/api/churches?userId=" + session.user.id
-          );
+          const response = await fetch("/api/churches");
           const data = await response.json();
 
           if (data.success) {
-            setChurch(data.data.churches[0]); // Get the first church from the array
+            if (data.data) {
+              // If church exists but step < 4, redirect to create page
+              if (data.data.step < 4) {
+                router.push(`/churches/create?step=${data.data.step}`);
+                return;
+              }
+              setChurch(data.data);
+            }
           } else {
             setError(data.message);
           }
@@ -122,7 +127,7 @@ export default function Dashboard() {
     };
 
     fetchChurchData();
-  }, [status, session]);
+  }, [status, session, router]);
 
   if (status === "loading" || loading) {
     return (

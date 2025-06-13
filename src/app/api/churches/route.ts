@@ -1,11 +1,17 @@
 import { NextResponse } from "next/server";
 import Church from "@/lib/models/Church";
 import dbConnect from "@/lib/dbConnect";
-import { ChurchData } from "@/types/church.type";
+
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import {
+  validateBasicInfo,
+  validateLocation,
+  validateContact,
+  validatePromotion,
+} from "@/lib/validations/church";
 
-// Create a new church
+// Create or update church based on step
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -18,52 +24,154 @@ export async function POST(request: Request) {
 
     await dbConnect();
     const body = await request.json();
-    const churchData: ChurchData = body;
+    const { step, ...churchData } = body;
+    console.log(step, churchData);
 
-    // Check if user already has a church
-    const existingChurch = await Church.findOne({ createdBy: session.user.id });
-    if (existingChurch) {
+    // Step-based validation
+    let validationResult;
+    if (step === 1) validationResult = validateBasicInfo(churchData);
+    else if (step === 2) validationResult = validateLocation(churchData);
+    else if (step === 3) validationResult = validateContact(churchData);
+    else if (step === 4) validationResult = validatePromotion(churchData);
+    else validationResult = { success: true };
+
+    if (!validationResult.success) {
       return NextResponse.json(
-        { success: false, message: "You have already created a church" },
+        { success: false, message: "Invalid data for this step." },
         { status: 400 }
       );
     }
 
-    const church = new Church({
-      ...churchData,
-      status: "published",
-      createdBy: session.user.id,
+    // Find existing church for the user
+    let church = await Church.findOne({ createdBy: session.user.id });
+
+    // Generate slug from church name
+    const generateSlug = (name: string) => {
+      return name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+    };
+
+    // Step 1: Create new church if none exists
+    if (step === 1) {
+      if (!church) {
+        // Create new church with only step 1 data
+        church = new Church({
+          name: churchData.name,
+          denomination: churchData.denomination,
+          description: churchData.description,
+          image: churchData.image,
+          step: 1,
+          status: "draft",
+          createdBy: session.user.id,
+          slug: generateSlug(churchData.name),
+        });
+      } else {
+        // Update existing church with step 1 data
+        church.name = churchData.name;
+        church.denomination = churchData.denomination;
+        church.description = churchData.description;
+        church.image = churchData.image;
+        // Update slug if name changes
+        if (church.name !== churchData.name) {
+          church.slug = generateSlug(churchData.name);
+        }
+      }
+    } else {
+      // For steps 2-4, church must exist
+      if (!church) {
+        return NextResponse.json(
+          { success: false, message: "Please complete step 1 first." },
+          { status: 400 }
+        );
+      }
+
+      // Update church based on step
+      if (step === 2) {
+        church.address = churchData.address;
+        church.state = churchData.state;
+        church.city = churchData.city;
+      } else if (step === 3) {
+        church.pastorName = churchData.pastorName;
+        church.pastorEmail = churchData.pastorEmail;
+        church.pastorPhone = churchData.pastorPhone;
+        church.contactEmail = churchData.contactEmail;
+        church.contactPhone = churchData.contactPhone;
+        church.services = churchData.services;
+      } else if (step === 4) {
+        church.isFeatured = churchData.isFeatured;
+        church.status = "published";
+      }
+    }
+
+    // Update step
+    church.step = step;
+
+    // Save with validation disabled for partial updates
+    await church.save({ validateBeforeSave: false });
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        id: church._id,
+        step: church.step,
+        status: church.status,
+      },
     });
-
-    await church.save();
-
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Church created successfully",
-        data: {
-          id: church._id,
-          name: church.name,
-          slug: church.slug,
-        },
-      },
-      { status: 201 }
-    );
   } catch (error) {
-    console.error("Error creating church:", error);
+    console.error("Error saving church:", error);
     return NextResponse.json(
-      {
-        success: false,
-        message:
-          error instanceof Error ? error.message : "Internal server error",
-      },
-      { status: error instanceof Error ? 400 : 500 }
+      { success: false, message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+// Get church by user ID and step
+export async function GET(request: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    await dbConnect();
+    const { searchParams } = new URL(request.url);
+    const step = searchParams.get("step");
+
+    const query: any = { createdBy: session.user.id };
+    if (step) {
+      query.step = parseInt(step);
+    }
+
+    const church = await Church.findOne(query);
+
+    if (!church) {
+      return NextResponse.json({
+        success: true,
+        data: null,
+      });
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: church,
+    });
+  } catch (error) {
+    console.error("Error fetching church:", error);
+    return NextResponse.json(
+      { success: false, message: "Error fetching church" },
+      { status: 500 }
     );
   }
 }
 
 // Get churches with filtering and pagination
-export async function GET(request: Request) {
+export async function GET_ALL(request: Request) {
   try {
     await dbConnect();
     const { searchParams } = new URL(request.url);

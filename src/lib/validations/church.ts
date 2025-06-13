@@ -13,9 +13,12 @@ const emailSchema = z.string().email("Invalid email address");
 const imageSchema = z
   .string()
   .url("Invalid image URL")
-  .refine((url) => url.startsWith("data:image/"), {
-    message: "Only image data URLs are allowed",
-  })
+  .refine(
+    (url) => url.startsWith("data:image/") || url.startsWith("https://"),
+    {
+      message: "Image must be a valid URL or data URL",
+    }
+  )
   .optional();
 
 // Step 1: Basic Information

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import {
@@ -24,9 +24,13 @@ import {
 } from "@/lib/validations/church";
 import { ChurchData } from "@/types/church.type";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function CreateChurchPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialStep = parseInt(searchParams.get("step") || "1");
+
   const [formData, setFormData] = useState<ChurchData>({
     name: "",
     denomination: "",
@@ -43,12 +47,93 @@ export default function CreateChurchPage() {
     isFeatured: false,
   });
 
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(initialStep);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isFeatured, setIsFeatured] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  console.log(currentStep);
+  // Load existing church data if available
+  useEffect(() => {
+    const loadChurchData = async () => {
+      try {
+        const response = await fetch("/api/churches");
+        const data = await response.json();
 
-  const router = useRouter();
+        if (data.success && data.data) {
+          setFormData(data.data);
+          if (data.data.image) {
+            setImagePreview(data.data.image);
+          }
+          setCurrentStep(data.data.step);
+        }
+      } catch (error) {
+        console.error("Error loading church data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadChurchData();
+  }, []);
+
+  const saveStep = async (step: number) => {
+    try {
+      setApiError(null); // Clear any previous errors
+      console.log(step, formData);
+
+      const requestBody = {
+        step,
+        status: step === 4 ? "published" : "draft",
+        ...formData,
+      };
+
+      const response = await fetch("/api/churches", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error("Internal server error");
+      }
+
+      if (data.success) {
+        if (step === 4) {
+          // If final step, redirect to dashboard
+          router.push("/dashboard");
+        } else {
+          // Move to next step
+          setCurrentStep(step + 1);
+        }
+      }
+    } catch (error) {
+      setApiError("Internal server error");
+    }
+  };
+
+  const nextStep = async () => {
+    if (validateStep(currentStep)) {
+      if (currentStep === 4) {
+        // For step 4, ensure we're sending the final step data
+        await saveStep(4);
+      } else {
+        await saveStep(currentStep);
+      }
+    }
+  };
+
+  const prevStep = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -64,16 +149,64 @@ export default function CreateChurchPage() {
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      setUploadError("Please upload an image file");
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError("Image size should be less than 5MB");
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      setUploadError(null);
+
+      // Create preview immediately
       const reader = new FileReader();
       reader.onloadend = () => {
-        const imageData = reader.result as string;
-        setImagePreview(imageData);
-        setFormData((prev: ChurchData) => ({ ...prev, image: imageData }));
+        setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+
+      // Upload to server
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || data.message || "Failed to upload image");
+      }
+
+      setFormData((prev: ChurchData) => ({
+        ...prev,
+        image: data.data.url,
+      }));
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      setUploadError(
+        error instanceof Error ? error.message : "Failed to upload image"
+      );
+      setImagePreview(null);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -106,7 +239,7 @@ export default function CreateChurchPage() {
 
   const validateStep = (step: number) => {
     let result;
-
+    console.log(step);
     switch (step) {
       case 1:
         result = validateBasicInfo(formData);
@@ -116,7 +249,6 @@ export default function CreateChurchPage() {
         break;
       case 3:
         result = validateContact(formData);
-        console.log("Step 3 validation result:", result);
         break;
       case 4:
         result = validatePromotion(formData);
@@ -141,56 +273,19 @@ export default function CreateChurchPage() {
     return true;
   };
 
-  const nextStep = () => {
-    if (validateStep(currentStep)) {
-      setCurrentStep((prev) => Math.min(prev + 1, 4));
-    }
-  };
-
-  const prevStep = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validateStep(4)) {
-      try {
-        const slug = formData.name
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/(^-|-$)/g, "");
-
-        const response = await fetch("/api/churches", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...formData,
-            slug,
-          }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || "Failed to create church");
-        }
-
-        // Redirect to dashboard after successful creation
-        router.push("/dashboard");
-      } catch (error) {
-        console.error("Error creating church:", error);
-        // Handle error - show error message to user
-      }
-    }
-  };
-
   const handleGetFeatured = () => {
     setFormData((prev) => ({ ...prev, isFeatured: true }));
     // This will be connected to payment later
     console.log("User wants to feature their church");
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7FC242]"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8">
@@ -215,8 +310,32 @@ export default function CreateChurchPage() {
           <p className="text-gray-500 mt-1">Step {currentStep} of 4</p>
         </div>
 
+        {/* Error Alert */}
+        {apiError && (
+          <div className="p-4 bg-red-50 border-l-4 border-red-500">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg
+                  className="h-5 w-5 text-red-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-700">{apiError}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Form Content */}
-        <form onSubmit={handleSubmit} className="p-6">
+        <form onSubmit={nextStep} className="p-6">
           {/* Step 1: Basic Information */}
           {currentStep === 1 && (
             <div className="space-y-6">
@@ -250,7 +369,10 @@ export default function CreateChurchPage() {
                   Church Image
                 </label>
                 <div className="flex flex-col sm:flex-row gap-4 items-start">
-                  <div className="relative w-full sm:w-32 h-32 rounded-lg overflow-hidden border-2 border-[#E0E0E0] hover:border-[#7FC242] transition-colors duration-200">
+                  <div
+                    onClick={handleImageClick}
+                    className="relative w-full sm:w-32 h-32 rounded-lg overflow-hidden border-2 border-[#E0E0E0] hover:border-[#7FC242] transition-colors duration-200 cursor-pointer"
+                  >
                     {imagePreview ? (
                       <Image
                         src={imagePreview}
@@ -263,30 +385,45 @@ export default function CreateChurchPage() {
                       <div className="w-full h-full bg-gray-50 flex flex-col items-center justify-center text-gray-400">
                         <ImagePlus className="h-8 w-8 mb-2" />
                         <span className="text-xs text-center px-2">
-                          No image selected
+                          Click to upload image
                         </span>
+                      </div>
+                    )}
+                    {isUploading && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
                       </div>
                     )}
                   </div>
 
                   <div className="flex-1 w-full space-y-2">
                     <input
+                      ref={fileInputRef}
                       type="file"
-                      id="church-image"
                       accept="image/*"
                       onChange={handleImageChange}
                       className="hidden"
+                      disabled={isUploading}
                     />
-                    <label htmlFor="church-image" className="block w-full">
-                      <Button
-                        variant="outline"
-                        className="w-full cursor-pointer"
-                        rounded
-                      >
-                        <ImagePlus className="mr-2 h-4 w-4" />
-                        {imagePreview ? "Change Image" : "Select Image"}
-                      </Button>
-                    </label>
+                    <Button
+                      type="button"
+                      onClick={handleImageClick}
+                      variant="outline"
+                      className="w-full cursor-pointer"
+                      rounded
+                      disabled={isUploading}
+                    >
+                      <ImagePlus className="mr-2 h-4 w-4" />
+                      {isUploading
+                        ? "Uploading..."
+                        : imagePreview
+                        ? "Change Image"
+                        : "Select Image"}
+                    </Button>
+
+                    {uploadError && (
+                      <p className="text-sm text-red-500">{uploadError}</p>
+                    )}
 
                     <div className="text-xs text-gray-500">
                       <p>Recommended: Square image, 800×800px or larger</p>
@@ -602,7 +739,12 @@ export default function CreateChurchPage() {
                 </Button>
 
                 <Button
-                  type="submit"
+                  type="button"
+                  onClick={async () => {
+                    if (validateStep(4)) {
+                      await saveStep(4);
+                    }
+                  }}
                   variant="outline"
                   className="w-full"
                   rounded
@@ -648,7 +790,16 @@ export default function CreateChurchPage() {
               </Button>
             ) : (
               !formData.isFeatured && (
-                <Button type="submit" variant="primary" rounded>
+                <Button
+                  type="button"
+                  onClick={async () => {
+                    if (validateStep(4)) {
+                      await saveStep(4);
+                    }
+                  }}
+                  variant="primary"
+                  rounded
+                >
                   Create Church
                 </Button>
               )

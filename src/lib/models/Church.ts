@@ -5,6 +5,7 @@ import { ChurchData } from "@/types/church.type";
 interface IChurch extends ChurchData, Document {
   slug: string;
   status: "published" | "draft" | "archived";
+  step: number; // Track current step (1-4)
   createdBy: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -15,132 +16,162 @@ interface IChurch extends ChurchData, Document {
 
 const churchSchema: Schema = new Schema(
   {
-    name: { 
-      type: String, 
+    name: {
+      type: String,
       required: true,
-      trim: true 
+      trim: true,
+      default: "",
     },
-    slug: { 
-      type: String, 
-      required: true, 
+    slug: {
+      type: String,
+      required: true,
       unique: true,
-      trim: true 
-    },
-    denomination: { 
-      type: String, 
-      required: true,
-      trim: true 
-    },
-    description: { 
-      type: String,
-      trim: true 
-    },
-    address: { 
-      type: String, 
-      required: true,
-      trim: true 
-    },
-    state: { 
-      type: String, 
-      required: true,
-      trim: true 
-    },
-    city: { 
-      type: String, 
-      required: true,
-      trim: true 
-    },
-    pastorName: { 
-      type: String, 
-      required: true,
-      trim: true 
-    },
-    pastorEmail: { 
-      type: String,
       trim: true,
-      lowercase: true 
+      default: "",
     },
-    pastorPhone: { 
+    denomination: {
       type: String,
-      trim: true 
-    },
-    contactEmail: { 
-      type: String, 
       required: true,
       trim: true,
-      lowercase: true 
+      default: "",
     },
-    contactPhone: { 
-      type: String, 
+    description: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    address: {
+      type: String,
       required: true,
-      trim: true 
+      trim: true,
+      default: "",
     },
-    services: [{ 
-      type: String, 
+    state: {
+      type: String,
       required: true,
-      trim: true 
-    }],
-    image: { 
-      type: String 
+      trim: true,
+      default: "",
     },
-    latitude: { 
-      type: Number 
+    city: {
+      type: String,
+      required: true,
+      trim: true,
+      default: "",
     },
-    longitude: { 
-      type: Number 
+    pastorName: {
+      type: String,
+      required: true,
+      trim: true,
+      default: "",
     },
-    isFeatured: { 
-      type: Boolean, 
-      default: false 
+    pastorEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      default: "",
+    },
+    pastorPhone: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    contactEmail: {
+      type: String,
+      required: true,
+      trim: true,
+      lowercase: true,
+      default: "",
+    },
+    contactPhone: {
+      type: String,
+      required: true,
+      trim: true,
+      default: "",
+    },
+    services: [
+      {
+        type: String,
+        required: true,
+        trim: true,
+      },
+    ],
+    image: {
+      type: String,
+      default: "",
+    },
+    latitude: {
+      type: Number,
+      default: null,
+    },
+    longitude: {
+      type: Number,
+      default: null,
+    },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
+    step: {
+      type: Number,
+      default: 1,
+      min: 1,
+      max: 4,
     },
     status: {
       type: String,
       enum: ["published", "draft", "archived"],
-      default: "published"
+      default: "draft",
     },
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: true
-    }
+      required: true,
+    },
   },
-  { 
+  {
     timestamps: true,
     toJSON: { virtuals: true },
-    toObject: { virtuals: true }
+    toObject: { virtuals: true },
   }
 );
 
 // Create indexes for better query performance
-churchSchema.index({ name: 'text', denomination: 'text', description: 'text' });
+churchSchema.index({ name: "text", denomination: "text", description: "text" });
 churchSchema.index({ state: 1, city: 1 });
 churchSchema.index({ isFeatured: 1 });
 churchSchema.index({ status: 1 });
 
+// Add virtual field for location
+churchSchema.virtual("location").get(function (this: IChurch) {
+  return `${this.city}, ${this.state}`;
+});
+
 // Add a pre-save middleware to generate slug
-churchSchema.pre<IChurch>('save', function(next) {
-  if (!this.isModified('name')) return next();
-  
+churchSchema.pre<IChurch>("save", function (next) {
+  if (!this.isModified("name")) return next();
+
   this.slug = this.name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
-    
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
   next();
 });
 
 // Add a method to check if church is featured
-churchSchema.methods.isCurrentlyFeatured = function(this: IChurch): boolean {
+churchSchema.methods.isCurrentlyFeatured = function (this: IChurch): boolean {
   return this.isFeatured === true;
 };
 
 // Add a method to get full address
-churchSchema.methods.getFullAddress = function(this: IChurch): string {
+churchSchema.methods.getFullAddress = function (this: IChurch): string {
   return `${this.address}, ${this.city}, ${this.state}`;
 };
 
 // Add a method to get coordinates
-churchSchema.methods.getCoordinates = function(this: IChurch): [number, number] | null {
+churchSchema.methods.getCoordinates = function (
+  this: IChurch
+): [number, number] | null {
   if (this.latitude && this.longitude) {
     return [this.latitude, this.longitude];
   }
@@ -148,7 +179,8 @@ churchSchema.methods.getCoordinates = function(this: IChurch): [number, number] 
 };
 
 // Create and export the model
-const Church = (mongoose.models.Church as Model<IChurch>) || 
+const Church =
+  (mongoose.models.Church as Model<IChurch>) ||
   mongoose.model<IChurch>("Church", churchSchema);
 
 export default Church;
