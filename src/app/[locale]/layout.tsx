@@ -5,6 +5,7 @@ import { routing } from "@/i18n/routing";
 import Navbar from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import "../globals.css";
+import AuthProvider from "@/components/AuthProvider";
 
 export default async function LocaleLayout({
   children,
@@ -33,11 +34,13 @@ export default async function LocaleLayout({
       </head>
       <body className={direction}>
         {/* This is the main content of the page */}
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <Navbar />
-          <main className={direction}>{children}</main>
-          <Footer />
-        </NextIntlClientProvider>
+        <AuthProvider>
+          <NextIntlClientProvider locale={locale} messages={messages}>
+            <Navbar />
+            <main className={direction}>{children}</main>
+            <Footer />
+          </NextIntlClientProvider>
+        </AuthProvider>
       </body>
     </html>
   );

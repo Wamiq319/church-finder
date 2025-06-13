@@ -1,0 +1,69 @@
+{
+  "user": {
+    "email": "user@example.com",
+    "role": "church_admin"
+  },
+  "church": {
+    "id": "1",
+    "name": "St. Andrew's Church",
+    "address": "12 Church St, Lagos Island",
+    "city": "Lagos",
+    "state": "Nigeria",
+    "image": "/assets/images/churches/st-andrews.jpg",
+    "slug": "st-andrews-anglican-church",
+    "description": "A historic Anglican church known for community outreach and spiritual growth.",
+    "services": [
+      {
+        "day": "Sunday",
+        "time": "9:00 AM"
+      },
+      {
+        "day": "Wednesday",
+        "time": "6:00 PM",
+        "description": "Bible Study"
+      }
+    ],
+    "pastor": {
+      "name": "Rev. John Doe",
+      "email": "john.doe@standrewslagos.org",
+      "phone": "+234 801 234 5678"
+    }
+  },
+  "events": [
+    {
+      "id": "1",
+      "title": "Youth Revival Conference",
+      "date": "June 15, 2025 • 10:00 AM",
+      "time": "10:00 AM - 4:00 PM",
+      "location": "Main Sanctuary",
+      "image": "/assets/images/churches/youth-revival.jpg",
+      "slug": "youth-revival-abuja",
+      "organizer": "St. Andrew's Church"
+    },
+    {
+      "id": "2",
+      "title": "Sunday Worship Service",
+      "date": "June 16, 2025 • 9:00 AM",
+      "time": "9:00 AM - 11:00 AM",
+      "location": "Main Sanctuary",
+      "image": "/assets/images/churches/youth-revival.jpg",
+      "slug": "sunday-worship-service",
+      "organizer": "St. Andrew's Church"
+    },
+    {
+      "id": "3",
+      "title": "Community Outreach",
+      "date": "June 20, 2025 • 8:00 AM",
+      "time": "8:00 AM - 2:00 PM",
+      "location": "Church Grounds",
+      "image": "/assets/images/churches/youth-revival.jpg",
+      "slug": "community-outreach-day",
+      "organizer": "St. Andrew's Church"
+    }
+  ],
+  "stats": {
+    "totalEvents": 3,
+    "upcomingServices": 2,
+    "totalMembers": 125
+  }
+}

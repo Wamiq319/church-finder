@@ -12,7 +12,8 @@ import { PromotionCard } from "@/components/ui/PromotionCard";
 import { UpcomingEventsSidebar } from "@/components/ui/UpcomingEventsSidebar";
 import { Search } from "lucide-react";
 import { Loader } from "@/components/ui/Loader";
-import { useParams } from 'next/navigation';
+import { useParams } from "next/navigation";
+import { Button } from "@/components/ui/Button";
 
 export default function ChurchesPage() {
   const t = useTranslations("ChurchesPage");
@@ -90,9 +91,11 @@ export default function ChurchesPage() {
                 className="flex-grow px-5 py-3 rounded-full border border-[#7FC242] focus:outline-none focus:ring-2 focus:ring-[#7FC242]/60 text-base text-gray-800"
                 autoComplete="off"
               />
-              <button
+              <Button
                 onClick={handleSearch}
-                className="rounded-full bg-[#7FC242] hover:bg-[#5A7D2C] text-white px-6 py-3 transition text-sm font-medium flex items-center gap-2"
+                variant="primary"
+                className="px-6 py-3 transition text-sm font-medium flex items-center gap-2"
+                rounded={true}
               >
                 {isLoading ? (
                   <Loader text="Searching..." />
@@ -102,7 +105,7 @@ export default function ChurchesPage() {
                     Search
                   </>
                 )}
-              </button>
+              </Button>
             </div>
 
             {/* Suggestions dropdown */}

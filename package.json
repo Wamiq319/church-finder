@@ -10,14 +10,17 @@
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.7",
-    "@types/nodemailer": "^6.4.17",
+    "bcryptjs": "^3.0.2",
     "lucide-react": "^0.511.0",
+    "mongoose": "^8.15.1",
     "next": "15.3.2",
+    "next-auth": "^4.24.11",
     "next-intl": "^4.1.0",
     "postcss": "^8.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwindcss": "^4.1.7"
+    "tailwindcss": "^4.1.7",
+    "zod": "^3.25.51"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

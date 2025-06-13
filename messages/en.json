@@ -5,7 +5,8 @@
     "services": "Services",
     "contact": "Contact",
     "events": "Events",
-    "churches": "Churches"
+    "churches": "Churches",
+    "auth": "Sign_up"
   },
   "HomePage": {
     "hero": {

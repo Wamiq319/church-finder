@@ -16,14 +16,14 @@ export const Button = ({
   children,
   variant = "primary",
   className = "",
-  onClick = () => alert(`Button clicked: ${children?.toString()}`),
+  onClick = () => {},
   type = "button",
   disabled = false,
   rounded = false,
   ...props
 }: ButtonProps) => {
   const baseClasses =
-    "inline-flex items-center justify-center px-6 font-medium transition-all duration-200 whitespace-nowrap shadow-sm";
+    "inline-flex items-center justify-center px-6 font-medium transition-all duration-200 whitespace-nowrap shadow-sm cursor-pointer";
 
   const variants = {
     primary: "bg-[#7FC242] hover:bg-[#5A7D2C] text-white",
@@ -34,7 +34,6 @@ export const Button = ({
 
   const shape = rounded ? "rounded-full px-4 py-2" : "rounded-md";
 
-  // Add pointer cursor only if NOT disabled
   const cursorClass = disabled ? "cursor-not-allowed" : "cursor-pointer";
 
   const classes =
