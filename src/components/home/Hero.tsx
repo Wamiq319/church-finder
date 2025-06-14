@@ -36,20 +36,20 @@ export const HeroSection = () => {
         <div className="mb-8 flex flex-col items-center">
           <Image
             src="/assets/images/logo.png"
-            alt="TEIC Global Logo"
+            alt="ChurchFinder.ng Logo"
             width={80}
             height={80}
-            className="w-20 h-20"
+            className="w-32 h-32"
             priority
           />
-          <div className="flex items-baseline mt-2">
-            <span className="text-3xl md:text-4xl font-bold text-[#249178]">
+          <div className="flex items-baseline mt-2 opacity-70">
+            <span className="text-1xl md:text-2xl font-bold text-[#249178] ">
               Church
             </span>
-            <span className="text-3xl md:text-4xl font-bold text-[#ea9838] ml-1">
+            <span className="text-1xl md:text-2xl font-bold text-[#ea9838] ml-1">
               Finder
             </span>
-            <span className="text-2xl md:text-3xl font-medium text-[#249178] ml-0.5">
+            <span className="text-1xl md:text-2xl font-medium text-[#249178] ml-0.5">
               .ng
             </span>
           </div>

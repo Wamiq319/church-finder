@@ -3,7 +3,8 @@ import Church from "@/lib/models/Church";
 import dbConnect from "@/lib/dbConnect";
 import User from "@/lib/models/User";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/app/api/auth/auth.config";
+
 import {
   validateBasicInfo,
   validateLocation,
