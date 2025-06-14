@@ -14,33 +14,18 @@ import {
   Linkedin,
   Globe,
 } from "lucide-react";
+import { HeroSection } from "@/components/ui/HeroSection";
 
 export default function AboutUsPage() {
   const t = useTranslations("AboutUsPage");
 
   return (
     <div className="bg-white">
-      {/* Hero Section */}
-      <section className="relative h-[60vh] min-h-[400px] w-full bg-[#F0FAF5]">
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          <Image
-            src="/assets/images/nigeria-map-bg.jpeg"
-            alt="Nigeria map background"
-            fill
-            className="object-cover opacity-10"
-            priority
-          />
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center">
-          <h1 className="text-3xl md:text-5xl font-bold text-[#1A365D] leading-tight">
-            {t("heroTitle")}
-          </h1>
-          <p className="text-lg md:text-xl text-[#444] max-w-2xl mx-auto mt-6">
-            {t("heroSubtitle")}
-          </p>
-        </div>
-      </section>
+      <HeroSection
+        title={t("heroTitle")}
+        subtitle={t("heroSubtitle")}
+        height="md"
+      />
 
       {/* Our Mission Section */}
       <section className="py-16 md:py-24 bg-white">
@@ -86,7 +71,7 @@ export default function AboutUsPage() {
           <div className="flex flex-col items-center">
             <div className="relative w-48 h-48 md:w-64 md:h-64 mb-8 rounded-full overflow-hidden border-4 border-[#7FC242]">
               <Image
-                src="/assets/images/sam-proclim.png"
+                src="/assets/images/founder.jpg"
                 alt="Sam Proclim - Founder"
                 fill
                 className="object-cover"
@@ -95,7 +80,7 @@ export default function AboutUsPage() {
 
             <div className="text-center max-w-2xl">
               <h3 className="text-2xl md:text-3xl font-bold text-[#1A365D] mb-2">
-                Sam Proclim
+                Evg. Sam Sonibare
               </h3>
               <p className="text-[#7FC242] text-lg md:text-xl mb-6">
                 {t("founderRole")}

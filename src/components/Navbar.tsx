@@ -51,19 +51,34 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full bg-white shadow-sm border-b border-[#E5E7EB] py-2">
+      <header className="sticky top-0 z-50 w-full bg-white shadow-sm border-b border-[#E5E7EB] py-3">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            {/* Logo - Always visible */}
-            <Link href="/" aria-label="Naija Churches Home">
+            {/* Logo with Text */}
+            <Link
+              href="/"
+              className="flex items-center gap-2"
+              aria-label="Naija Churches Home"
+            >
               <Image
                 src="/assets/images/logo.png"
                 alt="Logo"
-                className="w-10 sm:w-12"
-                width={48}
-                height={48}
+                className="w-7 sm:w-9"
+                width={38}
+                height={38}
                 loading="eager"
               />
+              <div className="flex items-baseline">
+                <span className="text-xl sm:text-2xl font-bold text-[#249178]">
+                  Church
+                </span>
+                <span className="text-xl sm:text-2xl font-bold text-[#ea9838] ml-1">
+                  Finder
+                </span>
+                <span className="text-lg sm:text-xl font-medium text-[#249178] ml-0.5">
+                  .ng
+                </span>
+              </div>
             </Link>
 
             {/* Desktop Nav Links - Centered */}

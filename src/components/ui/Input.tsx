@@ -8,11 +8,13 @@ interface BaseProps {
 }
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement>, BaseProps {
-  type?: 'text' | 'email' | 'tel' | 'password' | 'number';
+  type?: "text" | "email" | "tel" | "password" | "number" | "date" | "time";
   rows?: never;
 }
 
-interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement>, BaseProps {
+interface TextareaProps
+  extends TextareaHTMLAttributes<HTMLTextAreaElement>,
+    BaseProps {
   type?: never;
   rows?: number;
 }
@@ -26,9 +28,26 @@ export const Input = ({
   rounded = false,
   className = "",
   rows,
+  type = "text",
   ...props
 }: InputComponentProps) => {
   const isTextarea = rows !== undefined;
+
+  // Custom styles for date and time inputs
+  const getInputStyles = () => {
+    const baseStyles = `w-full px-4 py-3 border-2 ${
+      error ? "border-red-500" : "border-[#E0E0E0]"
+    } focus:border-[#7FC242] focus:ring-0 focus:outline-none focus:border-2 transition-all duration-200 ${
+      rounded ? "rounded-full" : "rounded-lg"
+    } ${icon ? "pl-10" : ""}`;
+
+    // Special styles for date and time inputs
+    if (type === "date" || type === "time") {
+      return `${baseStyles} [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:hover:opacity-80 [&::-webkit-calendar-picker-indicator]:transition-opacity`;
+    }
+
+    return baseStyles;
+  };
 
   return (
     <div className="w-full">
@@ -45,19 +64,16 @@ export const Input = ({
         )}
         {isTextarea ? (
           <textarea
-            className={`w-full px-4 py-3 border ${
+            className={`w-full px-4 py-3 border-2 ${
               error ? "border-red-500" : "border-[#E0E0E0]"
-            } focus:border-[#7FC242] focus:ring-2 focus:ring-[#7FC242]/50 rounded-lg transition-all duration-200 ${className}`}
+            } focus:border-[#7FC242] focus:ring-0 focus:outline-none focus:border-2 rounded-lg transition-all duration-200 ${className}`}
             rows={rows || 10}
             {...(props as TextareaHTMLAttributes<HTMLTextAreaElement>)}
           />
         ) : (
           <input
-            className={`w-full px-4 py-3 border ${
-              error ? "border-red-500" : "border-[#E0E0E0]"
-            } focus:border-[#7FC242] focus:ring-2 focus:ring-[#7FC242]/50 transition-all duration-200 ${
-              rounded ? "rounded-full" : "rounded-lg"
-            } ${icon ? "pl-10" : ""} ${className}`}
+            type={type}
+            className={`${getInputStyles()} ${className}`}
             {...(props as InputHTMLAttributes<HTMLInputElement>)}
           />
         )}

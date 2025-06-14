@@ -323,7 +323,18 @@ export default function Dashboard() {
               <h3 className="text-lg font-semibold text-gray-800 mb-4">
                 Quick Actions
               </h3>
+
               <div className="space-y-3">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start py-3"
+                  onClick={() =>
+                    router.push(`/events/create?churchId=${church._id}`)
+                  }
+                >
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Create Event
+                </Button>
                 <Button
                   variant="outline"
                   className="w-full justify-start py-3"
@@ -332,8 +343,9 @@ export default function Dashboard() {
                   }
                 >
                   <TrendingUp className="mr-2 h-4 w-4" />
-                  Promote Church
+                  Feature Church
                 </Button>
+
                 <Button
                   variant="outline"
                   className="w-full justify-start py-3"
@@ -341,14 +353,6 @@ export default function Dashboard() {
                 >
                   <Star className="mr-2 h-4 w-4" />
                   Promote Event
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start py-3"
-                  onClick={() => router.push("/dashboard/pricing")}
-                >
-                  <BadgeDollarSign className="mr-2 h-4 w-4" />
-                  View Pricing Plans
                 </Button>
               </div>
             </div>

@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
+import { HeroSection } from "@/components/ui/HeroSection";
+
 export default function ContactPage() {
   const t = useTranslations("ContactPage");
   const [formData, setFormData] = useState({
@@ -36,27 +38,11 @@ export default function ContactPage() {
 
   return (
     <div className="bg-white">
-      {/* Hero Section */}
-      <section className="relative h-[50vh] min-h-[400px] w-full bg-[#F0FAF5]">
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          <Image
-            src="/assets/images/nigeria-map-bg.jpeg"
-            alt="Nigeria map background"
-            fill
-            className="object-cover opacity-10"
-            priority
-          />
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center">
-          <h1 className="text-3xl md:text-5xl font-bold text-[#1A365D] leading-tight">
-            {t("heroTitle")}
-          </h1>
-          <p className="text-lg md:text-xl text-[#444] max-w-2xl mx-auto mt-6">
-            {t("heroSubtitle")}
-          </p>
-        </div>
-      </section>
+      <HeroSection
+        title={t("heroTitle")}
+        subtitle={t("heroSubtitle")}
+        height="md"
+      />
 
       {/* Contact Form Section */}
       <section className="py-16 md:py-24 bg-white">

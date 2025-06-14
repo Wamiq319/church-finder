@@ -31,21 +31,32 @@ export const HeroSection = () => {
         />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center ">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-center text-center">
         {/* Logo */}
-        <div className="mb-0 w-32 md:w-44">
+        <div className="mb-8 flex flex-col items-center">
           <Image
             src="/assets/images/logo.png"
             alt="TEIC Global Logo"
-            width={180}
-            height={32}
-            className="w-full h-auto"
+            width={80}
+            height={80}
+            className="w-20 h-20"
             priority
           />
+          <div className="flex items-baseline mt-2">
+            <span className="text-3xl md:text-4xl font-bold text-[#249178]">
+              Church
+            </span>
+            <span className="text-3xl md:text-4xl font-bold text-[#ea9838] ml-1">
+              Finder
+            </span>
+            <span className="text-2xl md:text-3xl font-medium text-[#249178] ml-0.5">
+              .ng
+            </span>
+          </div>
         </div>
 
         {/* Headline */}
-        <h1 className="text-2xl md:text-4xl lg:text-4xl font-bold text-[#1A365D]  leading-snug max-w-4xl">
+        <h1 className="text-2xl md:text-4xl lg:text-4xl font-bold text-[#1A365D] leading-snug max-w-4xl">
           {t("headline1")} <br className="hidden md:block" />
           {t("headline2")}
           <span className="inline-block w-2" />
