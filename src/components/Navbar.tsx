@@ -24,10 +24,15 @@ export default function Navbar() {
   const isLoading = status === "loading";
 
   const isActive = (path: string) => {
-    const basePath = `/${path === "home" ? "" : path}`;
-    return pathname === basePath
-      ? "text-[#2D9C6F] font-semibold"
-      : "text-[#1A365D]";
+    if (path === "home") {
+      return pathname === "/" || pathname === "/en" || pathname === "/en/"
+        ? "text-[#7FC242] font-semibold"
+        : "text-[#1A365D] hover:text-[#7FC242]";
+    }
+    const basePath = `/${path}`;
+    return pathname.includes(basePath)
+      ? "text-[#7FC242] font-semibold"
+      : "text-[#1A365D] hover:text-[#7FC242]";
   };
 
   // Don't show auth button on auth pages

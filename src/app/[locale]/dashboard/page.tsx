@@ -17,10 +17,15 @@ import {
   Eye,
   BadgeDollarSign,
   Clock,
+  BookOpen,
+  Mail,
+  Phone,
+  User,
 } from "lucide-react";
 import { Loader } from "@/components/ui/Loader";
 import { PricingSection } from "@/components/ui/PricingSection";
 import { ChurchData } from "@/types/church.type";
+import Image from "next/image";
 
 // Extend ChurchData with MongoDB fields
 interface ChurchWithMongoFields extends ChurchData {
@@ -93,48 +98,42 @@ export default function Dashboard() {
   const { data: session, status } = useSession();
   const [church, setChurch] = useState<ChurchWithMongoFields | null>(null);
   const [events, setEvents] = useState<EventData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchChurchData = async () => {
-      if (status === "authenticated") {
-        try {
-          // If user has a church but it's not published or step < 4, show creation CTA
-          if (
-            session?.user?.church &&
-            (session?.user?.churchStatus !== "published" ||
-              (session?.user?.churchStep && session.user.churchStep < 4))
-          ) {
-            setLoading(false);
-            return;
-          }
-
-          const response = await fetch("/api/churches");
-          const data = await response.json();
-
-          if (data.success) {
-            if (data.data) {
-              setChurch(data.data);
-            }
-          } else {
-            setError(data.message);
-          }
-        } catch (error) {
-          console.error("Error fetching church data:", error);
-          setError("Failed to fetch church data");
-        } finally {
-          setLoading(false);
+  // Function to fetch church data
+  const fetchChurchData = async () => {
+    try {
+      const response = await fetch(
+        `/api/churches?createdBy=${session?.user?.id}`
+      );
+      const data = await response.json();
+      console.log(data);
+      if (data.success) {
+        if (data.data) {
+          setChurch(data.data);
         }
       } else {
-        setLoading(false);
+        setError(data.message);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching church data:", error);
+      setError("Failed to fetch church data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    fetchChurchData();
-  }, [status, session, router]);
+  // Initial data load
+  useEffect(() => {
+    if (session?.user?.id) {
+      fetchChurchData();
+    } else {
+      setIsLoading(false);
+    }
+  }, [session]);
 
-  if (status === "loading" || loading) {
+  if (status === "loading" || isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader text="Loading your dashboard..." />
@@ -147,38 +146,10 @@ export default function Dashboard() {
     return null;
   }
 
-  // Show get started view if:
-  // 1. No church exists
-  // 2. Church exists but not published
-  // 3. Church exists but step < 4
-  if (
-    !session?.user?.church ||
-    session?.user?.churchStatus !== "published" ||
-    (session?.user?.churchStep && session.user.churchStep < 4)
-  ) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">
-            Welcome back,{" "}
-            <span className="text-[#7FC242]">
-              {session.user.name || "Pastor"}
-            </span>
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Signed in as{" "}
-            <span className="font-medium">{session.user.email}</span>
-          </p>
-        </div>
-        <div className="space-y-8">
-          <ChurchCreationCTA />
-          <PricingSection />
-        </div>
-      </div>
-    );
-  }
+  // Show church details if church exists, is published, and step > 3
+  const showChurchDetails =
+    church && church.status === "published" && church.step > 3;
 
-  // Only show church details if church exists, is published, and step is 4
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Welcome Header */}
@@ -200,20 +171,28 @@ export default function Dashboard() {
         </div>
       )}
 
-      {!church ? (
-        <div className="space-y-8">
-          <ChurchCreationCTA />
-          <PricingSection />
-        </div>
-      ) : (
+      {showChurchDetails ? (
+        // Church Details View
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content Column */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Church Status Card */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex justify-between items-start">
+            {/* Church Status Card with Large Image */}
+            <div className="relative h-64 md:h-80 w-full rounded-xl overflow-hidden shadow-lg">
+              {church.image ? (
+                <Image
+                  src={church.image}
+                  alt={church.name}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                  <Church className="h-16 w-16 text-gray-400" />
+                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                  <h2 className="text-3xl md:text-4xl font-bold text-white flex items-center gap-2">
                     {church.name}
                     {church.isFeatured && (
                       <span className="bg-[#FFD700] text-[#1A365D] text-xs font-bold px-2 py-1 rounded-full flex items-center">
@@ -221,68 +200,116 @@ export default function Dashboard() {
                       </span>
                     )}
                   </h2>
-                  <p className="text-gray-600 mt-1">
+                  <p className="text-white mt-1">
                     {church.address}, {church.city}, {church.state}
                   </p>
                 </div>
-                <Button
-                  variant="outline"
-                  className="py-3"
-                  onClick={() =>
-                    router.push(`/dashboard/church/${church._id}/promote`)
-                  }
-                >
-                  <TrendingUp className="mr-2 h-4 w-4" />
-                  {church.isFeatured ? "Manage Promotion" : "Get Featured"}
-                </Button>
               </div>
-
-              {church.isFeatured && church.featuredExpiry && (
-                <div className="mt-4 bg-[#F0F7EA] p-3 rounded-lg">
-                  <p className="text-sm text-gray-700">
-                    <Star className="h-4 w-4 inline mr-1 text-[#7FC242]" />
-                    Your church is featured until{" "}
-                    {new Date(church.featuredExpiry).toLocaleDateString()}
-                  </p>
-                </div>
-              )}
             </div>
 
-            {/* Church Details */}
+            {/* Featured Status Info */}
+            {church.isFeatured && church.featuredExpiry && (
+              <div className="bg-[#F0F7EA] p-3 rounded-lg">
+                <p className="text-sm text-gray-700">
+                  <Star className="h-4 w-4 inline mr-1 text-[#7FC242]" />
+                  Your church is featured until{" "}
+                  {new Date(church.featuredExpiry).toLocaleDateString()}
+                </p>
+              </div>
+            )}
+
+            {/* Church Description */}
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">
-                Church Details
+              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <BookOpen className="h-5 w-5 text-[#7FC242]" />
+                About Church
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-500">Denomination</p>
-                  <p className="font-medium">{church.denomination}</p>
+              <p className="text-gray-600 whitespace-pre-wrap break-words">
+                {church.description}
+              </p>
+            </div>
+
+            {/* Church & Pastor Details */}
+            <div className="bg-white rounded-lg shadow p-6">
+              {/* Church Details Section */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                  <Church className="h-4 w-4 text-[#7FC242]" />
+                  Church Details
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-sm text-gray-500 flex items-center gap-2">
+                      <Church className="h-4 w-4 text-[#7FC242]" />
+                      Denomination
+                    </p>
+                    <p className="font-medium mt-1">{church.denomination}</p>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-sm text-gray-500 flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-[#7FC242]" />
+                      Email
+                    </p>
+                    <p className="font-medium mt-1">{church.contactEmail}</p>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-sm text-gray-500 flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-[#7FC242]" />
+                      Phone
+                    </p>
+                    <p className="font-medium mt-1">{church.contactPhone}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500">Pastor</p>
-                  <p className="font-medium">{church.pastorName}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Contact Email</p>
-                  <p className="font-medium">{church.contactEmail}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Contact Phone</p>
-                  <p className="font-medium">{church.contactPhone}</p>
+              </div>
+
+              {/* Pastor Details Section */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                  <User className="h-4 w-4 text-[#7FC242]" />
+                  Pastor Details
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-sm text-gray-500 flex items-center gap-2">
+                      <User className="h-4 w-4 text-[#7FC242]" />
+                      Name
+                    </p>
+                    <p className="font-medium mt-1">{church.pastorName}</p>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-sm text-gray-500 flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-[#7FC242]" />
+                      Email
+                    </p>
+                    <p className="font-medium mt-1">{church.pastorEmail}</p>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-sm text-gray-500 flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-[#7FC242]" />
+                      Phone
+                    </p>
+                    <p className="font-medium mt-1">{church.pastorPhone}</p>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Services */}
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">
+              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <Clock className="h-5 w-5 text-[#7FC242]" />
                 Service Times
               </h2>
-              <div className="space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {church.services.map((service, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-[#7FC242]" />
-                    <span>{service}</span>
+                  <div
+                    key={index}
+                    className="bg-white border border-gray-100 rounded-xl p-4 flex items-center gap-3 shadow-sm hover:shadow-md transition-all duration-200"
+                  >
+                    <Clock className="h-5 w-5 text-[#7FC242]" />
+                    <span className="text-[#7FC242] font-medium">
+                      {service}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -291,6 +318,7 @@ export default function Dashboard() {
 
           {/* Quick Actions Column */}
           <div className="space-y-6">
+            {/* Quick Actions */}
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">
                 Quick Actions
@@ -300,83 +328,32 @@ export default function Dashboard() {
                   variant="outline"
                   className="w-full justify-start py-3"
                   onClick={() =>
-                    router.push(`/dashboard/church/${church._id}/edit`)
+                    router.push(`/dashboard/church/${church._id}/promote`)
                   }
                 >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Church Profile
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start py-3"
-                  onClick={() => router.push("/dashboard/events")}
-                >
-                  <CalendarDays className="mr-2 h-4 w-4" />
-                  Manage Events
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start py-3"
-                  onClick={() => router.push("/dashboard/promote")}
-                >
                   <TrendingUp className="mr-2 h-4 w-4" />
-                  Promotion Center
+                  Promote Church
                 </Button>
-              </div>
-            </div>
-
-            {/* Add new Event Creation Card */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                Create New Event
-              </h3>
-              <p className="text-gray-600 text-sm mb-4">
-                Add a new event to your church calendar. Events can be promoted
-                to reach more people.
-              </p>
-              <Button
-                variant="primary"
-                className="w-full py-3"
-                onClick={() => router.push("/dashboard/events/create")}
-              >
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Create New Event
-              </Button>
-            </div>
-
-            {/* Promotion Status */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                Promotion Status
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-500">Church Visibility</p>
-                  <p className="font-medium">
-                    {church.isFeatured ? (
-                      <span className="text-[#7FC242]">Featured ✨</span>
-                    ) : (
-                      <span className="text-gray-600">Standard Listing</span>
-                    )}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Featured Events</p>
-                  <p className="font-medium">
-                    {events.filter((e) => e.isFeatured).length} Active
-                  </p>
-                </div>
                 <Button
-                  variant="primary"
-                  className="w-full"
-                  onClick={() => router.push("/dashboard/promote")}
+                  variant="outline"
+                  className="w-full justify-start py-3"
+                  onClick={() => router.push("/dashboard/events/promote")}
                 >
-                  Upgrade Visibility
+                  <Star className="mr-2 h-4 w-4" />
+                  Promote Event
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start py-3"
+                  onClick={() => router.push("/dashboard/pricing")}
+                >
+                  <BadgeDollarSign className="mr-2 h-4 w-4" />
+                  View Pricing Plans
                 </Button>
               </div>
             </div>
 
-            {/* Pricing Card */}
+            {/* Pricing Plans */}
             <div className="bg-[#F0F7EA] border border-[#7FC242] rounded-lg p-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-3">
                 Pricing Plans
@@ -404,6 +381,12 @@ export default function Dashboard() {
               </Button>
             </div>
           </div>
+        </div>
+      ) : (
+        // Church Creation CTA and Pricing Section
+        <div className="space-y-8">
+          <ChurchCreationCTA />
+          <PricingSection />
         </div>
       )}
     </div>

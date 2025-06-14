@@ -43,7 +43,7 @@ export default function CreateChurchPage() {
     pastorPhone: "",
     contactEmail: "",
     contactPhone: "",
-    services: ["Sunday Service - 9:00 AM"] as [string, ...string[]],
+    services: [""],
     isFeatured: false,
     step: 1,
     status: "draft",
@@ -209,7 +209,7 @@ export default function CreateChurchPage() {
   const addServiceField = () => {
     setFormData((prev) => ({
       ...prev,
-      services: [...prev.services, ""] as [string, ...string[]],
+      services: [...prev.services, ""],
     }));
   };
 
@@ -354,7 +354,7 @@ export default function CreateChurchPage() {
                 <div className="flex flex-col sm:flex-row gap-4 items-start">
                   <div
                     onClick={handleImageClick}
-                    className="relative w-full sm:w-32 h-32 rounded-lg overflow-hidden border-2 border-[#E0E0E0] hover:border-[#7FC242] transition-colors duration-200 cursor-pointer"
+                    className="relative w-full sm:w-48 h-36 rounded-lg overflow-hidden border-2 border-[#E0E0E0] hover:border-[#7FC242] transition-colors duration-200 cursor-pointer"
                   >
                     {imagePreview ? (
                       <Image
@@ -362,7 +362,7 @@ export default function CreateChurchPage() {
                         alt="Church preview"
                         fill
                         className="object-cover"
-                        sizes="(max-width: 768px) 100vw, 128px"
+                        sizes="(max-width: 768px) 100vw, 192px"
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-50 flex flex-col items-center justify-center text-gray-400">
@@ -409,7 +409,7 @@ export default function CreateChurchPage() {
                     )}
 
                     <div className="text-xs text-gray-500">
-                      <p>Recommended: Square image, 800×800px or larger</p>
+                      <p>Recommended: 1200×900px or larger</p>
                       <p>Formats: JPG, PNG (max 5MB)</p>
                     </div>
                   </div>
@@ -634,15 +634,31 @@ export default function CreateChurchPage() {
                 Service Times*
               </h3>
               <div className="space-y-4">
-                {formData.services.map((service, index) => (
-                  <div key={index} className="flex items-center gap-3">
+                <div className="flex items-center gap-3">
+                  <Input
+                    value={formData.services[0] || ""}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      handleServiceChange(0, e.target.value)
+                    }
+                    placeholder="Service 1 (e.g., Sunday Worship - 9 AM)"
+                    rounded
+                    error={
+                      errors.services && !formData.services[0]?.trim()
+                        ? "Required"
+                        : undefined
+                    }
+                  />
+                </div>
+
+                {formData.services.slice(1).map((service, index) => (
+                  <div key={index + 1} className="flex items-center gap-3">
                     <Input
                       value={service}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        handleServiceChange(index, e.target.value)
+                        handleServiceChange(index + 1, e.target.value)
                       }
                       placeholder={`Service ${
-                        index + 1
+                        index + 2
                       } (e.g., Sunday Worship - 9 AM)`}
                       rounded
                       error={
@@ -651,29 +667,28 @@ export default function CreateChurchPage() {
                           : undefined
                       }
                     />
-                    {formData.services.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeServiceField(index)}
-                        className="text-red-500 hover:text-red-700 p-2"
+                    <button
+                      type="button"
+                      onClick={() => removeServiceField(index + 1)}
+                      className="text-red-500 hover:text-red-700 p-2"
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                       >
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                      </button>
-                    )}
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
                   </div>
                 ))}
+
                 <Button
                   type="button"
                   onClick={addServiceField}
@@ -734,20 +749,6 @@ export default function CreateChurchPage() {
                 >
                   Get Featured for $5/week
                 </Button>
-
-                <Button
-                  type="button"
-                  onClick={async () => {
-                    if (validateStep(4)) {
-                      await saveStep();
-                    }
-                  }}
-                  variant="outline"
-                  className="w-full"
-                  rounded
-                >
-                  Skip Promotion for Now
-                </Button>
               </div>
 
               <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
@@ -797,7 +798,7 @@ export default function CreateChurchPage() {
                   variant="primary"
                   rounded
                 >
-                  Create Church
+                  Create & publish Church
                 </Button>
               )
             )}
