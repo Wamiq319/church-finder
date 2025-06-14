@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
-import bcrypt from "bcryptjs";
+// import bcrypt from "bcryptjs"; // Commented out temporarily
 
 interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
@@ -27,7 +27,7 @@ const userSchema: Schema = new Schema(
     password: {
       type: String,
       required: [true, "Please provide a password"],
-      select: false,
+      // select: false, // Commented out temporarily to allow password retrieval
     },
     role: {
       type: String,
@@ -43,13 +43,12 @@ const userSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-userSchema.pre<IUser>("save", async function (next) {
-  if (!this.isModified("password")) return next();
-
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
-});
+// Commented out password hashing middleware temporarily
+// userSchema.pre("save", async function (next) {
+//   if (!this.isModified("password")) return next();
+//   this.password = await bcrypt.hash(this.password, 10);
+//   next();
+// });
 
 const User: Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>("User", userSchema);

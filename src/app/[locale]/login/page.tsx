@@ -84,7 +84,12 @@ export default function LoginPage() {
         setErrors({
           email: "",
           password: "",
-          general: "Invalid email or password", // Generic message for security
+          general:
+            result.error === "Email not registered"
+              ? "Email not registered"
+              : result.error === "Incorrect password"
+              ? "Incorrect password"
+              : "Invalid email or password",
         });
       } else if (!result?.error) {
         // Successful login
@@ -133,7 +138,7 @@ export default function LoginPage() {
             <Input
               label="Password"
               name="password"
-              type="password"
+              type="text"
               value={formData.password}
               onChange={handleChange}
               error={errors.password}

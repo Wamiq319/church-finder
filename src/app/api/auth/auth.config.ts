@@ -26,15 +26,30 @@ export const authOptions: NextAuthOptions = {
 
           const { email, password } = result.data;
 
+          console.log("=== Login Debug Info ===");
+          console.log("Email:", email);
+          console.log("Incoming password:", password);
+
           const user = await User.findOne({ email }).select("+password");
 
           if (!user) {
+            console.log("User not found for email:", email);
             throw new Error("Email not registered");
           }
 
-          const isPasswordValid = await bcrypt.compare(password, user.password);
+          console.log("Stored hashed password:", user.password);
+          console.log("Password length:", password.length);
+          console.log("Stored hash length:", user.password.length);
+          console.log("User found, comparing passwords");
+
+          // const isPasswordValid = await bcrypt.compare(password, user.password);
+          // console.log("Password comparison result:", isPasswordValid);
+          const isPasswordValid = password === user.password; // Direct comparison temporarily
+          console.log("Password comparison result:", isPasswordValid);
+          console.log("=== End Debug Info ===");
 
           if (!isPasswordValid) {
+            console.log("Password validation failed");
             throw new Error("Incorrect password");
           }
 
