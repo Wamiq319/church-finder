@@ -26,6 +26,7 @@ import { ChurchData } from "@/types/church.type";
 import { z } from "zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { ComingSoonPopup } from "@/components/ui/ComingSoon";
 
 export default function CreateChurchPage() {
   const router = useRouter();
@@ -56,6 +57,7 @@ export default function CreateChurchPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showComingSoon, setShowComingSoon] = useState(false);
 
   // Function to fetch and update church data
   const fetchChurchData = async () => {
@@ -259,7 +261,7 @@ export default function CreateChurchPage() {
   };
 
   const handleGetFeatured = () => {
-    setFormData((prev) => ({ ...prev, isFeatured: true }));
+    setShowComingSoon(true);
   };
 
   if (isLoading) {
@@ -751,12 +753,10 @@ export default function CreateChurchPage() {
                 </Button>
               </div>
 
-              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
-                <h3 className="font-medium text-yellow-800">Note</h3>
-                <p className="text-sm text-yellow-700 mt-1">
-                  You can always feature your church later from your dashboard.
-                </p>
-              </div>
+              <ComingSoonPopup
+                show={showComingSoon}
+                onClose={() => setShowComingSoon(false)}
+              />
             </div>
           )}
 

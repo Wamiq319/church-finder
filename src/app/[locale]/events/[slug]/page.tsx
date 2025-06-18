@@ -10,7 +10,7 @@ import {
   ArrowRight,
   PlusCircle,
   BookOpen,
-  Clock3, 
+  Clock3,
   Church,
 } from "lucide-react";
 import eventsData from "@/data/events.json";
@@ -18,10 +18,14 @@ import churchesData from "@/data/churches.json";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
+import { ComingSoonPopup } from "@/components/ui/ComingSoon";
 
 export default function EventDetailPage() {
   const params = useParams();
+  const router = useRouter();
+  const [showPopup, setShowPopup] = useState(false);
   const event = eventsData.find((e) => e.slug === params.slug);
   const t = useTranslations("eventDetailPage");
 
@@ -169,10 +173,7 @@ export default function EventDetailPage() {
                   </div>
                 )}
                 <Link href={`/churches/${church.slug}`}>
-                  <Button
-                    variant="outline"
-                    className="w-full mt-2"
-                  >
+                  <Button variant="outline" className="w-full mt-2">
                     <Church className="h-4 w-4 mr-2" />
                     View Church Details
                   </Button>
@@ -228,26 +229,24 @@ export default function EventDetailPage() {
             </ul>
 
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
-              <Link href="/events/create">
-                <Button
-                  variant="secondary"
-                  rounded
-                  className=""
-                >
-                  List Your Event
-                  <ArrowRight className="ml-2" />
-                </Button>
-              </Link>
+              <Button
+                variant="secondary"
+                rounded
+                className=""
+                onClick={() => router.push("/events/create")}
+              >
+                List Your Event
+                <ArrowRight className="ml-2" />
+              </Button>
 
-              <Link href={`/register-event/${event.slug}`}>
-                <Button
-                  variant="outline"
-                  rounded
-                  className=" text-white hover:text-[#1A365D] border-white hover:bg-white/90"
-                >
-                  Attend This Event
-                </Button>
-              </Link>
+              <Button
+                variant="outline"
+                rounded
+                className=" text-white hover:text-[#1A365D] border-white hover:bg-white/90"
+                onClick={() => setShowPopup(true)}
+              >
+                Attend This Event
+              </Button>
             </div>
 
             <div className="mt-4 flex items-center justify-center gap-2">
@@ -262,6 +261,8 @@ export default function EventDetailPage() {
           </div>
         </div>
       </div>
+
+      <ComingSoonPopup show={showPopup} onClose={() => setShowPopup(false)} />
     </div>
   );
 }

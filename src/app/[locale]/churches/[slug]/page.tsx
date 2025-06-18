@@ -5,7 +5,7 @@ import Image from "next/image";
 import {
   MapPin,
   Mail,
-  Clock, 
+  Clock,
   Phone,
   Calendar,
   User,
@@ -19,10 +19,11 @@ import churches from "@/data/churches.json";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from "next/navigation";
 
 export default function ChurchDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const church = churches.find((c) => c.slug === params.slug);
   const t = useTranslations("churchDetailPage");
 
@@ -210,16 +211,15 @@ export default function ChurchDetailPage() {
                 <span>{t("registerBenefit3")}</span>
               </li>
             </ul>
-            <Link href="/register-church">
-              <Button
-                variant="secondary"
-                rounded
-                className="w-full"
-              >
-                {t("registerButton")}
-                <ArrowRight className="ml-2" />
-              </Button>
-            </Link>
+            <Button
+              variant="secondary"
+              rounded
+              className="w-full"
+              onClick={() => router.push("/dashboard")}
+            >
+              {t("registerButton")}
+              <ArrowRight className="ml-2" />
+            </Button>
             <p className="text-xs mt-2 text-center text-blue-100">
               {t("registerFree")}
             </p>

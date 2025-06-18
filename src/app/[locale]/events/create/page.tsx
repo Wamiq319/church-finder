@@ -15,6 +15,7 @@ import {
 import { Loader } from "@/components/ui/Loader";
 import Image from "next/image";
 import { Input } from "@/components/ui/Input";
+import { ComingSoonPopup } from "@/components/ui/ComingSoon";
 
 interface EventFormData {
   title: string;
@@ -36,6 +37,7 @@ export default function CreateEvent() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showComingSoon, setShowComingSoon] = useState(false);
 
   const [formData, setFormData] = useState<EventFormData>({
     title: "",
@@ -342,7 +344,7 @@ export default function CreateEvent() {
                 </ul>
                 <Button
                   type="button"
-                  onClick={() => setFormData({ ...formData, featured: true })}
+                  onClick={() => setShowComingSoon(true)}
                   variant="primary"
                   className="mt-4 w-full sm:w-auto"
                   rounded
@@ -376,6 +378,10 @@ export default function CreateEvent() {
           </div>
         </form>
       </div>
+      <ComingSoonPopup
+        show={showComingSoon}
+        onClose={() => setShowComingSoon(false)}
+      />
     </div>
   );
 }

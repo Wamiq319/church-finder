@@ -68,13 +68,64 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f0f7ea] to-white flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="bg-[#7FC242] p-6 text-center">
-          <h1 className="text-2xl font-bold text-white">Join ChurchFinder</h1>
-          <p className="text-white/90 mt-1">Create your church profile today</p>
+      <div className="w-full max-w-4xl flex flex-col md:flex-row gap-0 md:gap-0 items-stretch justify-center shadow-2xl rounded-xl overflow-hidden">
+        {/* CTA Card on the left */}
+        <div className="flex flex-col justify-center items-center bg-white w-full md:w-1/2 p-8 text-center rounded-none md:rounded-l-xl shadow-md">
+          <h2 className="text-2xl font-extrabold mb-6 text-[#1A365D]">
+            Why Join ChurchFinder?
+          </h2>
+          <ul className="space-y-6 w-full max-w-xs mx-auto">
+            <li className="flex items-center gap-3 justify-center">
+              <span className="text-[#7FC242] text-2xl">✓</span>
+              <span className="text-lg text-[#1A365D]">
+                Register your church profile
+              </span>
+            </li>
+            <li className="flex items-center gap-3 justify-center">
+              <span className="text-[#7FC242] text-2xl">✓</span>
+              <span className="text-lg text-[#1A365D]">
+                List and promote unlimited events
+              </span>
+            </li>
+            <li className="flex items-center gap-3 justify-center">
+              <span className="text-[#7FC242] text-2xl">✓</span>
+              <span className="text-lg text-[#1A365D]">
+                Get discovered by more people
+              </span>
+            </li>
+            <li className="flex items-center gap-3 justify-center">
+              <span className="text-[#7FC242] text-2xl">✓</span>
+              <span className="text-lg text-[#1A365D]">
+                Free forever for churches
+              </span>
+            </li>
+          </ul>
+          <div className="mt-10">
+            <p className="text-gray-600 text-sm mb-3">
+              Already have an account?
+            </p>
+            <Button
+              variant="outline"
+              rounded
+              onClick={() => router.push(`/${locale}/login`)}
+              className="px-6 py-3 font-bold text-base border-[#7FC242] text-[#7FC242] hover:bg-[#F0F7EA]"
+            >
+              Sign In
+            </Button>
+          </div>
         </div>
+        {/* Registration Form Box on the right */}
+        <div className="w-full md:w-1/2 bg-white flex flex-col justify-center p-8">
+          <div className="text-center mb-6">
+            <h1 className="text-2xl font-bold text-[#249178]">
+              Create Your Free Account
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Sign up to register your church, list events, and reach more
+              people!
+            </p>
+          </div>
 
-        <div className="p-6">
           {errors.general && (
             <div className="mb-4 bg-red-50 border-l-4 border-red-500 p-3 rounded">
               <p className="text-red-700 text-sm">{errors.general}</p>
@@ -116,7 +167,7 @@ export default function RegisterPage() {
               type="submit"
               variant="primary"
               disabled={isLoading}
-              className="w-full py-3"
+              className="w-full py-3 text-lg font-bold"
             >
               {isLoading ? (
                 <Loader text="Creating account..." className="text-current" />
@@ -125,19 +176,6 @@ export default function RegisterPage() {
               )}
             </Button>
           </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-gray-600 text-sm">
-              Already have an account?{" "}
-              <Button
-                variant="outline"
-                onClick={() => router.push(`/${locale}/login`)}
-                className="!p-0 !bg-transparent !border-none !text-[#7FC242] hover:!underline"
-              >
-                Sign_In
-              </Button>
-            </p>
-          </div>
         </div>
       </div>
     </div>

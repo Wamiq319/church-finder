@@ -26,6 +26,7 @@ import { Loader } from "@/components/ui/Loader";
 import { PricingSection } from "@/components/ui/PricingSection";
 import { ChurchData } from "@/types/church.type";
 import Image from "next/image";
+import { ComingSoonPopup } from "@/components/ui/ComingSoon";
 
 // Extend ChurchData with MongoDB fields
 interface ChurchWithMongoFields extends ChurchData {
@@ -100,6 +101,7 @@ export default function Dashboard() {
   const [events, setEvents] = useState<EventData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showComingSoon, setShowComingSoon] = useState(false);
 
   // Function to fetch church data
   const fetchChurchData = async () => {
@@ -142,7 +144,7 @@ export default function Dashboard() {
   }
 
   if (!session) {
-    router.push("/login");
+    router.push("/register");
     return null;
   }
 
@@ -338,9 +340,7 @@ export default function Dashboard() {
                 <Button
                   variant="outline"
                   className="w-full justify-start py-3"
-                  onClick={() =>
-                    router.push(`/dashboard/church/${church._id}/promote`)
-                  }
+                  onClick={() => setShowComingSoon(true)}
                 >
                   <TrendingUp className="mr-2 h-4 w-4" />
                   Feature Church
@@ -349,7 +349,7 @@ export default function Dashboard() {
                 <Button
                   variant="outline"
                   className="w-full justify-start py-3"
-                  onClick={() => router.push("/dashboard/events/promote")}
+                  onClick={() => setShowComingSoon(true)}
                 >
                   <Star className="mr-2 h-4 w-4" />
                   Promote Event
@@ -378,8 +378,8 @@ export default function Dashboard() {
               </ul>
               <Button
                 variant="outline"
-                className="w-full border-[#7FC242] text-[#7FC242] hover:bg-[#E0F0FF]"
-                onClick={() => router.push("/dashboard/pricing")}
+                className="w-full border-[#7FC242] text-[#7FC242] hover:bg-[#E0F0FF] px-8 py-4 font-bold text-base rounded-lg"
+                onClick={() => setShowComingSoon(true)}
               >
                 View All Plans
               </Button>
@@ -393,6 +393,10 @@ export default function Dashboard() {
           <PricingSection />
         </div>
       )}
+      <ComingSoonPopup
+        show={showComingSoon}
+        onClose={() => setShowComingSoon(false)}
+      />
     </div>
   );
 }
