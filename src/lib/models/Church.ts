@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 import { ChurchData } from "@/types/church.type";
+import { slugify } from "@/utils/slugify";
 
 // Extend ChurchData with MongoDB Document properties
 interface IChurch extends ChurchData, Document {
@@ -157,10 +158,7 @@ churchSchema.virtual("location").get(function (this: IChurch) {
 churchSchema.pre<IChurch>("save", function (next) {
   if (!this.isModified("name")) return next();
 
-  this.slug = this.name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+  this.slug = slugify(this.name);
 
   next();
 });

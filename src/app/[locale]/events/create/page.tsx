@@ -16,12 +16,14 @@ import { Loader } from "@/components/ui/Loader";
 import Image from "next/image";
 import { Input } from "@/components/ui/Input";
 import { ComingSoonPopup } from "@/components/ui/ComingSoon";
+import { eventSchema } from "@/lib/validations/event";
+import { z } from "zod";
 
 interface EventFormData {
   title: string;
+  address?: string;
   date: string;
   time: string;
-  location: string;
   description: string;
   image: string;
   featured: boolean;
@@ -38,12 +40,15 @@ export default function CreateEvent() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showComingSoon, setShowComingSoon] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
 
   const [formData, setFormData] = useState<EventFormData>({
     title: "",
+    address: "",
     date: "",
     time: "",
-    location: "",
     description: "",
     image: "",
     featured: false,
@@ -110,16 +115,28 @@ export default function CreateEvent() {
     setIsLoading(true);
     setError(null);
 
+    // Validate with Zod
+    const result = eventSchema.safeParse(formData);
+    if (!result.success) {
+      // Map Zod errors to a field: message object
+      const errors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) errors[err.path[0] as string] = err.message;
+      });
+      setValidationErrors(errors);
+      setIsLoading(false);
+      return;
+    } else {
+      setValidationErrors({});
+    }
+
     try {
       const response = await fetch("/api/events", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...formData,
-          churchId,
-        }),
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
@@ -192,18 +209,18 @@ export default function CreateEvent() {
                 setFormData({ ...formData, title: e.target.value })
               }
               placeholder="Enter event title"
+              error={validationErrors.title}
             />
 
             <Input
-              label="Location*"
+              label="Event Address"
               type="text"
-              required
-              value={formData.location}
+              value={formData.address}
               onChange={(e) =>
-                setFormData({ ...formData, location: e.target.value })
+                setFormData({ ...formData, address: e.target.value })
               }
-              placeholder="Enter event location"
-              icon={<MapPin className="h-5 w-5 text-[#7FC242]" />}
+              placeholder="Enter event address (optional)"
+              error={validationErrors.address}
             />
           </div>
 
@@ -217,6 +234,7 @@ export default function CreateEvent() {
                 setFormData({ ...formData, date: e.target.value })
               }
               icon={<CalendarDays className="h-5 w-5 text-[#7FC242]" />}
+              error={validationErrors.date}
             />
 
             <Input
@@ -228,6 +246,7 @@ export default function CreateEvent() {
                 setFormData({ ...formData, time: e.target.value })
               }
               icon={<Clock className="h-5 w-5 text-[#7FC242]" />}
+              error={validationErrors.time}
             />
           </div>
 
@@ -240,6 +259,7 @@ export default function CreateEvent() {
               setFormData({ ...formData, description: e.target.value })
             }
             placeholder="Describe your event..."
+            error={validationErrors.description}
           />
 
           <div>
