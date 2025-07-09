@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { signIn } from "next-auth/react";
@@ -19,8 +19,6 @@ export default function LoginPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const params = useParams();
-  const locale = params.locale as string;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -93,7 +91,7 @@ export default function LoginPage() {
         });
       } else if (!result?.error) {
         // Successful login
-        router.push(`/${locale}/dashboard`);
+        router.push("/dashboard");
       }
     } catch (err) {
       console.error("Login error:", err);
@@ -140,7 +138,7 @@ export default function LoginPage() {
             <Button
               variant="outline"
               rounded
-              onClick={() => router.push(`/${locale}/register`)}
+              onClick={() => router.push("/register")}
               className="px-6 py-3 font-bold text-base border-[#7FC242] text-[#7FC242] hover:bg-[#F0F7EA]"
             >
               Sign Up

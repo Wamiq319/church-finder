@@ -39,16 +39,22 @@ export async function POST(request: Request) {
       email,
       password, // Using plain password temporarily
       role: "church_admin",
-      verified: false,
     });
 
     console.log("User created successfully with ID:", newUser._id);
     console.log("=== End Registration Debug Info ===");
 
-    // Return user without password
-    const { password: _, ...userWithoutPassword } = newUser.toObject();
+    // Return user in frontend format
+    const userResponse = {
+      id: newUser._id.toString(),
+      email: newUser.email,
+      role: newUser.role,
+      church: newUser.church?.toString(),
+      createdAt: newUser.createdAt,
+      updatedAt: newUser.updatedAt,
+    };
 
-    return NextResponse.json({ data: userWithoutPassword }, { status: 201 });
+    return NextResponse.json({ data: userResponse }, { status: 201 });
   } catch (error) {
     console.error("Registration error:", error);
 

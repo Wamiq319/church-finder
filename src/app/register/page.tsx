@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { signupSchema } from "@/lib/validations/auth";
@@ -17,8 +17,6 @@ export default function RegisterPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const params = useParams();
-  const locale = params.locale as string;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -48,7 +46,7 @@ export default function RegisterPage() {
         throw new Error(errorData.error || "Registration failed");
       }
 
-      router.push(`/${locale}/login`);
+      router.push("/login");
     } catch (err) {
       if (err instanceof ZodError) {
         const zodErrors = err.errors.reduce((acc, curr) => {
@@ -107,7 +105,7 @@ export default function RegisterPage() {
             <Button
               variant="outline"
               rounded
-              onClick={() => router.push(`/${locale}/login`)}
+              onClick={() => router.push("/login")}
               className="px-6 py-3 font-bold text-base border-[#7FC242] text-[#7FC242] hover:bg-[#F0F7EA]"
             >
               Sign In

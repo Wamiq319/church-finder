@@ -61,10 +61,9 @@ export const authOptions: NextAuthOptions = {
 
           return {
             id: user._id.toString(),
-            _id: user._id,
             email: user.email,
             role: user.role,
-            church: user.church,
+            church: user.church?.toString() || undefined,
             churchStatus: churchDetails?.status || null,
             churchStep: churchDetails?.step || null,
           };
@@ -83,6 +82,8 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.email = user.email;
+        token.role = user.role;
+        token.church = user.church;
       }
       return token;
     },
@@ -92,6 +93,8 @@ export const authOptions: NextAuthOptions = {
           ...session.user,
           id: token.id as string,
           email: token.email as string,
+          role: token.role as "admin" | "church_admin" | "user",
+          church: token.church as string | undefined,
         };
       }
       return session;

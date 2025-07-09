@@ -5,11 +5,10 @@ import { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
   interface User {
-    id: string; // NextAuth standard field (string)
-    _id: mongoose.Types.ObjectId; // MongoDB field
+    id: string;
     email: string;
     role: "admin" | "church_admin" | "user";
-    church?: mongoose.Types.ObjectId;
+    church?: string;
     churchStatus?: string | null;
     churchStep?: number | null;
   }
@@ -17,7 +16,6 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string;
-      _id: string;
       email: string;
       role: "admin" | "church_admin" | "user";
       church?: string;
@@ -30,7 +28,6 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT {
     id: string;
-    _id: string;
     email: string;
     role: "admin" | "church_admin" | "user";
     church?: string;
