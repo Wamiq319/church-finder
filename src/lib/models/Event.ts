@@ -1,18 +1,9 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import mongoose, { Schema, Model, Document } from "mongoose";
+import type { Event } from "@/types";
 import { slugify } from "@/utils/slugify";
 
-interface IEvent extends Document {
-  church: mongoose.Types.ObjectId;
-  title: string;
-  slug: string;
-  address?: string;
-  date: string;
-  time: string;
-  description: string;
-  image: string;
-  featured: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+interface IEvent extends Event, Document {
+  // Additional methods can be added here if needed
 }
 
 const eventSchema: Schema = new Schema(

@@ -16,5 +16,5 @@ export type Church = {
   longitude?: number;
   isFeatured?: boolean;
   step: number;
-  status: string;
+  status: "published" | "draft" | "archived";
 };

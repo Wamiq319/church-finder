@@ -4,6 +4,7 @@ import dbConnect from "@/lib/dbConnect";
 import User from "@/lib/models/User";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/auth.config";
+import { Church as ChurchType } from "@/types";
 
 import {
   validateBasicInfo,
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
 
     await dbConnect();
     const body = await request.json();
-    const { step, ...churchData } = body;
+    const { step, ...churchData }: { step: number } & ChurchType = body;
     console.log("POST /api/churches - Received data:", body);
 
     // Step-based validation
@@ -50,7 +51,7 @@ export async function POST(request: Request) {
     let church = await Church.findOne({ createdBy: session.user.id });
     const isNewChurch = !church;
 
-    const generateSlug = (name: string) =>
+    const generateSlug = (name: string): string =>
       name
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
@@ -107,7 +108,7 @@ export async function POST(request: Request) {
       church.description = churchData.description;
       church.image = churchData.image;
       if (church.isModified("name")) {
-        church.slug = generateSlug(churchData.name);
+        (church as any).slug = generateSlug(churchData.name);
       }
     } else if (step === 2) {
       if (!church || church.step < 1) {

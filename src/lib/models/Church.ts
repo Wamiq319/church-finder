@@ -1,15 +1,11 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
-import { Church } from "@/types/church.type";
+import mongoose, { Schema, Model, Document } from "mongoose";
+import type { Church } from "@/types";
 import { slugify } from "@/utils/slugify";
 
-// Extend ChurchData with MongoDB Document properties
 interface IChurch extends Church, Document {
   slug: string;
-  status: "published" | "draft" | "archived";
-  step: number; // Track current step (1-4)
   createdBy: mongoose.Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
+  events?: mongoose.Types.ObjectId[];
   isCurrentlyFeatured(): boolean;
   getFullAddress(): string;
   getCoordinates(): [number, number] | null;

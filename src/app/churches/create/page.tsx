@@ -7,7 +7,7 @@ import {
   ArrowLeft,
   ArrowRight,
   ImagePlus,
-  Church,
+  Building2,
   MapPin,
   Mail,
   Phone,
@@ -22,7 +22,7 @@ import {
   validateContact,
   validatePromotion,
 } from "@/lib/validations/church";
-import { ChurchData } from "@/types/church.type";
+import { Church } from "@/types";
 import { z } from "zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -32,7 +32,7 @@ export default function CreateChurchPage() {
   const router = useRouter();
   const { data: session } = useSession();
 
-  const [formData, setFormData] = useState<ChurchData>({
+  const [formData, setFormData] = useState<Church>({
     name: "",
     denomination: "",
     description: "",
@@ -286,7 +286,7 @@ export default function CreateChurchPage() {
         {/* Form Header */}
         <div className="p-6 border-b border-gray-100">
           <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-            <Church className="text-[#7FC242]" />
+            <Building2 className="text-[#7FC242]" />
             {formData.step === 1 && "Basic Information"}
             {formData.step === 2 && "Location Details"}
             {formData.step === 3 && "Contact & Services"}
@@ -710,7 +710,7 @@ export default function CreateChurchPage() {
               <div className="bg-gradient-to-br from-[#F0F7EA] to-[#E0F0FF] border border-[#7FC242] rounded-xl p-6">
                 <div className="flex items-start gap-4">
                   <div className="bg-[#7FC242] text-white rounded-full p-3 flex-shrink-0">
-                    <Church className="h-5 w-5" />
+                    <Building2 className="h-5 w-5" />
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-gray-800">

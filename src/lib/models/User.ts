@@ -1,14 +1,9 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import mongoose, { Schema, Model, Document } from "mongoose";
+import type { User } from "@/types";
 // import bcrypt from "bcryptjs"; // Commented out temporarily
 
-interface IUser extends Document {
-  _id: mongoose.Types.ObjectId;
-  email: string;
-  password: string;
-  role: "admin" | "church_admin" | "user";
-  church?: mongoose.Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
+interface IUser extends User, Document {
+  // Additional methods can be added here if needed
 }
 
 const userSchema: Schema = new Schema(
