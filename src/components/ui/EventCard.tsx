@@ -1,61 +1,37 @@
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { CalendarDays, MapPin, ArrowRight } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { Button } from "./Button";
-interface Event {
-  id: string;
-  title: string;
-  date: string;
-  location: string;
-  image: string;
-  slug: string;
-}
+import Link from "next/link";
+import { CalendarDays, MapPin } from "lucide-react";
+import { Event } from "@/types/church.type";
 
-interface EventCardProps {
-  event: Event;
-  className?: string;
-}
-
-export const EventCard = ({ event, className = "" }: EventCardProps) => {
-  const router = useRouter();
-  const t = useTranslations("Common");
-
+export const EventCard = ({ event }: { event: Event }) => {
   return (
-    <div
-      className={`bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden cursor-pointer ${className}`}
-    >
-      <div className="relative h-48 w-full">
+    <div className="bg-white rounded-xl shadow-md p-4 flex flex-col">
+      <div className="relative w-full h-32 rounded-lg overflow-hidden mb-4">
         <Image
-          src={event.image}
+          src={event.image || "/assets/images/churches/youth-revival.jpg"}
           alt={event.title}
           fill
           className="object-cover"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
       </div>
-      <div className="p-6">
-        <h3 className="text-xl font-bold text-[#1A365D] mb-3">{event.title}</h3>
-        <div className="space-y-2">
-          <div className="flex items-center text-[#555]">
-            <CalendarDays className="h-4 w-4 mr-2 text-[#7FC242]" />
-            <span>{event.date}</span>
-          </div>
-          <div className="flex items-center text-[#555]">
-            <MapPin className="h-4 w-4 mr-2 text-[#7FC242]" />
-            <span>{event.location}</span>
-          </div>
-        </div>
-
-        <Button
-          onClick={() => router.push(`/events/${event.slug}`)}
-          variant="outline"
-          className="mt-4 w-full py-2 flex items-center justify-center"
-        >
-          {t("viewDetails")}
-          <ArrowRight className="h-4 w-4 ml-1" />
-        </Button>
+      <h3 className="text-lg font-bold text-[#1A365D] mb-1">{event.title}</h3>
+      <div className="flex items-center text-[#7FC242] mb-2">
+        <CalendarDays className="h-4 w-4 mr-1" />
+        <span className="text-sm text-[#555]">{event.date}</span>
       </div>
+      <div className="flex items-center text-[#7FC242] mb-2">
+        <MapPin className="h-4 w-4 mr-1" />
+        <span className="text-sm text-[#555]">{event.location}</span>
+      </div>
+      <p className="text-sm text-[#555] mb-4 line-clamp-2">
+        {event.description}
+      </p>
+      <Link
+        href={`/events/${event.slug}`}
+        className="mt-auto inline-block text-[#2D9C6F] hover:underline font-semibold text-sm"
+      >
+        View Details
+      </Link>
     </div>
   );
 };

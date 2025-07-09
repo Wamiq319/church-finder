@@ -1,14 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { CalendarDays, MapPin, ArrowRight } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { ArrowRight } from "lucide-react";
 import { EventCard } from "@/components/ui/EventCard";
 import { Button } from "../ui/Button";
 import events from "@/data/events.json";
+import content from "@/data/content.json";
 
 export const UpcomingEventsPreview = () => {
-  const t = useTranslations("HomePage.upcomingEvents");
+  const upcomingEvents = content.HomePage.upcomingEvents;
   const router = useRouter();
 
   return (
@@ -16,10 +16,10 @@ export const UpcomingEventsPreview = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-2xl md:text-3xl font-bold text-[#1A365D] mb-2">
-            {t("upcomingEventsTitle")}
+            {upcomingEvents.upcomingEventsTitle}
           </h2>
           <p className="text-[#555] max-w-2xl mx-auto">
-            {t("upcomingEventsSubtitle")}
+            {upcomingEvents.upcomingEventsSubtitle}
           </p>
         </div>
 
@@ -35,7 +35,7 @@ export const UpcomingEventsPreview = () => {
             onClick={() => router.push("/events")}
             className="px-8 py-3 text-base rounded-md border-2"
           >
-            {t("seeAllEvents")}
+            {upcomingEvents.seeAllEvents}
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </div>

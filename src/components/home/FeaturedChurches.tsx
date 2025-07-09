@@ -1,13 +1,13 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ChurchCard } from "@/components/ui/ChurchCard";
 import churches from "@/data/churches.json";
+import content from "@/data/content.json";
 
 export const FeaturedChurches = () => {
-  const t = useTranslations("HomePage.featured");
+  const featured = content.HomePage.featured;
   const router = useRouter();
   const carouselRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -70,10 +70,10 @@ export const FeaturedChurches = () => {
     <section className="py-16 bg-[#f8f8f8]">
       <div className="w-full mx-auto">
         <h2 className="text-2xl md:text-3xl font-bold text-[#1A365D] mb-8 text-center">
-          {t("title")}
+          {featured.title}
         </h2>
         <p className="text-center text-[#555] max-w-2xl mx-auto mb-12">
-          {t("subtitle")}
+          {featured.subtitle}
         </p>
 
         <div

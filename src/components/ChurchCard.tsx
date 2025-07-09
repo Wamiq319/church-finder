@@ -1,54 +1,43 @@
-import React, { useState } from "react";
+"use client";
 
-import { ChurchData } from "@/types/church.type";
+import Image from "next/image";
+import Link from "next/link";
+import { MapPin } from "lucide-react";
+import Church from "@/types/church.type";
 
-interface ChurchCardProps {
-  church: ChurchData & { _id: string };
-  onEdit: (church: ChurchData & { _id: string }) => void;
-  onDelete: (churchId: string) => Promise<void>;
-}
-
-export default function ChurchCard({
+export const ChurchCard = ({
   church,
-  onEdit,
-  onDelete,
-}: ChurchCardProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-
-  const handleDelete = async (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent card click when clicking delete
-    setShowDeleteConfirm(true);
-  };
-
-  const confirmDelete = async (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent card click when clicking confirm
-    setIsDeleting(true);
-    try {
-      await onDelete(church._id);
-    } catch (error) {
-      console.error("Error deleting church:", error);
-    } finally {
-      setIsDeleting(false);
-      setShowDeleteConfirm(false);
-    }
-  };
-
-  const handleCardClick = (e: React.MouseEvent) => {
-    if (!showDeleteConfirm) {
-      onEdit(church);
-    }
-  };
-
+  className = "",
+}: {
+  church: Church;
+  className?: string;
+}) => {
   return (
     <div
-      className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={handleCardClick}
+      className={`bg-white rounded-xl shadow-md p-4 flex flex-col ${className}`}
     >
-      {/* ... rest of the component ... */}
+      <div className="relative w-full h-40 rounded-lg overflow-hidden mb-4">
+        <Image
+          src={church.image || "/assets/images/churches/st-andrews.jpg"}
+          alt={church.name}
+          fill
+          className="object-cover"
+        />
+      </div>
+      <h3 className="text-lg font-bold text-[#1A365D] mb-1">{church.name}</h3>
+      <div className="flex items-center text-[#7FC242] mb-2">
+        <MapPin className="h-4 w-4 mr-1" />
+        <span className="text-sm text-[#555]">{church.location}</span>
+      </div>
+      <p className="text-sm text-[#555] mb-4 line-clamp-2">
+        {church.description}
+      </p>
+      <Link
+        href={`/churches/${church.slug}`}
+        className="mt-auto inline-block text-[#2D9C6F] hover:underline font-semibold text-sm"
+      >
+        View Details
+      </Link>
     </div>
   );
-}
+};

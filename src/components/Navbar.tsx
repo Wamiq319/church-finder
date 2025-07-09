@@ -1,12 +1,12 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { Button } from "./ui/Button";
 import { useSession, signOut } from "next-auth/react";
+import content from "@/data/content.json";
 
 const NAV_ITEMS = [
   { path: "home", key: "home" },
@@ -17,7 +17,7 @@ const NAV_ITEMS = [
 ] as const;
 
 export default function Navbar() {
-  const t = useTranslations("nav");
+  const nav = content.nav;
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: session, status } = useSession();
@@ -92,7 +92,7 @@ export default function Navbar() {
                         item.path
                       )}`}
                     >
-                      {t(item.key)}
+                      {nav[item.key]}
                     </Link>
                   </li>
                 ))}
@@ -194,7 +194,7 @@ export default function Navbar() {
                       )} hover:bg-gray-50`}
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      {t(item.key)}
+                      {nav[item.key]}
                     </Link>
                   </li>
                 ))}

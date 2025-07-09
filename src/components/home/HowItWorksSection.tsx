@@ -1,12 +1,16 @@
 "use client";
-
-import { useTranslations } from "next-intl";
+import React from "react";
 import { Search, Info, MessageCircle, MapPin } from "lucide-react";
+import content from "@/data/content.json";
 
 export const HowItWorksSection = () => {
-  const t = useTranslations("HomePage.howItWorks");
+  const howItWorks = content.HomePage.howItWorks;
 
-  const steps = [
+  const steps: {
+    icon: React.ReactNode;
+    key: keyof typeof howItWorks.steps;
+    bgColor: string;
+  }[] = [
     {
       icon: <Search className="h-10 w-10 text-[#7FC242]" />,
       key: "search",
@@ -34,10 +38,10 @@ export const HowItWorksSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-[#1A365D] mb-3">
-            {t("title")}
+            {howItWorks.title}
           </h2>
           <p className="text-lg text-[#555] max-w-2xl mx-auto">
-            {t("subtitle")}
+            {howItWorks.subtitle}
           </p>
         </div>
 
@@ -60,10 +64,10 @@ export const HowItWorksSection = () => {
               </div>
 
               <h3 className="text-xl font-bold text-[#1A365D] mb-3 relative">
-                {t(`steps.${step.key}.title`)}
+                {howItWorks.steps[step.key].title}
               </h3>
               <p className="text-[#555] relative">
-                {t(`steps.${step.key}.description`)}
+                {howItWorks.steps[step.key].description}
               </p>
             </div>
           ))}

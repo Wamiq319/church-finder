@@ -1,54 +1,41 @@
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { MapPin } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { Button } from "./Button";
-import { ArrowRight } from "lucide-react";
+import { Church } from "@/types/church.type";
 
-interface Church {
-  id: string;
-  name: string;
-  location: string;
-  image: string;
-  slug: string;
-}
-
-interface ChurchCardProps {
+export const ChurchCard = ({
+  church,
+  className = "",
+}: {
   church: Church;
   className?: string;
-}
-
-export const ChurchCard = ({ church, className = "" }: ChurchCardProps) => {
-  const router = useRouter();
-  const t = useTranslations("Common");
-
+}) => {
   return (
     <div
-      className={`bg-white cursor-pointer rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex-shrink-0 ${className}`}
+      className={`bg-white rounded-xl shadow-md p-4 flex flex-col ${className}`}
     >
-      <div className="relative h-48 w-full">
+      <div className="relative w-full h-40 rounded-lg overflow-hidden mb-4">
         <Image
-          src={church.image}
+          src={church.image || "/assets/images/churches/st-andrews.jpg"}
           alt={church.name}
           fill
-          className="rounded-t-lg object-cover"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover"
         />
       </div>
-      <div className="p-5">
-        <h3 className="text-lg font-bold text-[#1A365D]">{church.name}</h3>
-        <p className="text-sm text-[#555] mt-1 flex items-center">
-          <MapPin className="h-4 w-4 mr-1" />
-          {church.location}
-        </p>
-        <Button
-          onClick={() => router.push(`/churches/${church.slug}`)}
-          className="mt-4 w-full py-2 bg-[#7FC242] hover:bg-[#5A7D2C] text-white rounded-md transition-colors duration-300"
-        >
-          {t("viewDetails")}
-          <ArrowRight className="h-4 w-4 ml-1" />
-        </Button>
+      <h3 className="text-lg font-bold text-[#1A365D] mb-1">{church.name}</h3>
+      <div className="flex items-center text-[#7FC242] mb-2">
+        <MapPin className="h-4 w-4 mr-1" />
+        <span className="text-sm text-[#555]">{church.location}</span>
       </div>
+      <p className="text-sm text-[#555] mb-4 line-clamp-2">
+        {church.description}
+      </p>
+      <Link
+        href={`/churches/${church.slug}`}
+        className="mt-auto inline-block text-[#2D9C6F] hover:underline font-semibold text-sm"
+      >
+        View Details
+      </Link>
     </div>
   );
 };

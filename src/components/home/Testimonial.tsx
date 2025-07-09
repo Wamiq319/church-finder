@@ -1,31 +1,31 @@
 "use client";
 
 import { Star, Quote } from "lucide-react";
-import { useTranslations } from "next-intl";
+import content from "@/data/content.json";
 
 export const TestimonialsSection = () => {
-  const t = useTranslations("HomePage.Testimonials");
+  const testimonialsContent = content.HomePage.Testimonials;
 
   const testimonials = [
     {
       id: 1,
-      quote: t("testimonials.1.quote"),
-      name: t("testimonials.1.name"),
-      role: t("testimonials.1.role"),
+      quote: testimonialsContent.testimonials["1"].quote,
+      name: testimonialsContent.testimonials["1"].name,
+      role: testimonialsContent.testimonials["1"].role,
       rating: 5,
     },
     {
       id: 2,
-      quote: t("testimonials.2.quote"),
-      name: t("testimonials.2.name"),
-      role: t("testimonials.2.role"),
+      quote: testimonialsContent.testimonials["2"].quote,
+      name: testimonialsContent.testimonials["2"].name,
+      role: testimonialsContent.testimonials["2"].role,
       rating: 5,
     },
     {
       id: 3,
-      quote: t("testimonials.3.quote"),
-      name: t("testimonials.3.name"),
-      role: t("testimonials.3.role"),
+      quote: testimonialsContent.testimonials["3"].quote,
+      name: testimonialsContent.testimonials["3"].name,
+      role: testimonialsContent.testimonials["3"].role,
       rating: 4,
     },
   ];
@@ -35,10 +35,10 @@ export const TestimonialsSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-[#1A365D] mb-4">
-            {t("title")}
+            {testimonialsContent.title}
           </h2>
           <p className="text-lg text-[#555] max-w-2xl mx-auto">
-            {t("subtitle")}
+            {testimonialsContent.subtitle}
           </p>
         </div>
 

@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { Button } from "../ui/Button";
-import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
+import content from "@/data/content.json";
 
 export const HeroSection = () => {
-  const t = useTranslations("HomePage.hero");
+  const hero = content.HomePage.hero;
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -57,15 +57,15 @@ export const HeroSection = () => {
 
         {/* Headline */}
         <h1 className="text-2xl md:text-4xl lg:text-4xl font-bold text-[#1A365D] leading-snug max-w-4xl">
-          {t("headline1")} <br className="hidden md:block" />
-          {t("headline2")}
+          {hero.headline1} <br className="hidden md:block" />
+          {hero.headline2}
           <span className="inline-block w-2" />
-          <span className="text-[#2D9C6F]">{t("headline3")}</span>
+          <span className="text-[#2D9C6F]">{hero.headline3}</span>
         </h1>
 
         {/* Subtitle */}
         <p className="text-base md:text-lg text-[#444] max-w-2xl mx-auto mt-3 mb-8">
-          {t("subtitle")}
+          {hero.subtitle}
         </p>
 
         {/* Search Input + Button */}
@@ -73,7 +73,7 @@ export const HeroSection = () => {
           <input
             type="text"
             placeholder={
-              t("searchPlaceholder") || "Search churches by name, location..."
+              hero.searchPlaceholder || "Search churches by name, location..."
             }
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -98,7 +98,7 @@ export const HeroSection = () => {
             onClick={() => router.push("/updates")}
             className="px-8 py-3 text-base rounded-md"
           >
-            {t("ctaEmail")}
+            {hero.ctaEmail}
           </Button>
 
           <Button
@@ -106,7 +106,7 @@ export const HeroSection = () => {
             onClick={() => router.push("/list-your-church")}
             className="px-8 py-3 text-base rounded-md border-2"
           >
-            {t("ctaCall")}
+            {hero.ctaCall}
           </Button>
         </div>
       </div>

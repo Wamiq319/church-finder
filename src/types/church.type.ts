@@ -1,4 +1,4 @@
-export interface ChurchData {
+export type Church = {
   name: string;
   denomination: string;
   description: string;
@@ -17,4 +17,4 @@ export interface ChurchData {
   isFeatured?: boolean;
   step: number;
   status: string;
-}
+};

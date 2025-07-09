@@ -1,25 +1,25 @@
 "use client";
 
-import { ArrowRight, Check, BarChart2, Users, LifeBuoy } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { ArrowRight, BarChart2, Users, LifeBuoy } from "lucide-react";
 import { useRouter } from "next/navigation";
+import content from "@/data/content.json";
 
 export const ListYourChurchCTA = () => {
-  const t = useTranslations("HomePage.listYourChurchCTA");
+  const listYourChurchCTA = content.HomePage.listYourChurchCTA;
   const router = useRouter();
 
   const benefits = [
     {
       icon: <BarChart2 className="h-5 w-5" />,
-      text: t("benefits.visibility"),
+      text: listYourChurchCTA.benefits.visibility,
     },
     {
       icon: <Users className="h-5 w-5" />,
-      text: t("benefits.community"),
+      text: listYourChurchCTA.benefits.community,
     },
     {
       icon: <LifeBuoy className="h-5 w-5" />,
-      text: t("benefits.support"),
+      text: listYourChurchCTA.benefits.support,
     },
   ];
 
@@ -34,10 +34,10 @@ export const ListYourChurchCTA = () => {
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-14">
           <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6 leading-tight">
-            {t("title")}
+            {listYourChurchCTA.title}
           </h2>
           <p className="max-w-2xl mx-auto text-white/90 text-xl md:text-2xl mb-10">
-            {t("subtitle")}
+            {listYourChurchCTA.subtitle}
           </p>
         </div>
 
@@ -63,13 +63,15 @@ export const ListYourChurchCTA = () => {
             className="group relative inline-flex items-center justify-center px-10 py-5 bg-[#7FC242] hover:bg-[#5A7D2C] text-white font-bold text-xl rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
           >
             <span className="relative z-10 flex items-center">
-              {t("buttonText")}
+              {listYourChurchCTA.buttonText}
               <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </span>
             <span className="absolute inset-0 bg-white/10 group-hover:bg-white/0 transition-all duration-500" />
           </button>
 
-          <p className="mt-6 text-white/80">{t("additionalText")}</p>
+          <p className="mt-6 text-white/80">
+            {listYourChurchCTA.additionalText}
+          </p>
         </div>
       </div>
     </section>
