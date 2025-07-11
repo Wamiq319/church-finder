@@ -1,29 +1,21 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { HowItWorksSection } from "@/components/home/HowItWorksSection";
 import { ListYourChurchCTA } from "@/components/home/ListYourChurchCTA";
-import {
-  Mail,
-  Phone,
-  MapPin,
-  Twitter,
-  Facebook,
-  Linkedin,
-  Globe,
-} from "lucide-react";
+import { Twitter, Facebook, Linkedin, Globe } from "lucide-react";
 import { HeroSection } from "@/components/ui/HeroSection";
+import content from "@/data/content.json";
 
 export default function AboutUsPage() {
-  const t = useTranslations("AboutUsPage");
+  const { AboutUsPage } = content;
 
   return (
     <div className="bg-white">
       <HeroSection
-        title={t("heroTitle")}
-        subtitle={t("heroSubtitle")}
+        title={AboutUsPage.heroTitle}
+        subtitle={AboutUsPage.heroSubtitle}
         height="md"
       />
 
@@ -33,16 +25,20 @@ export default function AboutUsPage() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-[#1A365D] mb-6">
-                {t("missionTitle")}
+                {AboutUsPage.missionTitle}
               </h2>
-              <p className="text-lg text-[#444] mb-6">{t("missionText1")}</p>
-              <p className="text-lg text-[#444] mb-8">{t("missionText2")}</p>
+              <p className="text-lg text-[#444] mb-6">
+                {AboutUsPage.missionText1}
+              </p>
+              <p className="text-lg text-[#444] mb-8">
+                {AboutUsPage.missionText2}
+              </p>
               <Button
                 variant="primary"
                 // onClick={() => router.push("/list-your-church")}
                 className="px-8 py-3 text-base rounded-md"
               >
-                {t("joinButton")}
+                {AboutUsPage.joinButton}
               </Button>
             </div>
             <div className="relative h-80 md:h-96 rounded-lg overflow-hidden shadow-lg">
@@ -61,10 +57,10 @@ export default function AboutUsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-[#1A365D]">
-              {t("founderTitle")}
+              {AboutUsPage.founderTitle}
             </h2>
             <p className="text-lg text-[#444] max-w-2xl mx-auto mt-4">
-              {t("founderSubtitle")}
+              {AboutUsPage.founderSubtitle}
             </p>
           </div>
 
@@ -83,9 +79,9 @@ export default function AboutUsPage() {
                 Evg. Sam Sonibare
               </h3>
               <p className="text-[#7FC242] text-lg md:text-xl mb-6">
-                {t("founderRole")}
+                {AboutUsPage.founderRole}
               </p>
-              <p className="text-[#444] mb-8">{t("founderBio")}</p>
+              <p className="text-[#444] mb-8">{AboutUsPage.founderBio}</p>
 
               <div className="flex justify-center gap-4">
                 <a

@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import {
   CalendarDays,
   MapPin,
-  Church,
+  Building,
   CheckCircle,
   Edit,
   PlusCircle,
@@ -23,31 +23,14 @@ import {
   User,
 } from "lucide-react";
 import { Loader } from "@/components/ui/Loader";
-import { PricingSection } from "@/components/ui/PricingSection";
-import { ChurchData } from "@/types/church.type";
+import type { Church } from "@/types";
 import Image from "next/image";
 import { ComingSoonPopup } from "@/components/ui/ComingSoon";
 
-// Extend ChurchData with MongoDB fields
-interface ChurchWithMongoFields extends ChurchData {
-  _id: string;
-  status: string;
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
+type DashboardChurch = Church & {
+  _id?: string;
   featuredExpiry?: string;
-}
-
-interface EventData {
-  id: string;
-  title: string;
-  date: string;
-  time: string;
-  location: string;
-  description: string;
-  isFeatured: boolean;
-  featuredExpiry?: string;
-}
+};
 
 function ChurchCreationCTA() {
   const router = useRouter();
@@ -55,7 +38,7 @@ function ChurchCreationCTA() {
   return (
     <div className="bg-gradient-to-br from-[#F0F7EA] to-[#E0F0FF] border border-[#7FC242] rounded-xl p-8 text-center">
       <div className="bg-[#7FC242] text-white rounded-full p-3 inline-flex mb-4">
-        <Church className="h-6 w-6" />
+        <Building className="h-6 w-6" />
       </div>
 
       <h3 className="text-2xl font-bold text-[#1A365D] mb-3">
@@ -86,7 +69,7 @@ function ChurchCreationCTA() {
         variant="primary"
         rounded
         className="px-8 py-3 text-lg w-full max-w-xs mx-auto"
-        onClick={() => router.push("/churches/create")}
+        onClick={() => router.push("/dashboard/create-church")}
       >
         Get Started Now <ArrowRight className="ml-2 h-5 w-5" />
       </Button>
@@ -97,8 +80,7 @@ function ChurchCreationCTA() {
 export default function Dashboard() {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const [church, setChurch] = useState<ChurchWithMongoFields | null>(null);
-  const [events, setEvents] = useState<EventData[]>([]);
+  const [church, setChurch] = useState<DashboardChurch | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showComingSoon, setShowComingSoon] = useState(false);
@@ -189,7 +171,7 @@ export default function Dashboard() {
                 />
               ) : (
                 <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                  <Church className="h-16 w-16 text-gray-400" />
+                  <Building className="h-16 w-16 text-gray-400" />
                 </div>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
@@ -236,13 +218,13 @@ export default function Dashboard() {
               {/* Church Details Section */}
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                  <Church className="h-4 w-4 text-[#7FC242]" />
+                  <Building className="h-4 w-4 text-[#7FC242]" />
                   Church Details
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="bg-gray-50 p-3 rounded-lg">
                     <p className="text-sm text-gray-500 flex items-center gap-2">
-                      <Church className="h-4 w-4 text-[#7FC242]" />
+                      <Building className="h-4 w-4 text-[#7FC242]" />
                       Denomination
                     </p>
                     <p className="font-medium mt-1">{church.denomination}</p>
@@ -331,7 +313,9 @@ export default function Dashboard() {
                   variant="outline"
                   className="w-full justify-start py-3"
                   onClick={() =>
-                    router.push(`/events/create?churchId=${church._id}`)
+                    router.push(
+                      `/dashboard/create-event?churchId=${church._id}`
+                    )
                   }
                 >
                   <PlusCircle className="mr-2 h-4 w-4" />
@@ -356,41 +340,13 @@ export default function Dashboard() {
                 </Button>
               </div>
             </div>
-
-            {/* Pricing Plans */}
-            <div className="bg-[#F0F7EA] border border-[#7FC242] rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                Pricing Plans
-              </h3>
-              <ul className="space-y-2 mb-4">
-                <li className="flex items-start">
-                  <CheckCircle className="h-4 w-4 text-[#7FC242] mr-2 mt-0.5" />
-                  <span className="text-sm">Featured Church: $49/week</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-4 w-4 text-[#7FC242] mr-2 mt-0.5" />
-                  <span className="text-sm">Featured Event: $19/event</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-4 w-4 text-[#7FC242] mr-2 mt-0.5" />
-                  <span className="text-sm">Premium Package: $99/week</span>
-                </li>
-              </ul>
-              <Button
-                variant="outline"
-                className="w-full border-[#7FC242] text-[#7FC242] hover:bg-[#E0F0FF] px-8 py-4 font-bold text-base rounded-lg"
-                onClick={() => setShowComingSoon(true)}
-              >
-                View All Plans
-              </Button>
-            </div>
           </div>
         </div>
       ) : (
         // Church Creation CTA and Pricing Section
         <div className="space-y-8">
           <ChurchCreationCTA />
-          <PricingSection />
+      
         </div>
       )}
       <ComingSoonPopup

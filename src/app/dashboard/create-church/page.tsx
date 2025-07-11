@@ -45,6 +45,7 @@ export default function CreateChurchPage() {
     contactEmail: "",
     contactPhone: "",
     services: [""],
+    image: "",
     isFeatured: false,
     step: 1,
     status: "draft",

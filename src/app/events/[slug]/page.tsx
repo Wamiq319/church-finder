@@ -233,7 +233,7 @@ export default function EventDetailPage() {
                 variant="secondary"
                 rounded
                 className=""
-                onClick={() => router.push("/events/create")}
+                onClick={() => router.push("/dashboard/create-event")}
               >
                 List Your Event
                 <ArrowRight className="ml-2" />

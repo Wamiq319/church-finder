@@ -11,7 +11,7 @@ export type Church = {
   contactEmail: string;
   contactPhone: string;
   services: [string, ...string[]];
-  image?: string;
+  image: string;
   latitude?: number;
   longitude?: number;
   isFeatured?: boolean;
