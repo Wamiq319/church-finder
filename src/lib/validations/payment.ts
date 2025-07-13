@@ -9,4 +9,7 @@ export const paymentSchema = z.object({
   currency: z.literal("USD"),
 });
 
-export type PaymentFormValues = z.infer<typeof paymentSchema>;
+// Validation function
+export const validatePayment = (data: any) => {
+  return paymentSchema.safeParse(data);
+};

@@ -1,12 +1,12 @@
 import { z } from "zod";
 
-// Shared email validation
-const email = z.string().email("Invalid email").min(5).max(100);
+// Helper schemas
+const emailSchema = z.string().email("Invalid email").min(5).max(100);
 
 // Signup schema with strong password requirements
 export const signupSchema = z
   .object({
-    email,
+    email: emailSchema,
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")
@@ -21,11 +21,17 @@ export const signupSchema = z
     path: ["confirmPassword"],
   });
 
-// Signin schema remains simple
+// Signin schema
 export const signinSchema = z.object({
-  email,
+  email: emailSchema,
   password: z.string().min(1, "Required"),
 });
 
-export type SignupInput = z.infer<typeof signupSchema>;
-export type SigninInput = z.infer<typeof signinSchema>;
+// Validation functions
+export const validateSignup = (data: any) => {
+  return signupSchema.safeParse(data);
+};
+
+export const validateSignin = (data: any) => {
+  return signinSchema.safeParse(data);
+};

@@ -5,6 +5,7 @@ import dbConnect from "@/lib/dbConnect";
 import User from "@/lib/models/User";
 import Event from "@/lib/models/Event";
 import { eventSchema } from "@/lib/validations/event";
+import { EventFormData } from "@/types";
 
 export async function GET(request: Request) {
   try {
@@ -101,7 +102,8 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { churchId, ...eventData } = body;
+    const { churchId, ...eventData }: { churchId?: string } & EventFormData =
+      body;
 
     console.log("POST /api/events - Request body:", body);
     console.log("User church:", user.church);

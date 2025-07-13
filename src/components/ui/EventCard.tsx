@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CalendarDays, MapPin } from "lucide-react";
-import { Event, EventData } from "@/types/event.type";
+import { Event, EventData } from "@/types";
 
 export const EventCard = ({ event }: { event: Event | EventData }) => {
   return (

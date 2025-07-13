@@ -22,7 +22,7 @@ const imageSchema = z
   .optional();
 
 // Step 1: Basic Information
-const basicInfoSchema = z.object({
+export const basicInfoSchema = z.object({
   name: z
     .string()
     .min(3, "Church name must be at least 3 characters")
@@ -40,7 +40,7 @@ const basicInfoSchema = z.object({
 });
 
 // Step 2: Location Details
-const locationSchema = z.object({
+export const locationSchema = z.object({
   address: z
     .string()
     .min(5, "Address must be at least 5 characters")
@@ -50,7 +50,7 @@ const locationSchema = z.object({
 });
 
 // Step 3: Contact & Services
-const contactSchema = z.object({
+export const contactSchema = z.object({
   pastorName: z
     .string()
     .min(3, "Pastor name must be at least 3 characters")
@@ -70,36 +70,29 @@ const contactSchema = z.object({
 });
 
 // Step 4: Promotion (optional)
-const promotionSchema = z.object({
+export const promotionSchema = z.object({
   isFeatured: z.boolean().default(false),
 });
 
 // Complete Church Schema
-export const churchFormSchema = basicInfoSchema
+export const churchSchema = basicInfoSchema
   .merge(locationSchema)
   .merge(contactSchema)
   .merge(promotionSchema);
 
-// Type for TypeScript
-export type ChurchFormData = z.infer<typeof churchFormSchema>;
-export type BasicInfoInput = z.infer<typeof basicInfoSchema>;
-export type LocationInput = z.infer<typeof locationSchema>;
-export type ContactInput = z.infer<typeof contactSchema>;
-export type PromotionInput = z.infer<typeof promotionSchema>;
-
 // Validation functions for each step
-export const validateBasicInfo = (data: Partial<ChurchFormData>) => {
+export const validateBasicInfo = (data: any) => {
   return basicInfoSchema.safeParse(data);
 };
 
-export const validateLocation = (data: Partial<ChurchFormData>) => {
+export const validateLocation = (data: any) => {
   return locationSchema.safeParse(data);
 };
 
-export const validateContact = (data: Partial<ChurchFormData>) => {
+export const validateContact = (data: any) => {
   return contactSchema.safeParse(data);
 };
 
-export const validatePromotion = (data: Partial<ChurchFormData>) => {
+export const validatePromotion = (data: any) => {
   return promotionSchema.safeParse(data);
 };

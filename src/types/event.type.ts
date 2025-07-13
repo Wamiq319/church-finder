@@ -1,8 +1,5 @@
-import mongoose from "mongoose";
-
 export type Event = {
-  _id: mongoose.Types.ObjectId;
-  church: mongoose.Types.ObjectId;
+  church: string;
   title: string;
   slug: string;
   address?: string;
@@ -16,18 +13,4 @@ export type Event = {
   featuredUntil?: Date;
   createdAt: Date;
   updatedAt: Date;
-};
-
-export type EventData = {
-  id: string;
-  churchId: string;
-  title: string;
-  date: string;
-  time: string;
-  location: string;
-  image: string;
-  slug: string;
-  organizer: string;
-  description: string;
-  featured: boolean;
 };
