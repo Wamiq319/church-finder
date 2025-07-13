@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import ClientOnly from "@/components/ClientOnly";
+import { formatDate } from "@/utils/dateUtils";
 import {
   CalendarDays,
   MapPin,
@@ -117,7 +119,8 @@ export default function Dashboard() {
     }
   }, [session]);
 
-  if (status === "loading" || isLoading) {
+  // Show loading state during initial load
+  if (status === "loading") {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader text="Loading your dashboard..." />
@@ -125,9 +128,13 @@ export default function Dashboard() {
     );
   }
 
-  if (!session) {
-    router.push("/register");
-    return null;
+  // Show loading state while fetching data
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader text="Loading your data..." />
+      </div>
+    );
   }
 
   // Show church details if church exists, is published, and step > 3
@@ -135,224 +142,232 @@ export default function Dashboard() {
     church && church.status === "published" && church.step > 3;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Welcome Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">
-          Welcome back,{" "}
-          <span className="text-[#7FC242]">
-            {session.user.name || "Pastor"}
-          </span>
-        </h1>
-        <p className="text-gray-600 mt-2">
-          Signed in as <span className="font-medium">{session.user.email}</span>
-        </p>
-      </div>
-
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-          {error}
+    <ClientOnly
+      fallback={
+        <div className="flex items-center justify-center h-screen">
+          <Loader text="Loading..." />
         </div>
-      )}
+      }
+    >
+      <div className="container mx-auto px-4 py-8">
+        {/* Welcome Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-800">
+            Welcome back,{" "}
+            <span className="text-[#7FC242]">
+              {session?.user?.name || "Pastor"}
+            </span>
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Signed in as{" "}
+            <span className="font-medium">{session?.user?.email}</span>
+          </p>
+        </div>
 
-      {showChurchDetails ? (
-        // Church Details View
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content Column */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Church Status Card with Large Image */}
-            <div className="relative h-64 md:h-80 w-full rounded-xl overflow-hidden shadow-lg">
-              {church.image ? (
-                <Image
-                  src={church.image}
-                  alt={church.name}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                  <Building className="h-16 w-16 text-gray-400" />
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+            {error}
+          </div>
+        )}
+
+        {showChurchDetails ? (
+          // Church Details View
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Content Column */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Church Status Card with Large Image */}
+              <div className="relative h-64 md:h-80 w-full rounded-xl overflow-hidden shadow-lg">
+                {church.image ? (
+                  <Image
+                    src={church.image}
+                    alt={church.name}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                    <Building className="h-16 w-16 text-gray-400" />
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+                  <div>
+                    <h2 className="text-3xl md:text-4xl font-bold text-white flex items-center gap-2">
+                      {church.name}
+                      {church.isFeatured && (
+                        <span className="bg-[#FFD700] text-[#1A365D] text-xs font-bold px-2 py-1 rounded-full flex items-center">
+                          <Star className="h-3 w-3 mr-1" /> FEATURED
+                        </span>
+                      )}
+                    </h2>
+                    <p className="text-white mt-1">
+                      {church.address}, {church.city}, {church.state}
+                    </p>
+                  </div>
                 </div>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
-                <div>
-                  <h2 className="text-3xl md:text-4xl font-bold text-white flex items-center gap-2">
-                    {church.name}
-                    {church.isFeatured && (
-                      <span className="bg-[#FFD700] text-[#1A365D] text-xs font-bold px-2 py-1 rounded-full flex items-center">
-                        <Star className="h-3 w-3 mr-1" /> FEATURED
-                      </span>
-                    )}
-                  </h2>
-                  <p className="text-white mt-1">
-                    {church.address}, {church.city}, {church.state}
+              </div>
+
+              {/* Featured Status Info */}
+              {church.isFeatured && church.featuredExpiry && (
+                <div className="bg-[#F0F7EA] p-3 rounded-lg">
+                  <p className="text-sm text-gray-700">
+                    <Star className="h-4 w-4 inline mr-1 text-[#7FC242]" />
+                    Your church is featured until{" "}
+                    {formatDate(church.featuredExpiry)}
                   </p>
                 </div>
-              </div>
-            </div>
+              )}
 
-            {/* Featured Status Info */}
-            {church.isFeatured && church.featuredExpiry && (
-              <div className="bg-[#F0F7EA] p-3 rounded-lg">
-                <p className="text-sm text-gray-700">
-                  <Star className="h-4 w-4 inline mr-1 text-[#7FC242]" />
-                  Your church is featured until{" "}
-                  {new Date(church.featuredExpiry).toLocaleDateString()}
+              {/* Church Description */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <BookOpen className="h-5 w-5 text-[#7FC242]" />
+                  About Church
+                </h2>
+                <p className="text-gray-600 whitespace-pre-wrap break-words">
+                  {church.description}
                 </p>
               </div>
-            )}
 
-            {/* Church Description */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-[#7FC242]" />
-                About Church
-              </h2>
-              <p className="text-gray-600 whitespace-pre-wrap break-words">
-                {church.description}
-              </p>
-            </div>
+              {/* Church & Pastor Details */}
+              <div className="bg-white rounded-lg shadow p-6">
+                {/* Church Details Section */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                    <Building className="h-4 w-4 text-[#7FC242]" />
+                    Church Details
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <p className="text-sm text-gray-500 flex items-center gap-2">
+                        <Building className="h-4 w-4 text-[#7FC242]" />
+                        Denomination
+                      </p>
+                      <p className="font-medium mt-1">{church.denomination}</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <p className="text-sm text-gray-500 flex items-center gap-2">
+                        <Mail className="h-4 w-4 text-[#7FC242]" />
+                        Email
+                      </p>
+                      <p className="font-medium mt-1">{church.contactEmail}</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <p className="text-sm text-gray-500 flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-[#7FC242]" />
+                        Phone
+                      </p>
+                      <p className="font-medium mt-1">{church.contactPhone}</p>
+                    </div>
+                  </div>
+                </div>
 
-            {/* Church & Pastor Details */}
-            <div className="bg-white rounded-lg shadow p-6">
-              {/* Church Details Section */}
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                  <Building className="h-4 w-4 text-[#7FC242]" />
-                  Church Details
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-sm text-gray-500 flex items-center gap-2">
-                      <Building className="h-4 w-4 text-[#7FC242]" />
-                      Denomination
-                    </p>
-                    <p className="font-medium mt-1">{church.denomination}</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-sm text-gray-500 flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-[#7FC242]" />
-                      Email
-                    </p>
-                    <p className="font-medium mt-1">{church.contactEmail}</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-sm text-gray-500 flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-[#7FC242]" />
-                      Phone
-                    </p>
-                    <p className="font-medium mt-1">{church.contactPhone}</p>
+                {/* Pastor Details Section */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                    <User className="h-4 w-4 text-[#7FC242]" />
+                    Pastor Details
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <p className="text-sm text-gray-500 flex items-center gap-2">
+                        <User className="h-4 w-4 text-[#7FC242]" />
+                        Name
+                      </p>
+                      <p className="font-medium mt-1">{church.pastorName}</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <p className="text-sm text-gray-500 flex items-center gap-2">
+                        <Mail className="h-4 w-4 text-[#7FC242]" />
+                        Email
+                      </p>
+                      <p className="font-medium mt-1">{church.pastorEmail}</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <p className="text-sm text-gray-500 flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-[#7FC242]" />
+                        Phone
+                      </p>
+                      <p className="font-medium mt-1">{church.pastorPhone}</p>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Pastor Details Section */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                  <User className="h-4 w-4 text-[#7FC242]" />
-                  Pastor Details
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-sm text-gray-500 flex items-center gap-2">
-                      <User className="h-4 w-4 text-[#7FC242]" />
-                      Name
-                    </p>
-                    <p className="font-medium mt-1">{church.pastorName}</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-sm text-gray-500 flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-[#7FC242]" />
-                      Email
-                    </p>
-                    <p className="font-medium mt-1">{church.pastorEmail}</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-sm text-gray-500 flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-[#7FC242]" />
-                      Phone
-                    </p>
-                    <p className="font-medium mt-1">{church.pastorPhone}</p>
-                  </div>
+              {/* Services */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-[#7FC242]" />
+                  Service Times
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {church.services.map((service, index) => (
+                    <div
+                      key={index}
+                      className="bg-white border border-gray-100 rounded-xl p-4 flex items-center gap-3 shadow-sm hover:shadow-md transition-all duration-200"
+                    >
+                      <Clock className="h-5 w-5 text-[#7FC242]" />
+                      <span className="text-[#7FC242] font-medium">
+                        {service}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Services */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <Clock className="h-5 w-5 text-[#7FC242]" />
-                Service Times
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {church.services.map((service, index) => (
-                  <div
-                    key={index}
-                    className="bg-white border border-gray-100 rounded-xl p-4 flex items-center gap-3 shadow-sm hover:shadow-md transition-all duration-200"
+            {/* Quick Actions Column */}
+            <div className="space-y-6">
+              {/* Quick Actions */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                  Quick Actions
+                </h3>
+
+                <div className="space-y-3">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start py-3"
+                    onClick={() =>
+                      router.push(
+                        `/dashboard/create-event?churchId=${church._id}`
+                      )
+                    }
                   >
-                    <Clock className="h-5 w-5 text-[#7FC242]" />
-                    <span className="text-[#7FC242] font-medium">
-                      {service}
-                    </span>
-                  </div>
-                ))}
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Create Event
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start py-3"
+                    onClick={() => setShowComingSoon(true)}
+                  >
+                    <TrendingUp className="mr-2 h-4 w-4" />
+                    Feature Church
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start py-3"
+                    onClick={() => setShowComingSoon(true)}
+                  >
+                    <Star className="mr-2 h-4 w-4" />
+                    Promote Event
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
-
-          {/* Quick Actions Column */}
-          <div className="space-y-6">
-            {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                Quick Actions
-              </h3>
-
-              <div className="space-y-3">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start py-3"
-                  onClick={() =>
-                    router.push(
-                      `/dashboard/create-event?churchId=${church._id}`
-                    )
-                  }
-                >
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Create Event
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start py-3"
-                  onClick={() => setShowComingSoon(true)}
-                >
-                  <TrendingUp className="mr-2 h-4 w-4" />
-                  Feature Church
-                </Button>
-
-                <Button
-                  variant="outline"
-                  className="w-full justify-start py-3"
-                  onClick={() => setShowComingSoon(true)}
-                >
-                  <Star className="mr-2 h-4 w-4" />
-                  Promote Event
-                </Button>
-              </div>
-            </div>
+        ) : (
+          // Church Creation CTA and Pricing Section
+          <div className="space-y-8">
+            <ChurchCreationCTA />
           </div>
-        </div>
-      ) : (
-        // Church Creation CTA and Pricing Section
-        <div className="space-y-8">
-          <ChurchCreationCTA />
-      
-        </div>
-      )}
-      <ComingSoonPopup
-        show={showComingSoon}
-        onClose={() => setShowComingSoon(false)}
-      />
-    </div>
+        )}
+        <ComingSoonPopup
+          show={showComingSoon}
+          onClose={() => setShowComingSoon(false)}
+        />
+      </div>
+    </ClientOnly>
   );
 }

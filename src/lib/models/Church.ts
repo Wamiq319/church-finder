@@ -108,6 +108,19 @@ const churchSchema: Schema = new Schema(
       type: Boolean,
       default: false,
     },
+    featuredUntil: {
+      type: Date,
+      default: null,
+    },
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "completed", "failed"],
+      default: "pending",
+    },
+    stripeSessionId: {
+      type: String,
+      default: null,
+    },
     step: {
       type: Number,
       default: 1,

@@ -170,6 +170,53 @@ export async function POST(request: Request) {
   }
 }
 
+// Update church status (PATCH method)
+export async function PATCH(request: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    await dbConnect();
+    const body = await request.json();
+    const { status } = body;
+
+    // Find the church for the current user
+    const church = await Church.findOne({ createdBy: session.user.id });
+    if (!church) {
+      return NextResponse.json(
+        { success: false, message: "Church not found" },
+        { status: 404 }
+      );
+    }
+
+    // Update status
+    if (status) {
+      church.status = status;
+    }
+
+    await church.save();
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        _id: church._id,
+        status: church.status,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating church status:", error);
+    return NextResponse.json(
+      { success: false, message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
 // Get churches with advanced filtering
 export async function GET(request: Request) {
   try {

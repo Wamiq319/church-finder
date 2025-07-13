@@ -15,6 +15,9 @@ export type Church = {
   latitude?: number;
   longitude?: number;
   isFeatured?: boolean;
+  featuredUntil?: Date;
+  paymentStatus?: "pending" | "completed" | "failed";
+  stripeSessionId?: string;
   step: number;
   status: "published" | "draft" | "archived";
 };
