@@ -15,6 +15,7 @@ export async function POST(request: Request) {
 
     const formData = await request.formData();
     const file = formData.get("file") as File;
+    const folder = (formData.get("folder") as string) || "Churches"; // Default to Churches
 
     if (!file) {
       return NextResponse.json(
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
     try {
       // Upload to Cloudinary with specific folder structure
       const result = await cloudinary.uploader.upload(base64String, {
-        folder: "Church_finder/Churches",
+        folder: `Church_finder/${folder}`,
         resource_type: "auto",
         quality: "auto",
         fetch_format: "auto",

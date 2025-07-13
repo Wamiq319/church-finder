@@ -19,7 +19,7 @@ const eventSchema: Schema = new Schema(
     date: { type: String, required: true },
     time: { type: String, required: true },
     description: { type: String, required: true },
-    image: { type: String, required: true },
+    image: { type: String, required: false },
     featured: {
       type: Boolean,
       default: false,

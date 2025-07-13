@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { HeroSection } from "@/components/ui/HeroSection";
+import content from "@/data/content.json";
 
 export default function ContactPage() {
-  const t = useTranslations("ContactPage");
+  const { ContactPage: contactContent } = content;
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -39,8 +40,8 @@ export default function ContactPage() {
   return (
     <div className="bg-white">
       <HeroSection
-        title={t("heroTitle")}
-        subtitle={t("heroSubtitle")}
+        title={contactContent.heroTitle}
+        subtitle={contactContent.heroSubtitle}
         height="md"
       />
 
@@ -50,9 +51,11 @@ export default function ContactPage() {
           <div className="grid md:grid-cols-2 gap-12">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-[#1A365D] mb-6">
-                {t("formTitle")}
+                {contactContent.formTitle}
               </h2>
-              <p className="text-lg text-[#444] mb-8">{t("formSubtitle")}</p>
+              <p className="text-lg text-[#444] mb-8">
+                {contactContent.formSubtitle}
+              </p>
 
               <div className="space-y-6">
                 <div className="flex items-start">
@@ -74,7 +77,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-[#1A365D]">
-                      {t("emailTitle")}
+                      {contactContent.emailTitle}
                     </h3>
                     <p className="text-[#444]">
                       <a
@@ -106,7 +109,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-[#1A365D]">
-                      {t("phoneTitle")}
+                      {contactContent.phoneTitle}
                     </h3>
                     <p className="text-[#444]">
                       <a
@@ -144,9 +147,9 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-[#1A365D]">
-                      {t("addressTitle")}
+                      {contactContent.addressTitle}
                     </h3>
-                    <p className="text-[#444]">{t("addressText")}</p>
+                    <p className="text-[#444]">{contactContent.addressText}</p>
                   </div>
                 </div>
               </div>
@@ -155,71 +158,55 @@ export default function ContactPage() {
             <div className="bg-[#F9F9F9] p-8 rounded-lg shadow-md">
               {submitSuccess && (
                 <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-md">
-                  {t("successMessage")}
+                  {contactContent.successMessage}
                 </div>
               )}
               <form onSubmit={handleSubmit}>
                 <div className="mb-6">
-                  <label
-                    htmlFor="name"
-                    className="block text-[#1A365D] font-medium mb-2"
-                  >
-                    {t("nameLabel")}
-                  </label>
-                  <input
+                  <Input
                     type="text"
                     id="name"
                     name="name"
+                    label={contactContent.nameLabel}
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7FC242]"
                   />
                 </div>
 
                 <div className="mb-6">
-                  <label
-                    htmlFor="email"
-                    className="block text-[#1A365D] font-medium mb-2"
-                  >
-                    {t("emailLabel")}
-                  </label>
-                  <input
+                  <Input
                     type="email"
                     id="email"
                     name="email"
+                    label={contactContent.emailLabel}
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7FC242]"
                   />
                 </div>
 
                 <div className="mb-6">
-                  <label
-                    htmlFor="message"
-                    className="block text-[#1A365D] font-medium mb-2"
-                  >
-                    {t("messageLabel")}
-                  </label>
-                  <textarea
+                  <Input
                     id="message"
                     name="message"
-                    rows={5}
+                    label={contactContent.messageLabel}
                     value={formData.message}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#7FC242]"
-                  ></textarea>
+                    rows={5}
+                  />
                 </div>
 
                 <Button
                   type="submit"
                   variant="primary"
                   disabled={isSubmitting}
-                  className="w-full py-3 text-base rounded-md"
+                  className="w-full py-3 text-base"
                 >
-                  {isSubmitting ? t("submittingButton") : t("submitButton")}
+                  {isSubmitting
+                    ? contactContent.submittingButton
+                    : contactContent.submitButton}
                 </Button>
               </form>
             </div>

@@ -227,6 +227,7 @@ export default function CreateChurchPage() {
 
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("folder", "Churches");
 
       const response = await fetch("/api/upload", {
         method: "POST",

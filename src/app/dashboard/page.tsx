@@ -9,6 +9,7 @@ import { NoChurchCTA } from "./component/NoChurchCTA";
 import { QuickActions } from "./component/QuickActions";
 import { FeaturedDetails } from "@/components/ui/FeaturedDetail";
 import { ChurchDetails } from "./component/ChurchDetails";
+import { EventsList } from "./component/EventsList";
 import type { Church } from "@/types";
 
 type DashboardChurch = Church & {
@@ -120,6 +121,8 @@ export default function Dashboard() {
                 isFeatured={church.isFeatured || false}
                 featuredUntil={church.featuredUntil}
               />
+
+              <EventsList churchId={church._id} />
             </div>
           </div>
         ) : (

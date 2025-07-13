@@ -22,6 +22,7 @@ import {
 import { Event } from "@/types";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 interface EventFormData {
   title: string;
@@ -82,7 +83,7 @@ export default function CreateEventPage() {
         // Update formData with backend data
         setFormData({
           ...data.data,
-          step: data.data.step + 1, // Increment step for UI
+          step: data.data.step, // Use the actual step from database
         });
 
         if (data.data.image) {
@@ -137,6 +138,8 @@ export default function CreateEventPage() {
   const saveStep = async () => {
     try {
       setApiError(null);
+      console.log("Saving step data:", { ...formData, churchId });
+
       const response = await fetch("/api/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -144,10 +147,20 @@ export default function CreateEventPage() {
       });
 
       const data = await response.json();
+      console.log("Save response:", data);
+
       if (!response.ok)
         throw new Error(data.message || "Failed to save step data.");
 
-      if (data.success) await fetchEventData();
+      if (data.success) {
+        // Update formData with the saved event data
+        setFormData((prev) => ({
+          ...prev,
+          _id: data.data._id,
+          step: data.data.step,
+        }));
+        console.log("Step saved successfully, new step:", data.data.step);
+      }
     } catch (error) {
       console.error("Error in saveStep:", error);
       setApiError(
@@ -163,6 +176,8 @@ export default function CreateEventPage() {
     if (validateStep(formData.step)) {
       try {
         await saveStep();
+        // Increment step after successful save
+        setFormData((prev) => ({ ...prev, step: Math.min(prev.step + 1, 2) }));
       } catch (error) {
         console.error("Error in nextStep processing:", error);
       }
@@ -209,6 +224,7 @@ export default function CreateEventPage() {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("folder", "Events");
 
       const response = await fetch("/api/upload", {
         method: "POST",
@@ -221,8 +237,8 @@ export default function CreateEventPage() {
         throw new Error(data.message || "Upload failed");
       }
 
-      setFormData((prev) => ({ ...prev, image: data.url }));
-      setImagePreview(data.url);
+      setFormData((prev) => ({ ...prev, image: data.data.url }));
+      setImagePreview(data.data.url);
     } catch (error) {
       console.error("Upload error:", error);
       setUploadError(error instanceof Error ? error.message : "Upload failed");
@@ -237,6 +253,7 @@ export default function CreateEventPage() {
     if (step === 1) {
       const result = validateEventCreation.safeParse(formData);
       if (!result.success) {
+        console.log("Step 1 validation errors:", result.error.errors);
         result.error.errors.forEach((error) => {
           newErrors[error.path[0]] = error.message;
         });
@@ -244,12 +261,14 @@ export default function CreateEventPage() {
     } else if (step === 2) {
       const result = validateEventPromotion.safeParse(formData);
       if (!result.success) {
+        console.log("Step 2 validation errors:", result.error.errors);
         result.error.errors.forEach((error) => {
           newErrors[error.path[0]] = error.message;
         });
       }
     }
 
+    console.log("Validation errors:", newErrors);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -367,7 +386,13 @@ export default function CreateEventPage() {
           )}
 
           {/* Form Content */}
-          <form onSubmit={nextStep} className="p-6">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              nextStep();
+            }}
+            className="p-6"
+          >
             {/* Step 1: Event Details */}
             {formData.step === 1 && (
               <div className="space-y-6">
@@ -804,19 +829,31 @@ export default function CreateEventPage() {
                   onClick={async () => {
                     if (validateStep(2)) {
                       try {
+                        setIsLoading(true);
                         await saveStep();
                         // Update status to published
                         const response = await fetch("/api/events", {
                           method: "PATCH",
                           headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ status: "published" }),
+                          body: JSON.stringify({
+                            status: "published",
+                            step: 2,
+                          }),
                         });
 
                         if (response.ok) {
                           router.push("/dashboard");
+                        } else {
+                          const data = await response.json();
+                          setApiError(
+                            data.message || "Failed to publish event"
+                          );
                         }
                       } catch (error) {
                         console.error("Error publishing event:", error);
+                        setApiError("Failed to publish event");
+                      } finally {
+                        setIsLoading(false);
                       }
                     }
                   }}

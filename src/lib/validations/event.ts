@@ -29,11 +29,13 @@ export const eventSchema = z.object({
     .string()
     .min(10, "Description must be at least 10 characters")
     .max(500, "Description cannot exceed 500 characters"),
-  image: imageSchema,
+  image: z.string().optional(), // Make image optional
   featured: z.boolean().optional(),
+  step: z.number().optional(),
+  status: z.string().optional(),
 });
 
-// Step 1: Event Creation Validation
+// Step 1: Event Creation Validation - Make image optional for initial step
 export const validateEventCreation = z.object({
   title: z
     .string()
@@ -53,13 +55,13 @@ export const validateEventCreation = z.object({
     .string()
     .min(10, "Description must be at least 10 characters")
     .max(500, "Description cannot exceed 500 characters"),
-  image: imageSchema,
+  image: z.string().optional(), // Make image optional for step 1
   featured: z.boolean().optional(),
   step: z.number(),
   status: z.string().optional(),
 });
 
-// Step 2: Event Promotion Validation
+// Step 2: Event Promotion Validation - Require image for final step
 export const validateEventPromotion = z.object({
   title: z
     .string()
@@ -79,7 +81,7 @@ export const validateEventPromotion = z.object({
     .string()
     .min(10, "Description must be at least 10 characters")
     .max(500, "Description cannot exceed 500 characters"),
-  image: imageSchema,
+  image: imageSchema, // Require valid image for step 2
   featured: z.boolean().optional(),
   step: z.number(),
   status: z.string().optional(),
