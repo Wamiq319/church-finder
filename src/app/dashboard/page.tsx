@@ -5,10 +5,10 @@ import { useSession } from "next-auth/react";
 import ClientOnly from "@/components/ClientOnly";
 import { Loader } from "@/components/ui/Loader";
 import { ComingSoonPopup } from "@/components/ui/ComingSoon";
-import { NoChurchCTA } from "@/components/dashboard/NoChurchCTA";
-import { QuickActions } from "@/components/dashboard/QuickActions";
-import { FeaturedDetails } from "@/components/dashboard/FeaturedDetails";
-import { ChurchDetails } from "@/components/dashboard/ChurchDetails";
+import { NoChurchCTA } from "./component/NoChurchCTA";
+import { QuickActions } from "./component/QuickActions";
+import { FeaturedDetails } from "./component/FeaturedDetails";
+import { ChurchDetails } from "./component/ChurchDetails";
 import type { Church } from "@/types";
 
 type DashboardChurch = Church & {

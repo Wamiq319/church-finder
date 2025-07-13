@@ -2,6 +2,7 @@
 
 import { formatDate } from "@/utils/dateUtils";
 import { Star, Building } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/Button";
 
@@ -16,6 +17,11 @@ export function FeaturedDetails({
   featuredUntil,
   onGetFeaturedClick,
 }: FeaturedDetailsProps) {
+  const router = useRouter();
+
+  const handleGetFeaturedClick = () => {
+    router.push("/dashboard/create-church?step=4");
+  };
   if (!isFeatured) {
     return (
       <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg p-6">
@@ -51,13 +57,15 @@ export function FeaturedDetails({
             </div>
           </div>
 
-          <Button
-            variant="primary"
-            className="w-full bg-[#7FC242] hover:bg-[#5A9C2E] transition-colors"
-            onClick={onGetFeaturedClick}
-          >
-            Get Featured Now
-          </Button>
+          <div className="mt-6 px-4">
+            <Button
+              variant="primary"
+              className="w-full bg-[#7FC242] hover:bg-[#5A9C2E] transition-colors py-3 text-base font-medium"
+              onClick={handleGetFeaturedClick}
+            >
+              Get Featured Now
+            </Button>
+          </div>
         </div>
       </div>
     );

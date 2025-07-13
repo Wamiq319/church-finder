@@ -72,15 +72,31 @@ export default function CreateChurchPage() {
 
       if (data.success && data.data) {
         // Check if church is complete and published
-        if (data.data.step > 3 && data.data.status === "published") {
+        // Only redirect if not coming from "Get Featured" button (step=4)
+        const stepParam = searchParams.get("step");
+        if (
+          data.data.step > 3 &&
+          data.data.status === "published" &&
+          stepParam !== "4"
+        ) {
           router.push("/dashboard");
           return;
         }
 
         // Update formData with backend data
+        let newStep = data.data.step + 1; // Default increment step for UI
+
+        // If step parameter is provided, use that instead
+        if (stepParam) {
+          const stepNumber = parseInt(stepParam);
+          if (stepNumber >= 1 && stepNumber <= 4) {
+            newStep = stepNumber;
+          }
+        }
+
         setFormData({
           ...data.data,
-          step: data.data.step + 1, // Increment step for UI
+          step: newStep,
         });
 
         if (data.data.image) {
