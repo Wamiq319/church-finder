@@ -11,6 +11,9 @@ export type Event = {
   description: string;
   image: string;
   featured: boolean;
+  step: number;
+  status: "draft" | "published";
+  featuredUntil?: Date;
   createdAt: Date;
   updatedAt: Date;
 };

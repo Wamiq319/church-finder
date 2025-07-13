@@ -2,7 +2,7 @@ import mongoose, { Schema, Model, Document } from "mongoose";
 import type { Event } from "@/types";
 import { slugify } from "@/utils/slugify";
 
-interface IEvent extends Event, Document {
+interface IEvent extends Omit<Event, "_id">, Document {
   // Additional methods can be added here if needed
 }
 
@@ -23,6 +23,18 @@ const eventSchema: Schema = new Schema(
     featured: {
       type: Boolean,
       default: false,
+    },
+    step: {
+      type: Number,
+      default: 1,
+    },
+    status: {
+      type: String,
+      enum: ["draft", "published"],
+      default: "draft",
+    },
+    featuredUntil: {
+      type: Date,
     },
   },
   { timestamps: true }

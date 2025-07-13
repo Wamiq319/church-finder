@@ -9,46 +9,48 @@ import {
   ArrowLeft,
   ArrowRight,
   ImagePlus,
-  Building2,
+  Calendar,
   MapPin,
-  Mail,
-  Phone,
   Clock,
+  Star,
 } from "lucide-react";
 import Image from "next/image";
-import nigerianStates from "@/data/nigerianStates.json";
-import nigerianCities from "@/data/nigerianCities.json";
 import {
-  validateBasicInfo,
-  validateLocation,
-  validateContact,
-  validatePromotion,
-} from "@/lib/validations/church";
-import { Church } from "@/types";
-import { z } from "zod";
+  validateEventCreation,
+  validateEventPromotion,
+} from "@/lib/validations/event";
+import { Event } from "@/types";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 
-export default function CreateChurchPage() {
+interface EventFormData {
+  title: string;
+  address: string;
+  date: string;
+  time: string;
+  description: string;
+  image: string;
+  featured: boolean;
+  step: number;
+  status: "draft" | "published";
+  _id?: string;
+  featuredUntil?: Date;
+}
+
+export default function CreateEventPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
+  const churchId = searchParams.get("churchId");
 
-  const [formData, setFormData] = useState<Church>({
-    name: "",
-    denomination: "",
-    description: "",
+  const [formData, setFormData] = useState<EventFormData>({
+    title: "",
     address: "",
-    state: "",
-    city: "",
-    pastorName: "",
-    pastorEmail: "",
-    pastorPhone: "",
-    contactEmail: "",
-    contactPhone: "",
-    services: [""],
+    date: "",
+    time: "",
+    description: "",
     image: "",
-    isFeatured: false,
+    featured: false,
     step: 1,
     status: "draft",
   });
@@ -62,17 +64,17 @@ export default function CreateChurchPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
 
-  // Function to fetch and update church data
-  const fetchChurchData = async () => {
+  // Function to fetch and update event data
+  const fetchEventData = async () => {
     try {
       const response = await fetch(
-        `/api/churches?createdBy=${session?.user?.id}`
+        `/api/events?createdBy=${session?.user?.id}&churchId=${churchId}`
       );
       const data = await response.json();
 
       if (data.success && data.data) {
-        // Check if church is complete and published
-        if (data.data.step > 3 && data.data.status === "published") {
+        // Check if event is complete and published
+        if (data.data.step > 2 && data.data.status === "published") {
           router.push("/dashboard");
           return;
         }
@@ -88,8 +90,8 @@ export default function CreateChurchPage() {
         }
       }
     } catch (error) {
-      console.error("Error loading church data:", error);
-      setApiError("Failed to load church data");
+      console.error("Error loading event data:", error);
+      setApiError("Failed to load event data");
     } finally {
       setIsLoading(false);
     }
@@ -97,13 +99,13 @@ export default function CreateChurchPage() {
 
   // Initial data load
   useEffect(() => {
-    if (session?.user?.id) {
-      fetchChurchData();
+    if (session?.user?.id && churchId) {
+      fetchEventData();
     } else if (session === null) {
       // User is not authenticated, middleware will handle redirect
       setIsLoading(false);
     }
-  }, [session, router]);
+  }, [session, router, churchId]);
 
   // Check for payment status from URL params
   useEffect(() => {
@@ -113,9 +115,9 @@ export default function CreateChurchPage() {
 
       if (payment === "success" && sessionId) {
         setPaymentStatus("success");
-        // Verify payment and update church status immediately
+        // Verify payment and update event status immediately
         if (session?.user?.id) {
-          verifyPaymentAndUpdateChurch(sessionId);
+          verifyPaymentAndUpdateEvent(sessionId);
         }
         // Clean up URL params
         const newUrl = new URL(window.location.href);
@@ -135,17 +137,17 @@ export default function CreateChurchPage() {
   const saveStep = async () => {
     try {
       setApiError(null);
-      const response = await fetch("/api/churches", {
+      const response = await fetch("/api/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, churchId }),
       });
 
       const data = await response.json();
       if (!response.ok)
         throw new Error(data.message || "Failed to save step data.");
 
-      if (data.success) await fetchChurchData();
+      if (data.success) await fetchEventData();
     } catch (error) {
       console.error("Error in saveStep:", error);
       setApiError(
@@ -201,14 +203,10 @@ export default function CreateChurchPage() {
       return;
     }
 
+    setIsUploading(true);
+    setUploadError(null);
+
     try {
-      setIsUploading(true);
-      setUploadError(null);
-
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
-
       const formData = new FormData();
       formData.append("file", file);
 
@@ -218,110 +216,64 @@ export default function CreateChurchPage() {
       });
 
       const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.error || data.message || "Failed to upload image");
 
-      setFormData((prev) => ({ ...prev, image: data.data.url }));
+      if (!response.ok) {
+        throw new Error(data.message || "Upload failed");
+      }
+
+      setFormData((prev) => ({ ...prev, image: data.url }));
+      setImagePreview(data.url);
     } catch (error) {
-      console.error("Error uploading image:", error);
-      setUploadError(
-        error instanceof Error ? error.message : "Failed to upload image"
-      );
-      setImagePreview(null);
+      console.error("Upload error:", error);
+      setUploadError(error instanceof Error ? error.message : "Upload failed");
     } finally {
       setIsUploading(false);
     }
   };
 
-  const handleServiceChange = (index: number, value: string) => {
-    setFormData((prev) => {
-      const newServices = [...prev.services] as [string, ...string[]];
-      newServices[index] = value;
-      return { ...prev, services: newServices };
-    });
-  };
-
-  const addServiceField = () => {
-    setFormData((prev) => ({
-      ...prev,
-      services: [...prev.services, ""],
-    }));
-  };
-
-  const removeServiceField = (index: number) => {
-    if (formData.services.length > 1) {
-      setFormData((prev) => ({
-        ...prev,
-        services: prev.services.filter((_, i) => i !== index) as [
-          string,
-          ...string[]
-        ],
-      }));
-    }
-  };
-
   const validateStep = (step: number) => {
-    let result;
-    switch (step) {
-      case 1:
-        result = validateBasicInfo(formData);
-        break;
-      case 2:
-        result = validateLocation(formData);
-        break;
-      case 3:
-        result = validateContact(formData);
-        break;
-      case 4:
-        result = validatePromotion(formData);
-        break;
-      default:
-        return true;
+    const newErrors: Record<string, string> = {};
+
+    if (step === 1) {
+      const result = validateEventCreation.safeParse(formData);
+      if (!result.success) {
+        result.error.errors.forEach((error) => {
+          newErrors[error.path[0]] = error.message;
+        });
+      }
+    } else if (step === 2) {
+      const result = validateEventPromotion.safeParse(formData);
+      if (!result.success) {
+        result.error.errors.forEach((error) => {
+          newErrors[error.path[0]] = error.message;
+        });
+      }
     }
 
-    if (!result.success) {
-      const newErrors = result.error.issues.reduce<Record<string, string>>(
-        (acc, issue) => {
-          acc[issue.path[0]] = issue.message;
-          return acc;
-        },
-        {}
-      );
-      setErrors(newErrors);
-      return false;
-    }
-    return true;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const verifyPaymentAndUpdateChurch = async (sessionId: string) => {
+  const verifyPaymentAndUpdateEvent = async (sessionId: string) => {
     try {
       const response = await fetch("/api/payments/verify-session", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId }),
       });
 
-      const data = await response.json();
-
-      if (data.success) {
-        console.log("Payment verified successfully:", data.message);
-        // Refresh church data to get updated featured status
-        await fetchChurchData();
-      } else {
-        console.error("Payment verification failed:", data.message);
-        // Still try to refresh data in case webhook processed it
-        setTimeout(() => {
-          fetchChurchData();
-        }, 3000);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setFormData((prev) => ({
+            ...prev,
+            featured: true,
+            featuredUntil: data.featuredUntil,
+          }));
+        }
       }
     } catch (error) {
       console.error("Error verifying payment:", error);
-      // Fallback: try to refresh data after a delay
-      setTimeout(() => {
-        fetchChurchData();
-      }, 3000);
     }
   };
 
@@ -330,21 +282,25 @@ export default function CreateChurchPage() {
       setIsLoading(true);
       const response = await fetch("/api/payments/create-checkout-session", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "event_featured",
+          eventId: formData._id,
+          amount: 500, // $5.00 in cents
+        }),
       });
 
       const data = await response.json();
-
-      if (data.success && data.url) {
+      if (response.ok && data.url) {
         window.location.href = data.url;
       } else {
-        setApiError(data.message || "Failed to create checkout session");
+        throw new Error(data.message || "Failed to create checkout session");
       }
     } catch (error) {
       console.error("Error creating checkout session:", error);
-      setApiError("Failed to create checkout session");
+      setApiError(
+        error instanceof Error ? error.message : "Payment setup failed"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -372,20 +328,18 @@ export default function CreateChurchPage() {
           <div className="h-2 bg-gray-100">
             <div
               className="h-full bg-[#7FC242] transition-all duration-300"
-              style={{ width: `${(formData.step / 4) * 100}%` }}
+              style={{ width: `${(formData.step / 2) * 100}%` }}
             ></div>
           </div>
 
           {/* Form Header */}
           <div className="p-6 border-b border-gray-100">
             <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-              <Building2 className="text-[#7FC242]" />
-              {formData.step === 1 && "Basic Information"}
-              {formData.step === 2 && "Location Details"}
-              {formData.step === 3 && "Contact & Services"}
-              {formData.step === 4 && "Promotion"}
+              <Calendar className="text-[#7FC242]" />
+              {formData.step === 1 && "Event Details"}
+              {formData.step === 2 && "Promotion"}
             </h1>
-            <p className="text-gray-500 mt-1">Step {formData.step} of 4</p>
+            <p className="text-gray-500 mt-1">Step {formData.step} of 2</p>
           </div>
 
           {/* Error Alert */}
@@ -414,37 +368,65 @@ export default function CreateChurchPage() {
 
           {/* Form Content */}
           <form onSubmit={nextStep} className="p-6">
-            {/* Step 1: Basic Information */}
+            {/* Step 1: Event Details */}
             {formData.step === 1 && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <Input
-                      label="Church Name*"
-                      name="name"
-                      value={formData.name}
+                      label="Event Title*"
+                      name="title"
+                      value={formData.title}
                       onChange={handleInputChange}
-                      placeholder="Enter your church name"
-                      error={errors.name}
+                      placeholder="Enter event title"
+                      error={errors.title}
                       rounded
                     />
                   </div>
                   <div>
                     <Input
-                      label="Denomination*"
-                      name="denomination"
-                      value={formData.denomination}
+                      label="Event Address"
+                      name="address"
+                      value={formData.address}
                       onChange={handleInputChange}
-                      placeholder="e.g. Anglican, Catholic, Pentecostal"
-                      error={errors.denomination}
+                      placeholder="Enter event location"
+                      error={errors.address}
                       rounded
+                      icon={<MapPin className="h-4 w-4 text-[#7FC242]" />}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Input
+                      label="Event Date*"
+                      name="date"
+                      type="date"
+                      value={formData.date}
+                      onChange={handleInputChange}
+                      error={errors.date}
+                      rounded
+                      icon={<Calendar className="h-4 w-4 text-[#7FC242]" />}
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      label="Event Time*"
+                      name="time"
+                      type="time"
+                      value={formData.time}
+                      onChange={handleInputChange}
+                      error={errors.time}
+                      rounded
+                      icon={<Clock className="h-4 w-4 text-[#7FC242]" />}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-[#5A7D2C] mb-2">
-                    Church Image
+                    Event Image
                   </label>
                   <div className="flex flex-col sm:flex-row gap-4 items-start">
                     <div
@@ -454,7 +436,7 @@ export default function CreateChurchPage() {
                       {imagePreview ? (
                         <Image
                           src={imagePreview}
-                          alt="Church preview"
+                          alt="Event preview"
                           fill
                           className="object-cover"
                           sizes="(max-width: 768px) 100vw, 192px"
@@ -510,295 +492,21 @@ export default function CreateChurchPage() {
                     </div>
                   </div>
                 </div>
+
                 <Input
-                  label="Description"
+                  label="Event Description*"
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
-                  placeholder="Tell us about your church's mission, values, and community between 100 & 500 chacraters..."
+                  placeholder="Describe your event, what attendees can expect, and any important details..."
                   error={errors.description}
                   rows={4}
                 />
               </div>
             )}
 
-            {/* Step 2: Location */}
+            {/* Step 2: Promotion */}
             {formData.step === 2 && (
-              <div className="space-y-6">
-                <Input
-                  label="Address*"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  placeholder="Enter street address"
-                  error={errors.address}
-                  rounded
-                  icon={<MapPin className="h-4 w-4 text-[#7FC242]" />}
-                />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-[#5A7D2C] mb-2">
-                      State*
-                    </label>
-                    <select
-                      name="state"
-                      value={formData.state}
-                      onChange={(e) => {
-                        setFormData({
-                          ...formData,
-                          state: e.target.value,
-                          city: "",
-                        });
-                        if (errors.state) setErrors({ ...errors, state: "" });
-                      }}
-                      className={`w-full px-4 py-3 border-2 ${
-                        errors.state ? "border-red-500" : "border-[#E0E0E0]"
-                      } focus:border-[#5A7D2C] focus:ring-2 focus:ring-[#7FC242]/50 rounded-lg transition-all duration-200`}
-                    >
-                      <option value="">Select State</option>
-                      {nigerianStates.map((state) => (
-                        <option key={state} value={state}>
-                          {state}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.state && (
-                      <p className="mt-1 text-sm text-red-500 flex items-center">
-                        <svg
-                          className="w-4 h-4 inline mr-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        {errors.state}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[#5A7D2C] mb-2">
-                      City*
-                    </label>
-                    <select
-                      name="city"
-                      value={formData.city}
-                      onChange={(e) => {
-                        setFormData({ ...formData, city: e.target.value });
-                        if (errors.city) setErrors({ ...errors, city: "" });
-                      }}
-                      disabled={!formData.state}
-                      className={`w-full px-4 py-3 border-2 ${
-                        errors.city ? "border-red-500" : "border-[#E0E0E0]"
-                      } focus:border-[#5A7D2C] focus:ring-2 focus:ring-[#7FC242]/50 rounded-lg transition-all duration-200 ${
-                        !formData.state ? "bg-gray-100 text-gray-400" : ""
-                      }`}
-                    >
-                      <option value="">
-                        {formData.state ? "Select City" : "Select State First"}
-                      </option>
-                      {formData.state &&
-                        nigerianCities[
-                          formData.state as keyof typeof nigerianCities
-                        ]?.map((city) => (
-                          <option key={city} value={city}>
-                            {city}
-                          </option>
-                        ))}
-                    </select>
-                    {errors.city && (
-                      <p className="mt-1 text-sm text-red-500 flex items-center">
-                        <svg
-                          className="w-4 h-4 inline mr-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        {errors.city}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="bg-[#F0F7EA] p-4 rounded-lg border-2 border-[#E0E0E0]">
-                  <h3 className="font-medium text-[#5A7D2C] flex items-center gap-2">
-                    <MapPin className="h-5 w-5 text-[#7FC242]" />
-                    Location Preview
-                  </h3>
-                  {formData.address || formData.city || formData.state ? (
-                    <div className="mt-2">
-                      <p className="text-[#2E2E2E]">
-                        {[formData.address, formData.city, formData.state]
-                          .filter(Boolean)
-                          .join(", ")}
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-gray-500 mt-1">
-                      Your location will appear here
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Step 3: Contact & Services */}
-            {formData.step === 3 && (
-              <div className="space-y-6">
-                <h3 className="text-lg font-medium text-[#5A7D2C]">
-                  Pastor Details
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <Input
-                    label="Pastor Name*"
-                    name="pastorName"
-                    value={formData.pastorName}
-                    onChange={handleInputChange}
-                    placeholder="Pastor's full name"
-                    error={errors.pastorName}
-                    rounded
-                  />
-                  <Input
-                    label="Pastor Email*"
-                    name="pastorEmail"
-                    type="email"
-                    value={formData.pastorEmail}
-                    onChange={handleInputChange}
-                    placeholder="pastor@church.org"
-                    error={errors.pastorEmail}
-                    rounded
-                    icon={<Mail className="h-4 w-4 text-[#7FC242]" />}
-                  />
-                  <Input
-                    label="Pastor Phone*"
-                    name="pastorPhone"
-                    type="tel"
-                    value={formData.pastorPhone}
-                    onChange={handleInputChange}
-                    placeholder="+234 800 000 0000"
-                    error={errors.pastorPhone}
-                    rounded
-                    icon={<Phone className="h-4 w-4 text-[#7FC242]" />}
-                  />
-                </div>
-
-                <h3 className="text-lg font-medium text-[#5A7D2C]">
-                  Church Contact
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Input
-                    label="Church Email*"
-                    name="contactEmail"
-                    type="email"
-                    value={formData.contactEmail}
-                    onChange={handleInputChange}
-                    placeholder="contact@church.org"
-                    error={errors.contactEmail}
-                    rounded
-                    icon={<Mail className="h-4 w-4 text-[#7FC242]" />}
-                  />
-                  <Input
-                    label="Church Phone*"
-                    name="contactPhone"
-                    type="tel"
-                    value={formData.contactPhone}
-                    onChange={handleInputChange}
-                    placeholder="+234 800 000 0000"
-                    error={errors.contactPhone}
-                    rounded
-                    icon={<Phone className="h-4 w-4 text-[#7FC242]" />}
-                  />
-                </div>
-
-                <h3 className="text-lg font-medium text-[#5A7D2C] flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-[#7FC242]" />
-                  Service Times*
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <Input
-                      value={formData.services[0] || ""}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        handleServiceChange(0, e.target.value)
-                      }
-                      placeholder="Service 1 (e.g., Sunday Worship - 9 AM)"
-                      rounded
-                      error={
-                        errors.services && !formData.services[0]?.trim()
-                          ? "Required"
-                          : undefined
-                      }
-                    />
-                  </div>
-
-                  {formData.services.slice(1).map((service, index) => (
-                    <div key={index + 1} className="flex items-center gap-3">
-                      <Input
-                        value={service}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handleServiceChange(index + 1, e.target.value)
-                        }
-                        placeholder={`Service ${
-                          index + 2
-                        } (e.g., Sunday Worship - 9 AM)`}
-                        rounded
-                        error={
-                          errors.services && !service.trim()
-                            ? "Required"
-                            : undefined
-                        }
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeServiceField(index + 1)}
-                        className="text-red-500 hover:text-red-700 p-2"
-                      >
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
-
-                  <Button
-                    type="button"
-                    onClick={addServiceField}
-                    variant="outline"
-                    className="w-full"
-                    rounded
-                  >
-                    Add Another Service Time
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 4: Promotion */}
-            {formData.step === 4 && (
               <div className="space-y-6">
                 {/* Payment Success Message */}
                 {paymentStatus === "success" && (
@@ -819,11 +527,11 @@ export default function CreateChurchPage() {
                       </div>
                       <div className="ml-3">
                         <h3 className="text-sm font-medium text-green-800">
-                          🎉 Congratulations! Your church is now featured!
+                          🎉 Congratulations! Your event is now featured!
                         </h3>
                         <div className="mt-2 text-sm text-green-700">
                           <p>
-                            Your church will be featured prominently on our
+                            Your event will be featured prominently on our
                             homepage and search results until{" "}
                             {formData.featuredUntil
                               ? formatDate(formData.featuredUntil)
@@ -831,7 +539,7 @@ export default function CreateChurchPage() {
                             .
                           </p>
                           <p className="mt-1">
-                            You can now publish your church or continue editing.
+                            You can now publish your event or continue editing.
                           </p>
                         </div>
                       </div>
@@ -863,7 +571,7 @@ export default function CreateChurchPage() {
                         <div className="mt-2 text-sm text-yellow-700">
                           <p>
                             Your payment was cancelled. You can still publish
-                            your church without featuring, or try the payment
+                            your event without featuring, or try the payment
                             again.
                           </p>
                         </div>
@@ -872,28 +580,18 @@ export default function CreateChurchPage() {
                   </div>
                 )}
 
-                {/* Featured Church Status - Only show when church is featured */}
-                {formData.isFeatured && (
+                {/* Featured Event Status - Only show when event is featured */}
+                {formData.featured && (
                   <div className="space-y-6">
                     {/* Main Featured Status Card */}
                     <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6">
                       <div className="text-center">
                         <div className="bg-green-500 text-white rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                          <svg
-                            className="h-8 w-8"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
+                          <Star className="h-8 w-8" />
                         </div>
 
                         <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                          🎉 You Are Featured! 🎉
+                          🎉 Your Event Is Featured! 🎉
                         </h2>
 
                         <div className="flex items-center justify-center gap-2 mb-3">
@@ -910,7 +608,7 @@ export default function CreateChurchPage() {
                         </p>
 
                         <p className="text-gray-600 max-w-2xl mx-auto">
-                          Congratulations! Your church is now prominently
+                          Congratulations! Your event is now prominently
                           featured across our platform. This means more
                           visibility and better reach for your community.
                         </p>
@@ -920,7 +618,7 @@ export default function CreateChurchPage() {
                     {/* Benefits Section */}
                     <div className="bg-white rounded-xl p-6 border-2 border-green-200 shadow-sm">
                       <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <Building2 className="h-5 w-5 text-green-600" />
+                        <Calendar className="h-5 w-5 text-green-600" />
                         Your Featured Benefits
                       </h3>
 
@@ -934,7 +632,7 @@ export default function CreateChurchPage() {
                               Top Search Results
                             </h4>
                             <p className="text-sm text-gray-600">
-                              Your church appears first in search results
+                              Your event appears first in search results
                             </p>
                           </div>
                         </div>
@@ -962,7 +660,7 @@ export default function CreateChurchPage() {
                               Featured Badge
                             </h4>
                             <p className="text-sm text-gray-600">
-                              Special "Featured" badge on your profile
+                              Special "Featured" badge on your event
                             </p>
                           </div>
                         </div>
@@ -976,7 +674,7 @@ export default function CreateChurchPage() {
                               Priority Listing
                             </h4>
                             <p className="text-sm text-gray-600">
-                              Higher priority in church listings
+                              Higher priority in event listings
                             </p>
                           </div>
                         </div>
@@ -1002,8 +700,8 @@ export default function CreateChurchPage() {
                         What's Next?
                       </h3>
                       <p className="text-gray-700">
-                        Your church is now featured! You can complete the setup
-                        by publishing your church or continue editing your
+                        Your event is now featured! You can complete the setup
+                        by publishing your event or continue editing your
                         information. Your featured status will remain active
                         until
                         {formData.featuredUntil
@@ -1015,23 +713,23 @@ export default function CreateChurchPage() {
                   </div>
                 )}
 
-                {/* Non-Featured Church CTA and Button - Only show when church is NOT featured */}
-                {!formData.isFeatured && (
+                {/* Non-Featured Event CTA and Button - Only show when event is NOT featured */}
+                {!formData.featured && (
                   <>
                     <div className="bg-gradient-to-br from-[#F0F7EA] to-[#E0F0FF] border border-[#7FC242] rounded-xl p-6">
                       <div className="flex items-start gap-4">
                         <div className="bg-[#7FC242] text-white rounded-full p-3 flex-shrink-0">
-                          <Building2 className="h-5 w-5" />
+                          <Star className="h-5 w-5" />
                         </div>
                         <div className="flex-1">
                           <h3 className="text-xl font-bold text-gray-800">
-                            Feature Your Church
+                            Feature Your Event
                           </h3>
                           <p className="text-[#5A7D2C] text-lg font-bold mt-1">
                             $5 per week
                           </p>
                           <p className="text-gray-600 mt-2">
-                            Get your church featured prominently on our homepage
+                            Get your event featured prominently on our homepage
                             to reach more people.
                           </p>
                           <ul className="mt-3 space-y-2 text-gray-600">
@@ -1045,7 +743,7 @@ export default function CreateChurchPage() {
                             </li>
                             <li className="flex items-center gap-2">
                               <span className="text-[#7FC242]">✓</span>{" "}
-                              "Featured" badge on profile
+                              "Featured" badge on event
                             </li>
                           </ul>
                         </div>
@@ -1090,7 +788,7 @@ export default function CreateChurchPage() {
                 <div></div>
               )}
 
-              {formData.step < 4 ? (
+              {formData.step < 2 ? (
                 <Button
                   type="button"
                   onClick={nextStep}
@@ -1104,11 +802,11 @@ export default function CreateChurchPage() {
                 <Button
                   type="button"
                   onClick={async () => {
-                    if (validateStep(4)) {
+                    if (validateStep(2)) {
                       try {
                         await saveStep();
                         // Update status to published
-                        const response = await fetch("/api/churches", {
+                        const response = await fetch("/api/events", {
                           method: "PATCH",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({ status: "published" }),
@@ -1118,7 +816,7 @@ export default function CreateChurchPage() {
                           router.push("/dashboard");
                         }
                       } catch (error) {
-                        console.error("Error publishing church:", error);
+                        console.error("Error publishing event:", error);
                       }
                     }
                   }}
@@ -1126,7 +824,7 @@ export default function CreateChurchPage() {
                   rounded
                   disabled={isLoading}
                 >
-                  {isLoading ? "Publishing..." : "Create & publish Church"}
+                  {isLoading ? "Publishing..." : "Create & publish Event"}
                 </Button>
               )}
             </div>

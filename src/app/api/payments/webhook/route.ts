@@ -32,25 +32,34 @@ export async function POST(request: Request) {
     switch (event.type) {
       case "checkout.session.completed":
         const session = event.data.object;
+        console.log("Webhook: checkout.session.completed", session.metadata);
 
         if (session.metadata?.type === "featured_church") {
           const churchId = session.metadata.churchId;
+          console.log("Processing featured church payment for:", churchId);
 
           // Calculate featured until date (1 week from now)
           const featuredUntil = new Date();
           featuredUntil.setDate(featuredUntil.getDate() + 7);
 
           // Update church to featured
-          await Church.findByIdAndUpdate(churchId, {
-            isFeatured: true,
-            featuredUntil,
-            paymentStatus: "completed",
-            status: "published", // Also publish the church
-          });
+          const updatedChurch = await Church.findByIdAndUpdate(
+            churchId,
+            {
+              isFeatured: true,
+              featuredUntil,
+              paymentStatus: "completed",
+              step: 4, // Move to step 4 after payment
+            },
+            { new: true }
+          );
 
           console.log(
-            `Church ${churchId} is now featured until ${featuredUntil}`
+            `Church ${churchId} is now featured until ${featuredUntil}`,
+            updatedChurch
           );
+        } else {
+          console.log("No featured church metadata found in session");
         }
         break;
 
