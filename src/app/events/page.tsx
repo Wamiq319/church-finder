@@ -1,19 +1,19 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useTranslations } from "next-intl";
 import eventsData from "@/data/events.json";
+import contentData from "@/data/content.json";
 import { EventCard } from "@/components/ui/EventCard";
-import { GridWithPagination } from "@/components/GridWithPagination";
+import GridWithPagination from "@/components/GridWithPagination";
 import { EventCarousel } from "@/components/EventCarousel";
 import { BannerCTA } from "@/components/ui/BannerCTA";
-import { PromotionCard } from "@/components/ui/PromotionCard";
+import { FeaturedDetails } from "@/components/ui/FeaturedDetail";
 import { UpcomingEventsSidebar } from "@/components/ui/UpcomingEventsSidebar";
 import { Search } from "lucide-react";
 import { Loader } from "@/components/ui/Loader";
 
 export default function EventsPage() {
-  const t = useTranslations("EventsPage");
+  const content = contentData.EventsPage;
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredEvents, setFilteredEvents] = useState(eventsData);
   const [isLoading, setIsLoading] = useState(false);
@@ -74,7 +74,7 @@ export default function EventsPage() {
             <div className="flex items-center gap-2">
               <input
                 type="text"
-                placeholder="Search events by title, location, or organizer..."
+                placeholder={content.searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -92,11 +92,11 @@ export default function EventsPage() {
                 className="rounded-full bg-[#7FC242] hover:bg-[#5A7D2C] text-white px-6 py-3 transition text-sm font-medium flex items-center gap-2"
               >
                 {isLoading ? (
-                  <Loader text="Searching..." />
+                  <Loader text={content.searchingText} />
                 ) : (
                   <>
                     <Search size={20} />
-                    Search
+                    {content.searchButton}
                   </>
                 )}
               </button>
@@ -119,12 +119,12 @@ export default function EventsPage() {
           </div>
 
           <h1 className="text-3xl font-bold text-[#1A365D] mb-8 text-center">
-            {t("allEvents")}
+            {content.allEvents}
           </h1>
 
           {isLoading ? (
             <div className="flex justify-center py-12">
-              <Loader text="Loading events..." />
+              <Loader text={content.loadingText} />
             </div>
           ) : (
             <GridWithPagination
@@ -136,7 +136,7 @@ export default function EventsPage() {
         </div>
 
         <div className="lg:w-1/4 space-y-6">
-          <PromotionCard />
+          <FeaturedDetails isFeatured={false} />
           <UpcomingEventsSidebar events={eventsData.slice(0, 3)} />
         </div>
       </div>

@@ -7,7 +7,7 @@ import { Loader } from "@/components/ui/Loader";
 import { ComingSoonPopup } from "@/components/ui/ComingSoon";
 import { NoChurchCTA } from "./component/NoChurchCTA";
 import { QuickActions } from "./component/QuickActions";
-import { FeaturedDetails } from "./component/FeaturedDetails";
+import { FeaturedDetails } from "@/components/ui/FeaturedDetail";
 import { ChurchDetails } from "./component/ChurchDetails";
 import type { Church } from "@/types";
 
@@ -119,7 +119,6 @@ export default function Dashboard() {
               <FeaturedDetails
                 isFeatured={church.isFeatured || false}
                 featuredUntil={church.featuredUntil}
-                onGetFeaturedClick={() => setShowComingSoon(true)}
               />
             </div>
           </div>

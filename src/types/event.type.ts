@@ -17,3 +17,17 @@ export type Event = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type EventData = {
+  id: string;
+  churchId: string;
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+  image: string;
+  slug: string;
+  organizer: string;
+  description: string;
+  featured: boolean;
+};

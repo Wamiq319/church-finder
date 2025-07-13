@@ -130,7 +130,13 @@
     "viewDetails": "View Details"
   },
   "EventsPage": {
-    "allEvents": "AllEvents"
+    "allEvents": "All Events",
+    "searchPlaceholder": "Search events by title, location, or organizer...",
+    "searchButton": "Search",
+    "searchingText": "Searching...",
+    "loadingText": "Loading events...",
+    "noEventsFound": "No events found matching your search criteria.",
+    "tryDifferentSearch": "Try a different search term or browse all events below."
   },
   "churchDetailPage": {
     "aboutTitle": "About Our Church",

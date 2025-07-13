@@ -16,7 +16,7 @@ import {
   PlusCircle,
 } from "lucide-react";
 import churches from "@/data/churches.json";
-import { useTranslations } from "next-intl";
+import contentData from "@/data/content.json";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -25,7 +25,7 @@ export default function ChurchDetailPage() {
   const params = useParams();
   const router = useRouter();
   const church = churches.find((c) => c.slug === params.slug);
-  const t = useTranslations("churchDetailPage");
+  const content = contentData.churchDetailPage;
 
   if (!church) {
     return notFound();
@@ -64,7 +64,7 @@ export default function ChurchDetailPage() {
           <div className="bg-white rounded-xl shadow-md p-6 mb-6">
             <h2 className="text-2xl font-bold text-[#1A365D] mb-4 flex items-center">
               <BookOpen className="text-[#7FC242] mr-2" />
-              {t("aboutTitle")}
+              {content.aboutTitle}
             </h2>
             <p className="text-[#555] leading-relaxed">{church.description}</p>
           </div>
@@ -73,7 +73,7 @@ export default function ChurchDetailPage() {
           <div className="bg-white rounded-xl shadow-md p-6 mb-6">
             <h2 className="text-2xl font-bold text-[#1A365D] mb-4 flex items-center">
               <Calendar className="text-[#7FC242] mr-2" />
-              {t("servicesTitle")}
+              {content.servicesTitle}
             </h2>
             <ul className="space-y-3">
               {church.services.map((service, index) => (
@@ -89,7 +89,7 @@ export default function ChurchDetailPage() {
           <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-2xl font-bold text-[#1A365D] mb-4 flex items-center">
               <MapPin className="text-[#7FC242] mr-2" />
-              {t("locationTitle")}
+              {content.locationTitle}
             </h2>
             <div className="space-y-4">
               <div className="flex items-start">
@@ -122,7 +122,7 @@ export default function ChurchDetailPage() {
                 onClick={() => window.open(mapsSearchUrl, "_blank")}
               >
                 <MapPin className="h-4 w-4 mr-2" />
-                {t("openInMaps")}
+                {content.openInMaps}
               </Button>
             </div>
           </div>
@@ -134,7 +134,7 @@ export default function ChurchDetailPage() {
           <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-2xl font-bold text-[#1A365D] mb-4 flex items-center">
               <User className="text-[#7FC242] mr-2" />
-              {t("pastorTitle")}
+              {content.pastorTitle}
             </h2>
             <div className="space-y-4">
               <div className="flex items-center">
@@ -166,7 +166,7 @@ export default function ChurchDetailPage() {
           <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-2xl font-bold text-[#1A365D] mb-4 flex items-center">
               <Phone className="text-[#7FC242] mr-2" />
-              {t("contactTitle")}
+              {content.contactTitle}
             </h2>
             <div className="space-y-4">
               <div className="flex items-center">
@@ -194,21 +194,21 @@ export default function ChurchDetailPage() {
           <div className="bg-gradient-to-r from-[#1A365D] to-[#2C5282] rounded-xl p-6 text-white">
             <div className="flex items-center mb-3">
               <PlusCircle className="h-6 w-6 mr-2" />
-              <h3 className="text-xl font-bold">{t("registerTitle")}</h3>
+              <h3 className="text-xl font-bold">{content.registerTitle}</h3>
             </div>
-            <p className="mb-4">{t("registerDescription")}</p>
+            <p className="mb-4">{content.registerDescription}</p>
             <ul className="mb-4 space-y-2">
               <li className="flex items-start">
                 <span className="mr-2">✓</span>
-                <span>{t("registerBenefit1")}</span>
+                <span>{content.registerBenefit1}</span>
               </li>
               <li className="flex items-start">
                 <span className="mr-2">✓</span>
-                <span>{t("registerBenefit2")}</span>
+                <span>{content.registerBenefit2}</span>
               </li>
               <li className="flex items-start">
                 <span className="mr-2">✓</span>
-                <span>{t("registerBenefit3")}</span>
+                <span>{content.registerBenefit3}</span>
               </li>
             </ul>
             <Button
@@ -217,11 +217,11 @@ export default function ChurchDetailPage() {
               className="w-full"
               onClick={() => router.push("/dashboard")}
             >
-              {t("registerButton")}
+              {content.registerButton}
               <ArrowRight className="ml-2" />
             </Button>
             <p className="text-xs mt-2 text-center text-blue-100">
-              {t("registerFree")}
+              {content.registerFree}
             </p>
           </div>
         </div>

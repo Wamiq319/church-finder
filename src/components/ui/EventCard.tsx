@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CalendarDays, MapPin } from "lucide-react";
-import { Event } from "@/types/event.type";
+import { Event, EventData } from "@/types/event.type";
 
-export const EventCard = ({ event }: { event: Event }) => {
+export const EventCard = ({ event }: { event: Event | EventData }) => {
   return (
     <div className="bg-white rounded-xl shadow-md p-4 flex flex-col">
       <div className="relative w-full h-32 rounded-lg overflow-hidden mb-4">
@@ -21,7 +21,11 @@ export const EventCard = ({ event }: { event: Event }) => {
       </div>
       <div className="flex items-center text-[#7FC242] mb-2">
         <MapPin className="h-4 w-4 mr-1" />
-        <span className="text-sm text-[#555]">{event.location}</span>
+        <span className="text-sm text-[#555]">
+          {"location" in event
+            ? event.location
+            : event.address || "Location TBA"}
+        </span>
       </div>
       <p className="text-sm text-[#555] mb-4 line-clamp-2">
         {event.description}

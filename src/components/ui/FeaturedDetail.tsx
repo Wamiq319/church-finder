@@ -9,13 +9,11 @@ import { Button } from "@/components/ui/Button";
 interface FeaturedDetailsProps {
   isFeatured: boolean;
   featuredUntil?: Date | string;
-  onGetFeaturedClick: () => void;
 }
 
 export function FeaturedDetails({
   isFeatured,
   featuredUntil,
-  onGetFeaturedClick,
 }: FeaturedDetailsProps) {
   const router = useRouter();
 

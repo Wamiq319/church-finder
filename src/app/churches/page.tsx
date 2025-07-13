@@ -1,22 +1,21 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useTranslations } from "next-intl";
 import churchesData from "@/data/churches.json";
 import events from "@/data/events.json";
+import contentData from "@/data/content.json";
 import { ChurchCard } from "@/components/ui/ChurchCard";
-import { GridWithPagination } from "@/components/GridWithPagination";
+import GridWithPagination from "@/components/GridWithPagination";
 import { EventCarousel } from "@/components/EventCarousel";
 import { BannerCTA } from "@/components/ui/BannerCTA";
-import { PromotionCard } from "@/components/ui/PromotionCard";
+import { FeaturedDetails } from "@/components/ui/FeaturedDetail";
 import { UpcomingEventsSidebar } from "@/components/ui/UpcomingEventsSidebar";
 import { Search } from "lucide-react";
 import { Loader } from "@/components/ui/Loader";
-import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 
 export default function ChurchesPage() {
-  const t = useTranslations("ChurchesPage");
+  const content = contentData.ChurchesPage;
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredChurches, setFilteredChurches] = useState(churchesData);
   const [isLoading, setIsLoading] = useState(false);
@@ -124,7 +123,7 @@ export default function ChurchesPage() {
           </div>
 
           <h1 className="text-3xl font-bold text-[#1A365D] mb-8 text-center">
-            {t("allChurches")}
+            {content.allChurches}
           </h1>
 
           {isLoading ? (
@@ -141,7 +140,7 @@ export default function ChurchesPage() {
         </div>
 
         <div className="lg:w-1/4 space-y-6">
-          <PromotionCard />
+          <FeaturedDetails isFeatured={false} />
           <UpcomingEventsSidebar events={events.slice(0, 3)} />
         </div>
       </div>

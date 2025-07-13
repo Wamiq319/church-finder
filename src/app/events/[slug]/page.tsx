@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import eventsData from "@/data/events.json";
 import churchesData from "@/data/churches.json";
-import { useTranslations } from "next-intl";
+import contentData from "@/data/content.json";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -27,7 +27,7 @@ export default function EventDetailPage() {
   const router = useRouter();
   const [showPopup, setShowPopup] = useState(false);
   const event = eventsData.find((e) => e.slug === params.slug);
-  const t = useTranslations("eventDetailPage");
+  const content = contentData.eventDetailPage;
 
   if (!event) {
     return notFound();
@@ -73,7 +73,7 @@ export default function EventDetailPage() {
           <div className="bg-white rounded-xl shadow-md p-6 mb-6">
             <h2 className="text-2xl font-bold text-[#1A365D] mb-4 flex items-center">
               <BookOpen className="text-[#7FC242] mr-2" />
-              {t("aboutTitle")}
+              {content.aboutTitle}
             </h2>
             <p className="text-[#555] leading-relaxed">{event.description}</p>
           </div>
@@ -82,7 +82,7 @@ export default function EventDetailPage() {
           <div className="bg-white rounded-xl shadow-md p-6 mb-6">
             <h2 className="text-2xl font-bold text-[#1A365D] mb-4 flex items-center">
               <Calendar className="text-[#7FC242] mr-2" />
-              {t("eventDetailsTitle")}
+              {content.eventDetailsTitle}
             </h2>
             <ul className="space-y-4">
               <li className="flex items-start">
@@ -109,7 +109,7 @@ export default function EventDetailPage() {
           <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-2xl font-bold text-[#1A365D] mb-4 flex items-center">
               <MapPin className="text-[#7FC242] mr-2" />
-              {t("locationTitle")}
+              {content.locationTitle}
             </h2>
             <div className="space-y-4">
               <div className="flex items-start">
@@ -137,7 +137,7 @@ export default function EventDetailPage() {
                 onClick={() => window.open(mapsSearchUrl, "_blank")}
               >
                 <MapPin className="h-4 w-4 mr-2" />
-                {t("openInMaps")}
+                {content.openInMaps}
               </Button>
             </div>
           </div>
@@ -150,7 +150,7 @@ export default function EventDetailPage() {
             <div className="bg-white rounded-xl shadow-md p-6">
               <h2 className="text-2xl font-bold text-[#1A365D] mb-4 flex items-center">
                 <Church className="text-[#7FC242] mr-2" />
-                {t("hostChurchTitle")}
+                {content.hostChurchTitle}
               </h2>
               <div className="space-y-4">
                 <div className="flex items-center">
@@ -186,7 +186,7 @@ export default function EventDetailPage() {
           <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-2xl font-bold text-[#1A365D] mb-4 flex items-center">
               <Clock className="text-[#7FC242] mr-2" />
-              {t("timingTitle")}
+              {content.timingTitle}
             </h2>
             <div className="space-y-4">
               <div className="flex items-center">
@@ -204,27 +204,23 @@ export default function EventDetailPage() {
           <div className="bg-gradient-to-r from-[#1A365D] to-[#2C5282] rounded-xl p-6 text-white">
             <div className="flex items-center mb-3">
               <PlusCircle className="h-6 w-6 mr-2" />
-              <h3 className="text-xl font-bold">
-                Get More Attendees For Your Event
-              </h3>
+              <h3 className="text-xl font-bold">{content.registerTitle}</h3>
             </div>
 
-            <p className="mb-4">
-              Join hundreds of churches and organizations reaching thousands of
-              believers through our platform.
-            </p>
+            <p className="mb-4">{content.registerDescription}</p>
 
-            <ul className="mb-4 space-y-3">
+            <ul className="mb-4 space-y-2">
               <li className="flex items-start">
                 <span className="mr-2">✓</span>
-                <span className="font-medium">Reach a wider audience</span> -
-                Get your event in front of our active community
+                <span>{content.registerBenefit1}</span>
               </li>
-
               <li className="flex items-start">
                 <span className="mr-2">✓</span>
-                <span className="font-medium">Free promotion</span> - Featured
-                in our newsletters and social media
+                <span>{content.registerBenefit2}</span>
+              </li>
+              <li className="flex items-start">
+                <span className="mr-2">✓</span>
+                <span>{content.registerBenefit3}</span>
               </li>
             </ul>
 
@@ -238,26 +234,11 @@ export default function EventDetailPage() {
                 List Your Event
                 <ArrowRight className="ml-2" />
               </Button>
-
-              <Button
-                variant="outline"
-                rounded
-                className=" text-white hover:text-[#1A365D] border-white hover:bg-white/90"
-                onClick={() => setShowPopup(true)}
-              >
-                Attend This Event
-              </Button>
             </div>
 
-            <div className="mt-4 flex items-center justify-center gap-2">
-              <span className="text-xs text-blue-100">Have questions?</span>
-              <a
-                href="/contact"
-                className="text-xs font-medium underline hover:text-white"
-              >
-                Contact our events team
-              </a>
-            </div>
+            <p className="text-xs mt-2 text-center text-blue-100">
+              {content.registerFree}
+            </p>
           </div>
         </div>
       </div>
