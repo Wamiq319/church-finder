@@ -1,6 +1,5 @@
 import mongoose, { Schema, Model, Document } from "mongoose";
 import type { Church } from "@/types";
-import { slugify } from "@/utils/slugify";
 
 interface IChurch extends Church, Document {
   slug: string;
@@ -167,9 +166,10 @@ churchSchema.virtual("location").get(function (this: IChurch) {
 // Add a pre-save middleware to generate slug
 churchSchema.pre<IChurch>("save", function (next) {
   if (!this.isModified("name")) return next();
-
-  this.slug = slugify(this.name);
-
+  this.slug = this.name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
   next();
 });
 

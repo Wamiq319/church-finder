@@ -1,6 +1,5 @@
 import mongoose, { Schema, Model, Document } from "mongoose";
 import type { Event } from "@/types";
-import { slugify } from "@/utils/slugify";
 
 interface IEvent extends Event, Document {
   // Additional methods can be added here if needed
@@ -81,21 +80,7 @@ eventSchema.index({ featured: 1 });
 eventSchema.index({ status: 1 });
 eventSchema.index({ date: 1 });
 
-// Add a pre-save middleware to generate slug
-eventSchema.pre<IEvent>("save", async function (next) {
-  if (!this.isModified("title")) return next();
-
-  let baseSlug = slugify(this.title);
-  let slug = baseSlug;
-  let count = 1;
-
-  // Ensure uniqueness
-  while (await mongoose.models.Event.findOne({ slug })) {
-    slug = `${baseSlug}-${count++}`;
-  }
-  this.slug = slug;
-  next();
-});
+// Remove the pre-save middleware for slug generation
 
 // Create and export the model
 const Event: Model<IEvent> =

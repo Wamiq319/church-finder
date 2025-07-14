@@ -51,12 +51,6 @@ export async function POST(request: Request) {
     let church = await Church.findOne({ createdBy: session.user.id });
     const isNewChurch = !church;
 
-    const generateSlug = (name: string): string =>
-      name
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "");
-
     if (isNewChurch) {
       if (step !== 1) {
         return NextResponse.json(
@@ -86,7 +80,6 @@ export async function POST(request: Request) {
         step: 1,
         status: "draft",
         createdBy: session.user.id,
-        slug: generateSlug(churchData.name),
         events: [],
       });
     }
@@ -108,9 +101,6 @@ export async function POST(request: Request) {
       church.denomination = churchData.denomination;
       church.description = churchData.description;
       church.image = churchData.image;
-      if (church.isModified("name")) {
-        (church as any).slug = generateSlug(churchData.name);
-      }
       if (churchData.website !== undefined) {
         church.website = churchData.website;
       }

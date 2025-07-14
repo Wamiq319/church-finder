@@ -162,10 +162,16 @@ export async function POST(request: Request) {
         );
       }
 
+      // Generate slug from title
+      const slug = result.data.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+
       const event = new Event({
         ...result.data,
         church: targetChurchId,
-        slug: "",
+        slug,
         step: result.data.step || 1,
       });
       await event.save();
