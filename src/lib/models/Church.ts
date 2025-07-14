@@ -85,11 +85,7 @@ const churchSchema: Schema = new Schema(
       trim: true,
       default: "",
     },
-    website: {
-      type: String,
-      trim: true,
-      default: "",
-    },
+
     services: [
       {
         type: String,

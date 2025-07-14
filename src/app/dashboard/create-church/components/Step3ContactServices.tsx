@@ -82,15 +82,6 @@ export const Step3ContactServices = ({
           rounded
           icon={<Phone className="h-4 w-4 text-[#7FC242]" />}
         />
-        <Input
-          label="Church Website"
-          name="website"
-          value={formData.website || ""}
-          onChange={onInputChange}
-          placeholder="https://yourchurch.org"
-          error={errors.website}
-          rounded
-        />
       </div>
 
       <h3 className="text-lg font-medium text-[#5A7D2C] flex items-center gap-2">
