@@ -5,7 +5,13 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { CalendarDays, MapPin } from "lucide-react";
 
-export function EventsList({ churchId }: { churchId: string }) {
+export function EventsList({
+  churchId,
+  onEventCountChange,
+}: {
+  churchId: string;
+  onEventCountChange?: (count: number) => void;
+}) {
   const { data: session } = useSession();
   const router = useRouter();
   const [events, setEvents] = useState<EventType[]>([]);
@@ -17,14 +23,18 @@ export function EventsList({ churchId }: { churchId: string }) {
       try {
         const res = await fetch(`/api/events?action=list&churchId=${churchId}`);
         const data = await res.json();
-        if (data.success) setEvents(data.data);
+        if (data.success) {
+          setEvents(data.data);
+          if (onEventCountChange) onEventCountChange(data.data.length);
+        }
       } catch {
         setEvents([]);
+        if (onEventCountChange) onEventCountChange(0);
       }
       setLoading(false);
     }
     if (churchId) fetchEvents();
-  }, [churchId]);
+  }, [churchId, onEventCountChange]);
 
   const handleEventClick = (event: EventType) => {
     router.push(`/dashboard/event/${event.slug}`);

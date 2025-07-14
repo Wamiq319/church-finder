@@ -20,6 +20,7 @@ export default function CreateEventPage() {
   const searchParams = useSearchParams();
   const { data: session } = useSession();
   const churchId = searchParams.get("churchId");
+  const eventId = searchParams.get("eventId");
 
   const [formData, setFormData] = useState<
     Partial<Event> & { step: number; _id?: string }
@@ -46,10 +47,9 @@ export default function CreateEventPage() {
 
   // Function to fetch and update event data
   const fetchEventData = async () => {
+    if (!eventId) return; // Only fetch if editing
     try {
-      const response = await fetch(
-        `/api/events?createdBy=${session?.user?.id}&churchId=${churchId}`
-      );
+      const response = await fetch(`/api/events?eventId=${eventId}`);
       const data = await response.json();
 
       if (data.success && data.data) {
@@ -80,12 +80,28 @@ export default function CreateEventPage() {
   // Initial data load
   useEffect(() => {
     if (session?.user?.id && churchId) {
-      fetchEventData();
+      if (eventId) {
+        fetchEventData();
+      } else {
+        setIsLoading(false); // New event, no need to fetch
+        setFormData({
+          title: "",
+          address: "",
+          date: "",
+          time: "",
+          description: "",
+          image: "",
+          featured: false,
+          step: 1,
+          status: "draft",
+        });
+        setImagePreview(null);
+      }
     } else if (session === null) {
       // User is not authenticated, middleware will handle redirect
       setIsLoading(false);
     }
-  }, [session, router, churchId]);
+  }, [session, router, churchId, eventId]);
 
   // Check for payment status from URL params
   useEffect(() => {

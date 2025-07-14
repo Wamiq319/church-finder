@@ -6,6 +6,7 @@ import User from "@/lib/models/User";
 import Event from "@/lib/models/Event"; // Mongoose model
 import { eventSchema } from "@/lib/validations/event";
 import { Event as EventType } from "@/types"; // TypeScript type aliased
+import mongoose from "mongoose";
 
 export async function GET(request: Request) {
   try {
@@ -28,7 +29,14 @@ export async function GET(request: Request) {
         );
       }
 
-      const event = await Event.findById(eventId);
+      let event = null;
+      if (mongoose.Types.ObjectId.isValid(eventId)) {
+        event = await Event.findById(eventId);
+      }
+      if (!event) {
+        event = await Event.findOne({ slug: eventId });
+      }
+
       if (!event) {
         return NextResponse.json(
           { success: false, message: "Event not found" },
@@ -114,71 +122,56 @@ export async function POST(request: Request) {
     const targetChurchId = churchId || user.church;
     console.log("Target church ID:", targetChurchId);
 
-    // Check if this is an update to an existing event
-    const existingEvent = await Event.findOne({
-      church: targetChurchId,
-    }).sort({ createdAt: -1 });
-
-    console.log("Existing event found:", existingEvent ? "Yes" : "No");
-
-    if (existingEvent) {
-      // Update existing event
-      console.log("Updating existing event");
-      const result = eventSchema.safeParse(eventData);
-      if (!result.success) {
-        console.log("Validation errors:", result.error.errors);
-        return NextResponse.json(
-          {
-            success: false,
-            message: "Invalid event data",
-            errors: result.error.errors,
-          },
-          { status: 400 }
-        );
-      }
-
-      Object.assign(existingEvent, result.data);
-      // Ensure step is properly set
-      if (result.data.step) {
-        existingEvent.step = result.data.step;
-      }
-      await existingEvent.save();
-      console.log("Event updated successfully:", existingEvent);
-
-      return NextResponse.json({ success: true, data: existingEvent });
-    } else {
-      // Create new event
-      console.log("Creating new event");
-      const result = eventSchema.safeParse(eventData);
-      if (!result.success) {
-        console.log("Validation errors:", result.error.errors);
-        return NextResponse.json(
-          {
-            success: false,
-            message: "Invalid event data",
-            errors: result.error.errors,
-          },
-          { status: 400 }
-        );
-      }
-
-      // Generate slug from title
-      const slug = result.data.title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "");
-
-      const event = new Event({
-        ...result.data,
-        church: targetChurchId,
-        slug,
-        step: result.data.step || 1,
-      });
-      await event.save();
-      console.log("Event created successfully:", event);
-
-      return NextResponse.json({ success: true, data: event });
+    // Restrict to 3 events per church
+    const eventCount = await Event.countDocuments({ church: targetChurchId });
+    if (eventCount >= 3) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Event limit reached. You can only create up to 3 events per church.",
+        },
+        { status: 400 }
+      );
     }
+
+    // Always create a new event (do not update existing)
+    const result = eventSchema.safeParse(eventData);
+    if (!result.success) {
+      console.log("Validation errors:", result.error.errors);
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Invalid event data",
+          errors: result.error.errors,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Generate base slug
+    let slug = result.data.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+
+    // Ensure slug is unique
+    let uniqueSlug = slug;
+    let counter = 1;
+    while (await Event.findOne({ slug: uniqueSlug })) {
+      uniqueSlug = `${slug}-${counter++}`;
+    }
+
+    const event = new Event({
+      ...result.data,
+      church: targetChurchId,
+      slug: uniqueSlug,
+      step: result.data.step || 1,
+    });
+    await event.save();
+    console.log("Event created successfully:", event);
+
+    return NextResponse.json({ success: true, data: event });
   } catch (error) {
     console.error("Error creating/updating event:", error);
     return NextResponse.json(
