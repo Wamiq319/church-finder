@@ -59,6 +59,7 @@ export const contactSchema = z.object({
   pastorPhone: phoneSchema.optional(),
   contactEmail: emailSchema,
   contactPhone: phoneSchema,
+  website: z.string().url("Invalid website URL").optional(),
   services: z
     .array(
       z

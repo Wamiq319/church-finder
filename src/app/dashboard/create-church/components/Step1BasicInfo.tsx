@@ -1,11 +1,11 @@
 import { useRef } from "react";
 import { Button, Input } from "@/components";
-import { ImagePlus, Calendar, MapPin, Clock } from "lucide-react";
+import { ImagePlus } from "lucide-react";
 import Image from "next/image";
-import { Event } from "@/types";
+import { Church } from "@/types";
 
-interface Step1EventDetailsProps {
-  formData: Partial<Event> & { step: number; _id?: string };
+interface Step1BasicInfoProps {
+  formData: Church;
   errors: Record<string, string>;
   onInputChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -16,7 +16,7 @@ interface Step1EventDetailsProps {
   imagePreview: string | null;
 }
 
-export const Step1EventDetails = ({
+export const Step1BasicInfo = ({
   formData,
   errors,
   onInputChange,
@@ -24,7 +24,7 @@ export const Step1EventDetails = ({
   isUploading,
   uploadError,
   imagePreview,
-}: Step1EventDetailsProps) => {
+}: Step1BasicInfoProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageClick = () => fileInputRef.current?.click();
@@ -34,59 +34,31 @@ export const Step1EventDetails = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <Input
-            label="Event Title*"
-            name="title"
-            value={formData.title || ""}
+            label="Church Name*"
+            name="name"
+            value={formData.name}
             onChange={onInputChange}
-            placeholder="Enter event title"
-            error={errors.title}
+            placeholder="Enter your church name"
+            error={errors.name}
             rounded
           />
         </div>
         <div>
           <Input
-            label="Event Address"
-            name="address"
-            value={formData.address || ""}
+            label="Denomination*"
+            name="denomination"
+            value={formData.denomination}
             onChange={onInputChange}
-            placeholder="Enter event location"
-            error={errors.address}
+            placeholder="e.g. Anglican, Catholic, Pentecostal"
+            error={errors.denomination}
             rounded
-            icon={<MapPin className="h-4 w-4 text-[#7FC242]" />}
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <Input
-            label="Event Date*"
-            name="date"
-            type="date"
-            value={formData.date || ""}
-            onChange={onInputChange}
-            error={errors.date}
-            rounded
-            icon={<Calendar className="h-4 w-4 text-[#7FC242]" />}
-          />
-        </div>
-        <div>
-          <Input
-            label="Event Time*"
-            name="time"
-            type="time"
-            value={formData.time || ""}
-            onChange={onInputChange}
-            error={errors.time}
-            rounded
-            icon={<Clock className="h-4 w-4 text-[#7FC242]" />}
           />
         </div>
       </div>
 
       <div>
         <label className="block text-sm font-medium text-[#5A7D2C] mb-2">
-          Event Image
+          Church Image
         </label>
         <div className="flex flex-col sm:flex-row gap-4 items-start">
           <div
@@ -96,7 +68,7 @@ export const Step1EventDetails = ({
             {imagePreview ? (
               <Image
                 src={imagePreview}
-                alt="Event preview"
+                alt="Church preview"
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 192px"
@@ -154,11 +126,11 @@ export const Step1EventDetails = ({
       </div>
 
       <Input
-        label="Event Description*"
+        label="Description"
         name="description"
-        value={formData.description || ""}
+        value={formData.description}
         onChange={onInputChange}
-        placeholder="Describe your event, what attendees can expect, and any important details..."
+        placeholder="Tell us about your church's mission, values, and community between 100 & 500 chacraters..."
         error={errors.description}
         rows={4}
       />

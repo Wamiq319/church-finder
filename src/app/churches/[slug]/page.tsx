@@ -15,6 +15,7 @@ import {
   BookOpen,
   ArrowRight,
   PlusCircle,
+  Globe,
 } from "lucide-react";
 import contentData from "@/data/content.json";
 import { Button, Loader } from "@/components";
@@ -230,6 +231,19 @@ export default function ChurchDetailPage() {
                   {church.contactPhone}
                 </a>
               </div>
+              {church.website && (
+                <div className="flex items-center">
+                  <Globe className="h-5 w-5 text-[#7FC242] mr-2" />
+                  <a
+                    href={church.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#555] hover:text-[#7FC242] transition-colors underline"
+                  >
+                    {church.website.replace(/^https?:\/\//, "")}
+                  </a>
+                </div>
+              )}
             </div>
           </div>
 

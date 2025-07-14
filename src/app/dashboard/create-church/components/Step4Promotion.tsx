@@ -1,21 +1,21 @@
 import { Button } from "@/components";
-import { Star, Calendar } from "lucide-react";
+import { Building2 } from "lucide-react";
+import { Church } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
-import { Event } from "@/types";
 
-interface Step2EventPromotionProps {
-  formData: Partial<Event> & { step: number; _id?: string };
+interface Step4PromotionProps {
+  formData: Church;
   paymentStatus: string | null;
   onGetFeatured: () => void;
   isLoading: boolean;
 }
 
-export const Step2EventPromotion = ({
+export const Step4Promotion = ({
   formData,
   paymentStatus,
   onGetFeatured,
   isLoading,
-}: Step2EventPromotionProps) => {
+}: Step4PromotionProps) => {
   return (
     <div className="space-y-6">
       {/* Payment Success Message */}
@@ -37,11 +37,11 @@ export const Step2EventPromotion = ({
             </div>
             <div className="ml-3">
               <h3 className="text-sm font-medium text-green-800">
-                🎉 Congratulations! Your event is now featured!
+                🎉 Congratulations! Your church is now featured!
               </h3>
               <div className="mt-2 text-sm text-green-700">
                 <p>
-                  Your event will be featured prominently on our homepage and
+                  Your church will be featured prominently on our homepage and
                   search results until{" "}
                   {formData.featuredUntil
                     ? formatDate(formData.featuredUntil)
@@ -49,7 +49,7 @@ export const Step2EventPromotion = ({
                   .
                 </p>
                 <p className="mt-1">
-                  You can now publish your event or continue editing.
+                  You can now publish your church or continue editing.
                 </p>
               </div>
             </div>
@@ -80,7 +80,7 @@ export const Step2EventPromotion = ({
               </h3>
               <div className="mt-2 text-sm text-yellow-700">
                 <p>
-                  Your payment was cancelled. You can still publish your event
+                  Your payment was cancelled. You can still publish your church
                   without featuring, or try the payment again.
                 </p>
               </div>
@@ -89,18 +89,28 @@ export const Step2EventPromotion = ({
         </div>
       )}
 
-      {/* Featured Event Status - Only show when event is featured */}
-      {formData.featured && (
+      {/* Featured Church Status - Only show when church is featured */}
+      {formData.isFeatured && (
         <div className="space-y-6">
           {/* Main Featured Status Card */}
           <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6">
             <div className="text-center">
               <div className="bg-green-500 text-white rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <Star className="h-8 w-8" />
+                <svg
+                  className="h-8 w-8"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
               </div>
 
               <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                🎉 Your Event Is Featured! 🎉
+                🎉 You Are Featured! 🎉
               </h2>
 
               <div className="flex items-center justify-center gap-2 mb-3">
@@ -117,7 +127,7 @@ export const Step2EventPromotion = ({
               </p>
 
               <p className="text-gray-600 max-w-2xl mx-auto">
-                Congratulations! Your event is now prominently featured across
+                Congratulations! Your church is now prominently featured across
                 our platform. This means more visibility and better reach for
                 your community.
               </p>
@@ -127,7 +137,7 @@ export const Step2EventPromotion = ({
           {/* Benefits Section */}
           <div className="bg-white rounded-xl p-6 border-2 border-green-200 shadow-sm">
             <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-green-600" />
+              <Building2 className="h-5 w-5 text-green-600" />
               Your Featured Benefits
             </h3>
 
@@ -141,7 +151,7 @@ export const Step2EventPromotion = ({
                     Top Search Results
                   </h4>
                   <p className="text-sm text-gray-600">
-                    Your event appears first in search results
+                    Your church appears first in search results
                   </p>
                 </div>
               </div>
@@ -169,7 +179,7 @@ export const Step2EventPromotion = ({
                     Featured Badge
                   </h4>
                   <p className="text-sm text-gray-600">
-                    Special "Featured" badge on your event
+                    Special "Featured" badge on your profile
                   </p>
                 </div>
               </div>
@@ -183,7 +193,7 @@ export const Step2EventPromotion = ({
                     Priority Listing
                   </h4>
                   <p className="text-sm text-gray-600">
-                    Higher priority in event listings
+                    Higher priority in church listings
                   </p>
                 </div>
               </div>
@@ -209,8 +219,8 @@ export const Step2EventPromotion = ({
               What's Next?
             </h3>
             <p className="text-gray-700">
-              Your event is now featured! You can complete the setup by
-              publishing your event or continue editing your information. Your
+              Your church is now featured! You can complete the setup by
+              publishing your church or continue editing your information. Your
               featured status will remain active until
               {formData.featuredUntil
                 ? ` ${formatDate(formData.featuredUntil)}`
@@ -221,23 +231,23 @@ export const Step2EventPromotion = ({
         </div>
       )}
 
-      {/* Non-Featured Event CTA and Button - Only show when event is NOT featured */}
-      {!formData.featured && (
+      {/* Non-Featured Church CTA and Button - Only show when church is NOT featured */}
+      {!formData.isFeatured && (
         <>
           <div className="bg-gradient-to-br from-[#F0F7EA] to-[#E0F0FF] border border-[#7FC242] rounded-xl p-6">
             <div className="flex items-start gap-4">
               <div className="bg-[#7FC242] text-white rounded-full p-3 flex-shrink-0">
-                <Star className="h-5 w-5" />
+                <Building2 className="h-5 w-5" />
               </div>
               <div className="flex-1">
                 <h3 className="text-xl font-bold text-gray-800">
-                  Feature Your Event
+                  Feature Your Church
                 </h3>
                 <p className="text-[#5A7D2C] text-lg font-bold mt-1">
                   $5 per week
                 </p>
                 <p className="text-gray-600 mt-2">
-                  Get your event featured prominently on our homepage to reach
+                  Get your church featured prominently on our homepage to reach
                   more people.
                 </p>
                 <ul className="mt-3 space-y-2 text-gray-600">
@@ -251,7 +261,7 @@ export const Step2EventPromotion = ({
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="text-[#7FC242]">✓</span> "Featured" badge
-                    on event
+                    on profile
                   </li>
                 </ul>
               </div>

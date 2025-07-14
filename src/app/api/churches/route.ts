@@ -80,6 +80,7 @@ export async function POST(request: Request) {
         pastorPhone: "",
         contactEmail: "",
         contactPhone: "",
+        website: churchData.website || "",
         services: [],
         isFeatured: false,
         step: 1,
@@ -110,6 +111,9 @@ export async function POST(request: Request) {
       if (church.isModified("name")) {
         (church as any).slug = generateSlug(churchData.name);
       }
+      if (churchData.website !== undefined) {
+        church.website = churchData.website;
+      }
     } else if (step === 2) {
       if (!church || church.step < 1) {
         return NextResponse.json(
@@ -133,6 +137,9 @@ export async function POST(request: Request) {
       church.contactEmail = churchData.contactEmail;
       church.contactPhone = churchData.contactPhone;
       church.services = churchData.services;
+      if (churchData.website !== undefined) {
+        church.website = churchData.website;
+      }
     } else if (step === 4) {
       if (!church || church.step < 3) {
         return NextResponse.json(

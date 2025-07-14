@@ -1,5 +1,4 @@
 export type Church = {
-  _id?: string;
   name: string;
   denomination: string;
   description: string;
@@ -22,7 +21,5 @@ export type Church = {
   step: number;
   status: "published" | "draft" | "archived";
   slug?: string;
-  createdBy?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  website?: string;
 };

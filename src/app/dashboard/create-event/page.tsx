@@ -11,8 +11,7 @@ import {
 import { Event } from "@/types";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import Step1EventDetails from "./components/Step1EventDetails";
-import Step2EventPromotion from "./components/Step2EventPromotion";
+import { Step1EventDetails, Step2EventPromotion } from "./components";
 
 // Use Event type directly, no need for extension since Event type already has all fields
 

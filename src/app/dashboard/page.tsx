@@ -8,10 +8,12 @@ import {
   ComingSoonPopup,
   FeaturedDetail,
 } from "@/components";
-import { NoChurchCTA } from "./component/NoChurchCTA";
-import { QuickActions } from "./component/QuickActions";
-import { ChurchDetails } from "./component/ChurchDetails";
-import { EventsList } from "./component/EventsList";
+import {
+  NoChurchCTA,
+  QuickActions,
+  ChurchDetails,
+  EventsList,
+} from "./components";
 import type { Church } from "@/types";
 
 type DashboardChurch = Church & {
