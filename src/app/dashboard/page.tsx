@@ -34,7 +34,10 @@ export default function Dashboard() {
   const fetchChurchData = async () => {
     try {
       const response = await fetch(
-        `/api/churches?createdBy=${session?.user?.id}`
+        `/api/churches?createdBy=${session?.user?.id}`,
+        {
+          credentials: "include",
+        }
       );
       const data = await response.json();
       console.log(data);

@@ -32,7 +32,9 @@ export default function DashboardEventPage() {
 
       setLoading(true);
       try {
-        const response = await fetch(`/api/events?eventId=${eventId}`);
+        const response = await fetch(`/api/events?eventId=${eventId}`, {
+          credentials: "include",
+        });
         const data = await response.json();
 
         if (data.success) {

@@ -13,35 +13,72 @@ import {
   Clock3,
   Church,
 } from "lucide-react";
-import eventsData from "@/data/events.json";
-import churchesData from "@/data/churches.json";
+
 import contentData from "@/data/content.json";
 import { Button, ComingSoonPopup } from "@/components";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Event } from "@/types";
+import { Loader } from "@/components";
 
 export default function EventDetailPage() {
   const params = useParams();
   const router = useRouter();
   const [showPopup, setShowPopup] = useState(false);
-  const event = eventsData.find((e) => e.slug === params.slug);
+  const [event, setEvent] = useState<Event | null>(null);
+  const [church, setChurch] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const content = contentData.eventDetailPage;
+
+  useEffect(() => {
+    const fetchEvent = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `/api/events/frontend?type=single&eventId=${params.slug}`
+        );
+        const data = await res.json();
+        if (data.success) {
+          setEvent(data.data);
+          // Church data is already populated from the API
+          if (data.data.church) {
+            setChurch(data.data.church);
+          }
+        } else {
+          console.error("Failed to fetch event:", data.message);
+          setEvent(null);
+        }
+      } catch (err) {
+        console.error("Error fetching event:", err);
+        setEvent(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvent();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.slug]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader text="Loading event..." />
+      </div>
+    );
+  }
 
   if (!event) {
     return notFound();
   }
 
-  // Find the church by churchId
-  const church = churchesData.find((c) => c.id === event.churchId);
-
-  const mapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    event.location
-  )}`;
-
-  const mapsEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(
-    event.location
-  )}&z=15&output=embed&t=m`;
+  // Removed Google Maps logic
+  // const mapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+  //   event.location
+  // )}`;
+  // const mapsEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(
+  //   event.location
+  // )}&z=15&output=embed&t=m`;
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -55,8 +92,13 @@ export default function EventDetailPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white">
+            <h1 className="text-3xl md:text-4xl font-bold text-white flex items-center gap-2">
               {event.title}
+              {event.featured && (
+                <span className="ml-3 bg-yellow-400 text-xs font-bold px-2 py-1 rounded shadow">
+                  Featured
+                </span>
+              )}
             </h1>
             {church && (
               <p className="text-white/90 mt-2">Hosted by: {church.name}</p>
@@ -91,9 +133,12 @@ export default function EventDetailPage() {
                   <p className="text-[#555]">{event.time}</p>
                 </div>
               </li>
+              {/* Location as text only */}
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 text-[#7FC242] mr-2 mt-0.5 flex-shrink-0" />
-                <p className="text-[#555]">{event.location}</p>
+                <p className="text-[#555]">
+                  {event.address || "Location not specified"}
+                </p>
               </li>
               {church && (
                 <li className="flex items-start">
@@ -104,7 +149,7 @@ export default function EventDetailPage() {
             </ul>
           </div>
 
-          {/* Location Section */}
+          {/* Location Section - now just text */}
           <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-2xl font-bold text-[#1A365D] mb-4 flex items-center">
               <MapPin className="text-[#7FC242] mr-2" />
@@ -113,31 +158,11 @@ export default function EventDetailPage() {
             <div className="space-y-4">
               <div className="flex items-start">
                 <MapPin className="h-5 w-5 text-[#7FC242] mr-2 mt-0.5 flex-shrink-0" />
-                <p className="text-[#555]">{event.location}</p>
+                <p className="text-[#555]">
+                  {event.address || "Location not specified"}
+                </p>
               </div>
-              {/* Google Maps Embed */}
-              <div className="h-64 w-full rounded-lg mt-4 overflow-hidden border border-gray-200">
-                <iframe
-                  width="100%"
-                  height="100%"
-                  frameBorder="0"
-                  scrolling="no"
-                  marginHeight={0}
-                  marginWidth={0}
-                  src={mapsEmbedUrl}
-                  allowFullScreen
-                  aria-hidden="false"
-                  tabIndex={0}
-                ></iframe>
-              </div>
-              <Button
-                variant="outline"
-                className="w-full mt-4"
-                onClick={() => window.open(mapsSearchUrl, "_blank")}
-              >
-                <MapPin className="h-4 w-4 mr-2" />
-                {content.openInMaps}
-              </Button>
+              {/* Google Maps Embed and Button removed */}
             </div>
           </div>
         </div>

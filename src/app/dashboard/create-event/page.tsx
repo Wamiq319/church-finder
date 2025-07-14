@@ -49,7 +49,9 @@ export default function CreateEventPage() {
   const fetchEventData = async () => {
     if (!eventId) return; // Only fetch if editing
     try {
-      const response = await fetch(`/api/events?eventId=${eventId}`);
+      const response = await fetch(`/api/events?eventId=${eventId}`, {
+        credentials: "include",
+      });
       const data = await response.json();
 
       if (data.success && data.data) {
@@ -138,6 +140,7 @@ export default function CreateEventPage() {
       const response = await fetch("/api/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ ...formData, churchId }),
       });
 

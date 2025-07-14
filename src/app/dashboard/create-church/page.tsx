@@ -57,7 +57,10 @@ export default function CreateChurchPage() {
   const fetchChurchData = async () => {
     try {
       const response = await fetch(
-        `/api/churches?createdBy=${session?.user?.id}`
+        `/api/churches?createdBy=${session?.user?.id}`,
+        {
+          credentials: "include",
+        }
       );
       const data = await response.json();
 
@@ -145,6 +148,7 @@ export default function CreateChurchPage() {
       const response = await fetch("/api/churches", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(formData),
       });
 

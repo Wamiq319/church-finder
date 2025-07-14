@@ -43,23 +43,22 @@ export default function ChurchesPage() {
     try {
       setIsLoading(true);
       const params = new URLSearchParams({
+        type: "list",
         page: page.toString(),
         limit: "9",
-        status: "published",
-        layout: "card",
       });
 
       if (search) {
         params.append("search", search);
       }
 
-      const response = await fetch(`/api/churches?${params}`);
+      const response = await fetch(`/api/churches/frontend?${params}`);
       const data = await response.json();
 
       if (data.success) {
-        setChurches(data.data.churches);
-        setFilteredChurches(data.data.churches);
-        setPagination(data.data.pagination);
+        setChurches(data.data);
+        setFilteredChurches(data.data);
+        setPagination(data.pagination);
       } else {
         console.error("Failed to fetch churches:", data.message);
       }
@@ -132,7 +131,7 @@ export default function ChurchesPage() {
 
   return (
     <div className="w-full py-6 px-10">
-      <EventCarousel events={events.filter((e) => e.featured)} />
+      <EventCarousel />
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="lg:w-3/4">
           <BannerCTA />
@@ -242,7 +241,7 @@ export default function ChurchesPage() {
 
         <div className="lg:w-1/4 space-y-4">
           <FeaturedDetail isFeatured={false} />
-          <UpcomingEventsSidebar events={events.slice(0, 3)} />
+          <UpcomingEventsSidebar />
         </div>
       </div>
     </div>

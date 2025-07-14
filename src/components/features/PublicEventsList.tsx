@@ -2,20 +2,10 @@
 import { Event as EventType } from "@/types";
 import { Card, Loader } from "@/components";
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { CalendarDays, MapPin } from "lucide-react";
 
-export function EventsList({
-  churchId,
-  onEventCountChange,
-  publicView = false,
-}: {
-  churchId: string;
-  onEventCountChange?: (count: number) => void;
-  publicView?: boolean;
-}) {
-  const { data: session } = useSession();
+export const PublicEventsList = ({ churchId }: { churchId: string }) => {
   const router = useRouter();
   const [events, setEvents] = useState<EventType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,33 +14,23 @@ export function EventsList({
     async function fetchEvents() {
       setLoading(true);
       try {
-        let url = publicView
-          ? `/api/events/frontend?type=list&churchId=${churchId}&status=published`
-          : `/api/events?action=list&churchId=${churchId}`;
+        const url = `/api/events/frontend?type=list&churchId=${churchId}&status=published`;
 
-        const res = await fetch(url, {
-          credentials: "include",
-        });
+        const res = await fetch(url);
         const data = await res.json();
         if (data.success) {
           setEvents(data.data);
-          if (onEventCountChange) onEventCountChange(data.data.length);
         }
       } catch {
         setEvents([]);
-        if (onEventCountChange) onEventCountChange(0);
       }
       setLoading(false);
     }
     if (churchId) fetchEvents();
-  }, [churchId, onEventCountChange, publicView]);
+  }, [churchId]);
 
   const handleEventClick = (event: EventType) => {
-    if (publicView) {
-      router.push(`/events/${event.slug}`);
-    } else {
-      router.push(`/dashboard/event/${event.slug}`);
-    }
+    router.push(`/events/${event.slug}`);
   };
 
   if (loading) return <Loader text="Loading events..." />;
@@ -87,4 +67,4 @@ export function EventsList({
       ))}
     </div>
   );
-}
+};

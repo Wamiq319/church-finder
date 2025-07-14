@@ -1,8 +1,11 @@
 export type Event = {
+  _id: string;
   church: string;
   title: string;
   slug: string;
   address?: string;
+  city?: string;
+  state?: string;
   date: string;
   time: string;
   description: string;
@@ -13,4 +16,5 @@ export type Event = {
   featuredUntil?: Date;
   createdAt: Date;
   updatedAt: Date;
+  organizer?: string;
 };

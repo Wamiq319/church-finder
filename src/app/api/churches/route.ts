@@ -214,16 +214,23 @@ export async function PATCH(request: Request) {
   }
 }
 
-// Get churches with advanced filtering
+// Dashboard-specific church operations (requires authentication)
 export async function GET(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     await dbConnect();
     const { searchParams } = new URL(request.url);
 
-    // Filter by createdBy
+    // Get user's church for dashboard
     const createdBy = searchParams.get("createdBy");
-    if (createdBy) {
-      // If createdBy is present, return single church object
+    if (createdBy && createdBy === session.user.id) {
       const church = await Church.findOne({ createdBy });
       return NextResponse.json({
         success: true,
@@ -231,10 +238,10 @@ export async function GET(request: Request) {
       });
     }
 
-    // Filter by slug for single church detail
-    const slug = searchParams.get("slug");
-    if (slug) {
-      const church = await Church.findOne({ slug, status: "published" });
+    // Get church by ID for dashboard operations
+    const churchId = searchParams.get("churchId");
+    if (churchId) {
+      const church = await Church.findById(churchId);
       if (!church) {
         return NextResponse.json(
           { success: false, message: "Church not found" },
@@ -247,102 +254,12 @@ export async function GET(request: Request) {
       });
     }
 
-    // For other cases, use the existing filtering logic
-    const query: any = { status: "published" };
-
-    // Filter by event
-    const eventId = searchParams.get("eventId");
-    if (eventId) {
-      query.events = eventId;
-    }
-
-    // Filter by other fields
-    const filters = ["state", "city", "denomination", "isFeatured"];
-    filters.forEach((filter) => {
-      const value = searchParams.get(filter);
-      if (value) {
-        query[filter] =
-          value === "true" ? true : value === "false" ? false : value;
-      }
-    });
-
-    // Search by location (city, state)
-    const search = searchParams.get("search");
-    if (search) {
-      // Parse the search query to extract city and state
-      const locationParts = search.split(",").map((part) => part.trim());
-
-      if (locationParts.length === 2) {
-        // User searched for "City, State" format
-        const [city, state] = locationParts;
-        query.$and = [
-          { city: { $regex: city, $options: "i" } },
-          { state: { $regex: state, $options: "i" } },
-        ];
-      } else if (locationParts.length === 1) {
-        // User searched for just city or state
-        query.$or = [
-          { city: { $regex: search, $options: "i" } },
-          { state: { $regex: search, $options: "i" } },
-        ];
-      }
-    }
-
-    // Pagination
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
-    const skip = (page - 1) * limit;
-
-    // Check if we need full details or card layout
-    const isCardLayout =
-      searchParams.get("layout") === "card" || !searchParams.get("fields");
-
-    // Fields selection
-    const fields = searchParams.get("fields");
-    const projection = isCardLayout
-      ? {
-          name: 1,
-          description: 1,
-          image: 1,
-          city: 1,
-          state: 1,
-          isFeatured: 1,
-          slug: 1,
-          denomination: 1,
-          latitude: 1,
-          longitude: 1,
-        }
-      : fields
-      ? fields.split(",").reduce((acc, field) => {
-          acc[field.trim()] = 1;
-          return acc;
-        }, {} as Record<string, number>)
-      : {};
-
-    // Fetch churches with pagination
-    const [churches, total] = await Promise.all([
-      Church.find(query)
-        .select(projection)
-        .sort({ isFeatured: -1, createdAt: -1 })
-        .skip(skip)
-        .limit(limit),
-      Church.countDocuments(query),
-    ]);
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        churches,
-        pagination: {
-          total,
-          page,
-          limit,
-          pages: Math.ceil(total / limit),
-        },
-      },
-    });
+    return NextResponse.json(
+      { success: false, message: "Invalid request parameters" },
+      { status: 400 }
+    );
   } catch (error) {
-    console.error("Error fetching churches:", error);
+    console.error("Error fetching church for dashboard:", error);
     return NextResponse.json(
       { success: false, message: "Internal server error" },
       { status: 500 }

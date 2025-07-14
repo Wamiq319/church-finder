@@ -1,9 +1,5 @@
 import mongoose, { Schema, Model, Document } from "mongoose";
-import type { Event } from "@/types";
-
-interface IEvent extends Event, Document {
-  // Additional methods can be added here if needed
-}
+import type { Event as EventType } from "@/types";
 
 const eventSchema: Schema = new Schema(
   {
@@ -83,7 +79,6 @@ eventSchema.index({ date: 1 });
 // Remove the pre-save middleware for slug generation
 
 // Create and export the model
-const Event: Model<IEvent> =
-  mongoose.models.Event || mongoose.model<IEvent>("Event", eventSchema);
-
-export default Event;
+export const Event: Model<EventType & Document> =
+  mongoose.models.Event ||
+  mongoose.model<EventType & Document>("Event", eventSchema);

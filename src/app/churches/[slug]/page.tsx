@@ -36,7 +36,9 @@ export default function ChurchDetailPage() {
     const fetchChurch = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(`/api/churches?slug=${params.slug}`);
+        const response = await fetch(
+          `/api/churches/frontend?type=single&slug=${params.slug}`
+        );
         const data = await response.json();
 
         if (data.success && data.data) {

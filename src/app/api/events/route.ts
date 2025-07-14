@@ -3,32 +3,30 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/auth.config";
 import dbConnect from "@/lib/dbConnect";
 import User from "@/lib/models/User";
-import Event from "@/lib/models/Event"; // Mongoose model
-import { eventSchema } from "@/lib/validations/event";
+import { Event } from "@/lib/models/Event"; // Mongoose model
+import { eventSchema } from "@/lib/validations";
 import { Event as EventType } from "@/types"; // TypeScript type aliased
 import mongoose from "mongoose";
 
 export async function GET(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const eventId = searchParams.get("eventId");
     const churchId = searchParams.get("churchId");
-    const createdBy = searchParams.get("createdBy");
     const action = searchParams.get("action");
 
     await dbConnect();
 
-    // Handle different GET operations based on parameters
+    // Get specific event by ID or slug
     if (eventId) {
-      // Get specific event by ID
-      const session = await getServerSession(authOptions);
-      if (!session?.user?.id) {
-        return NextResponse.json(
-          { success: false, message: "Unauthorized" },
-          { status: 401 }
-        );
-      }
-
       let event = null;
       if (mongoose.Types.ObjectId.isValid(eventId)) {
         event = await Event.findById(eventId);
@@ -47,28 +45,14 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: true, data: event });
     }
 
+    // Get list of events for a church (dashboard view - all events)
     if (action === "list" && churchId) {
-      // Get list of events for a church (no auth required for public listing)
-      const status = searchParams.get("status");
-      const query: { [key: string]: any } = { church: churchId };
-      if (status) {
-        // Only filter by status if provided
-        query["status"] = status;
-      }
-      const events = await Event.find(query).sort({ date: 1 });
+      const events = await Event.find({ church: churchId }).sort({ date: 1 });
       return NextResponse.json({ success: true, data: events });
     }
 
-    if (createdBy && churchId) {
-      // Get most recent event for user and church (requires auth)
-      const session = await getServerSession(authOptions);
-      if (!session?.user?.id) {
-        return NextResponse.json(
-          { success: false, message: "Unauthorized" },
-          { status: 401 }
-        );
-      }
-
+    // Get most recent event for user's church
+    if (churchId) {
       const event = await Event.findOne({
         church: churchId,
       }).sort({ createdAt: -1 });
@@ -88,7 +72,7 @@ export async function GET(request: Request) {
       { status: 400 }
     );
   } catch (error) {
-    console.error("Error fetching event:", error);
+    console.error("Error fetching event for dashboard:", error);
     return NextResponse.json(
       { success: false, message: "Internal server error" },
       { status: 500 }

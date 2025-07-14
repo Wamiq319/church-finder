@@ -26,13 +26,11 @@ export const FeaturedChurches = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(
-          "/api/churches?isFeatured=true&status=published&limit=5&layout=card"
-        );
+        const res = await fetch("/api/churches/frontend?type=featured&limit=5");
         const data = await res.json();
         if (isMounted) {
-          if (data.success && data.data?.churches) {
-            setChurches(data.data.churches);
+          if (data.success && data.data) {
+            setChurches(data.data);
           } else {
             setError("No featured churches found.");
           }
