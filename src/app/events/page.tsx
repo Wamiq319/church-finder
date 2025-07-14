@@ -68,14 +68,14 @@ export default function EventsPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="w-full py-6 px-10">
       <EventCarousel events={eventsData.filter((e) => e.featured)} />
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-6">
         <div className="lg:w-3/4">
           <BannerCTA />
 
           {/* Search Input */}
-          <div className="relative max-w-xl w-full mx-auto mb-6">
+          <div className="relative max-w-2xl w-full mx-auto mb-4">
             <div className="flex items-center gap-2">
               <input
                 type="text"
@@ -161,7 +161,7 @@ export default function EventsPage() {
           )}
         </div>
 
-        <div className="lg:w-1/4 space-y-6">
+        <div className="lg:w-1/4 space-y-4">
           <FeaturedDetail isFeatured={false} />
           <UpcomingEventsSidebar events={eventsData.slice(0, 3)} />
         </div>

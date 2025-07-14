@@ -45,12 +45,12 @@ export function EventsList({
     return <div className="text-gray-500">No events found.</div>;
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-row gap-4 overflow-x-auto pb-2">
       {events.map((event) => (
         <div
           key={event.slug}
           onClick={() => handleEventClick(event)}
-          className="cursor-pointer hover:shadow-md transition-shadow duration-200"
+          className="cursor-pointer hover:shadow-md transition-shadow duration-200 min-w-[280px] max-w-xs"
         >
           <Card
             image={event.image || "/assets/images/churches/youth-revival.jpg"}

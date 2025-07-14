@@ -126,25 +126,6 @@ export function ChurchDetails({ church }: ChurchDetailsProps) {
           </div>
         </div>
       </div>
-
-      {/* Services */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <Clock className="h-5 w-5 text-[#7FC242]" />
-          Service Times
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {church.services.map((service, index) => (
-            <div
-              key={index}
-              className="bg-white border border-gray-100 rounded-xl p-4 flex items-center gap-3 shadow-sm hover:shadow-md transition-all duration-200"
-            >
-              <Clock className="h-5 w-5 text-[#7FC242]" />
-              <span className="text-[#7FC242] font-medium">{service}</span>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

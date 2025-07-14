@@ -13,6 +13,7 @@ import {
   QuickActions,
   ChurchDetails,
   EventsList,
+  ChurchServices,
 } from "./components";
 import type { Church } from "@/types";
 
@@ -115,23 +116,29 @@ export default function Dashboard() {
         {showChurchDetails ? (
           // Church Details View
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Content Column */}
-            <ChurchDetails church={church} />
-
-            {/* Sidebar Column */}
-            <div className="space-y-6">
+            {/* Church Details (left, 2/3) */}
+            <div className="lg:col-span-2 space-y-6">
+              <ChurchDetails church={church} />
+            </div>
+            {/* Sidebar (right, 1/3) */}
+            <div className="lg:col-span-1 space-y-6">
               {eventCount >= 3 && (
                 <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg mb-2 text-sm">
                   You can only create up to 3 events per church for now.
                 </div>
               )}
-              <QuickActions churchId={church._id} />
+              <QuickActions churchId={church._id} eventCount={eventCount} />
 
               <FeaturedDetail
                 isFeatured={church.isFeatured || false}
                 featuredUntil={church.featuredUntil}
               />
-
+              {church?.services && (
+                <ChurchServices services={church.services} />
+              )}
+            </div>
+            {/* Events List (bottom, full width) */}
+            <div className="lg:col-span-3">
               <EventsList
                 churchId={church._id || ""}
                 onEventCountChange={setEventCount}
