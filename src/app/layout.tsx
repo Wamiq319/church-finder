@@ -1,7 +1,5 @@
-import Navbar from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
+import { Navbar, Footer, AuthProvider } from "@/components";
 import "./globals.css";
-import AuthProvider from "@/components/AuthProvider";
 
 export default function RootLayout({
   children,

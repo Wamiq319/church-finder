@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { Button } from "./ui/Button";
+import { Button } from "../ui/Button";
 import { useSession, signOut } from "next-auth/react";
 import content from "@/data/content.json";
 
@@ -16,7 +16,7 @@ const NAV_ITEMS = [
   { path: "contact", key: "contact" },
 ] as const;
 
-export default function Navbar() {
+export const Navbar = () => {
   const nav = content.nav;
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -250,4 +250,4 @@ export default function Navbar() {
       </header>
     </>
   );
-}
+};

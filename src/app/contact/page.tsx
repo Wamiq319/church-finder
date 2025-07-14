@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { HeroSection } from "@/components/ui/HeroSection";
+import { Button, Input, Hero } from "@/components";
 import content from "@/data/content.json";
 
 export default function ContactPage() {
@@ -39,7 +37,7 @@ export default function ContactPage() {
 
   return (
     <div className="bg-white">
-      <HeroSection
+      <Hero
         title={contactContent.heroTitle}
         subtitle={contactContent.heroSubtitle}
         height="md"

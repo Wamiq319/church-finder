@@ -2,10 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
+import { Input, Button, Loader } from "@/components";
 import { signIn } from "next-auth/react";
-import { Loader } from "@/components/ui/Loader";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({

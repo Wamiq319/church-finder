@@ -1,9 +1,9 @@
 import { Event } from "@/types";
-import { EventCard } from "@/components/ui/EventCard";
+import { Card, Loader } from "@/components";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Loader } from "@/components/ui/Loader";
+import { CalendarDays, MapPin } from "lucide-react";
 
 export function EventsList({ churchId }: { churchId: string }) {
   const { data: session } = useSession();
@@ -27,7 +27,7 @@ export function EventsList({ churchId }: { churchId: string }) {
   }, [churchId]);
 
   const handleEventClick = (event: Event) => {
-    router.push(`/dashboard/event/${event._id}`);
+    router.push(`/dashboard/event/${event.slug}`);
   };
 
   if (loading) return <Loader text="Loading events..." />;
@@ -38,11 +38,28 @@ export function EventsList({ churchId }: { churchId: string }) {
     <div className="space-y-4">
       {events.map((event) => (
         <div
-          key={event._id?.toString() || event.slug}
+          key={event.slug}
           onClick={() => handleEventClick(event)}
           className="cursor-pointer hover:shadow-md transition-shadow duration-200"
         >
-          <EventCard event={event} />
+          <Card
+            image={event.image || "/assets/images/churches/youth-revival.jpg"}
+            imageAlt={event.title}
+            title={event.title}
+            description={event.description}
+            metadata={[
+              {
+                icon: <CalendarDays className="h-4 w-4" />,
+                text: event.date,
+              },
+              {
+                icon: <MapPin className="h-4 w-4" />,
+                text: event.address || "Location TBA",
+              },
+            ]}
+            onClick={() => handleEventClick(event)}
+            imageHeight="h-32"
+          />
         </div>
       ))}
     </div>

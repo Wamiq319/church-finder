@@ -11,10 +11,10 @@ interface FeaturedDetailsProps {
   featuredUntil?: Date | string;
 }
 
-export function FeaturedDetails({
+export const FeaturedDetail = ({
   isFeatured,
   featuredUntil,
-}: FeaturedDetailsProps) {
+}: FeaturedDetailsProps) => {
   const router = useRouter();
 
   const handleGetFeaturedClick = () => {
@@ -126,4 +126,4 @@ export function FeaturedDetails({
       </div>
     </div>
   );
-}
+};

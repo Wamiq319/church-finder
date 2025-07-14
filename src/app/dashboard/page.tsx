@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import ClientOnly from "@/components/ClientOnly";
-import { Loader } from "@/components/ui/Loader";
-import { ComingSoonPopup } from "@/components/ui/ComingSoon";
+import {
+  ClientOnly,
+  Loader,
+  ComingSoonPopup,
+  FeaturedDetail,
+} from "@/components";
 import { NoChurchCTA } from "./component/NoChurchCTA";
 import { QuickActions } from "./component/QuickActions";
-import { FeaturedDetails } from "@/components/ui/FeaturedDetail";
 import { ChurchDetails } from "./component/ChurchDetails";
 import { EventsList } from "./component/EventsList";
 import type { Church } from "@/types";
@@ -117,12 +119,12 @@ export default function Dashboard() {
             <div className="space-y-6">
               <QuickActions churchId={church._id} />
 
-              <FeaturedDetails
+              <FeaturedDetail
                 isFeatured={church.isFeatured || false}
                 featuredUntil={church.featuredUntil}
               />
 
-              <EventsList churchId={church._id} />
+              <EventsList churchId={church._id || ""} />
             </div>
           </div>
         ) : (

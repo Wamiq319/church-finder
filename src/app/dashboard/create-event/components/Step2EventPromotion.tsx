@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components";
 import { Star, Calendar } from "lucide-react";
 import { formatDate } from "@/utils/dateUtils";
 import { Event } from "@/types";

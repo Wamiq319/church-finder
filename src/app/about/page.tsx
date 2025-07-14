@@ -1,11 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { Button } from "@/components/ui/Button";
-import { HowItWorksSection } from "@/components/home/HowItWorksSection";
-import { ListYourChurchCTA } from "@/components/home/ListYourChurchCTA";
+import {
+  Button,
+  HowItWorksSection,
+  ListYourChurchCTA,
+  Hero,
+} from "@/components";
 import { Twitter, Facebook, Linkedin, Globe } from "lucide-react";
-import { HeroSection } from "@/components/ui/HeroSection";
 import content from "@/data/content.json";
 
 export default function AboutUsPage() {
@@ -13,7 +15,7 @@ export default function AboutUsPage() {
 
   return (
     <div className="bg-white">
-      <HeroSection
+      <Hero
         title={AboutUsPage.heroTitle}
         subtitle={AboutUsPage.heroSubtitle}
         height="md"

@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { ComingSoonPopup } from "@/components/ui/ComingSoon";
+import { ComingSoonPopup } from "@/components/features/ComingSoon";
 
 export default function EventDetailPage() {
   const params = useParams();

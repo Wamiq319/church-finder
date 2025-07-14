@@ -1,9 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
-import { EventCard } from "@/components/ui/EventCard";
-import { Button } from "../ui/Button";
+import { ArrowRight, CalendarDays, MapPin } from "lucide-react";
+import { Card, Button } from "@/components";
 import events from "@/data/events.json";
 import content from "@/data/content.json";
 
@@ -25,7 +24,25 @@ export const UpcomingEventsPreview = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {events.slice(0, 3).map((event) => (
-            <EventCard key={event.id} event={event} />
+            <Card
+              key={event.id}
+              image={event.image || "/assets/images/churches/youth-revival.jpg"}
+              imageAlt={event.title}
+              title={event.title}
+              description={event.description}
+              metadata={[
+                {
+                  icon: <CalendarDays className="h-4 w-4" />,
+                  text: event.date,
+                },
+                {
+                  icon: <MapPin className="h-4 w-4" />,
+                  text: event.location || "Location TBA",
+                },
+              ]}
+              onClick={() => router.push(`/events/${event.slug}`)}
+              imageHeight="h-32"
+            />
           ))}
         </div>
 

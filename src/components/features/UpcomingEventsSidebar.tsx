@@ -1,6 +1,6 @@
 import { CalendarDays } from "lucide-react";
 import Link from "next/link";
-import { Button } from "./Button";
+import { Button } from "../ui/Button";
 import { ArrowRight } from "lucide-react";
 
 interface Event {
@@ -12,7 +12,7 @@ interface Event {
   slug: string;
 }
 
-export function UpcomingEventsSidebar({ events }: { events: Event[] }) {
+export const UpcomingEventsSidebar = ({ events }: { events: Event[] }) => {
   return (
     <div className="bg-white rounded-xl shadow-md p-6">
       <h3 className="text-xl font-bold text-[#1A365D] mb-4 flex items-center">
@@ -35,14 +35,11 @@ export function UpcomingEventsSidebar({ events }: { events: Event[] }) {
         ))}
       </div>
       <Link href="/events" className="block w-full">
-        <Button
-          variant="outline"
-          className="w-full mt-4"
-        >
+        <Button variant="outline" className="w-full mt-4">
           View All Events
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </Link>
     </div>
   );
-}
+};

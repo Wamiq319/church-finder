@@ -1,12 +1,12 @@
 "use client";
 
 import { CalendarDays, MapPin, ArrowRight } from "lucide-react";
-import { Button } from "./ui/Button";
+import { Button } from "../ui/Button";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-export function EventCarousel({ events }: { events: any[] }) {
+export const EventCarousel = ({ events }: { events: any[] }) => {
   const router = useRouter();
   const [current, setCurrent] = useState(0);
 
@@ -84,4 +84,4 @@ export function EventCarousel({ events }: { events: any[] }) {
       </div>
     </div>
   );
-}
+};

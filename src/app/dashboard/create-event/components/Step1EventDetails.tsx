@@ -1,6 +1,5 @@
 import { useRef } from "react";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
+import { Button, Input } from "@/components";
 import { ImagePlus, Calendar, MapPin, Clock } from "lucide-react";
 import Image from "next/image";
 import { Event } from "@/types";

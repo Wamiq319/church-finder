@@ -2,11 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
+import { Input, Button, Loader } from "@/components";
 import { signupSchema } from "@/lib/validations/auth";
 import { ZodError } from "zod";
-import { Loader } from "@/components/ui/Loader";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({

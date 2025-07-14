@@ -1,16 +1,16 @@
 "use client";
 
 import { Clock, X } from "lucide-react";
-import { Button } from "./Button";
+import { Button } from "../ui/Button";
 import Image from "next/image";
 
-export function ComingSoonPopup({
+export const ComingSoonPopup = ({
   show,
   onClose,
 }: {
   show: boolean;
   onClose: () => void;
-}) {
+}) => {
   if (!show) return null;
 
   return (
@@ -77,4 +77,4 @@ export function ComingSoonPopup({
       </div>
     </div>
   );
-}
+};

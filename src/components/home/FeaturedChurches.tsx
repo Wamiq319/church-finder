@@ -2,9 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ChurchCard } from "@/components/ui/ChurchCard";
 import churches from "@/data/churches.json";
 import content from "@/data/content.json";
+import { Card } from "@/components";
+import { MapPin } from "lucide-react";
 
 export const FeaturedChurches = () => {
   const featured = content.HomePage.featured;
@@ -86,9 +87,19 @@ export const FeaturedChurches = () => {
         >
           <div className="flex space-x-6 py-2">
             {churches.map((church) => (
-              <ChurchCard
+              <Card
                 key={church.id}
-                church={church}
+                image={church.image || "/assets/images/churches/st-andrews.jpg"}
+                imageAlt={church.name}
+                title={church.name}
+                description={church.description}
+                metadata={[
+                  {
+                    icon: <MapPin className="h-4 w-4 text-[#7FC242]" />,
+                    text: `${church.city}, ${church.state}`,
+                  },
+                ]}
+                onClick={() => router.push(`/churches/${church.slug}`)}
                 className="min-w-[280px] md:min-w-[320px]"
               />
             ))}

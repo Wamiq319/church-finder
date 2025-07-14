@@ -1,18 +1,23 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import eventsData from "@/data/events.json";
 import contentData from "@/data/content.json";
-import { EventCard } from "@/components/ui/EventCard";
-import GridWithPagination from "@/components/GridWithPagination";
-import { EventCarousel } from "@/components/EventCarousel";
-import { BannerCTA } from "@/components/ui/BannerCTA";
-import { FeaturedDetails } from "@/components/ui/FeaturedDetail";
-import { UpcomingEventsSidebar } from "@/components/ui/UpcomingEventsSidebar";
+import {
+  GridWithPagination,
+  EventCarousel,
+  BannerCTA,
+  FeaturedDetail,
+  UpcomingEventsSidebar,
+  Loader,
+  Card,
+} from "@/components";
 import { Search } from "lucide-react";
-import { Loader } from "@/components/ui/Loader";
+import { CalendarDays, MapPin } from "lucide-react";
 
 export default function EventsPage() {
+  const router = useRouter();
   const content = contentData.EventsPage;
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredEvents, setFilteredEvents] = useState(eventsData);
@@ -129,14 +134,35 @@ export default function EventsPage() {
           ) : (
             <GridWithPagination
               items={filteredEvents}
-              renderItem={(event) => <EventCard event={event} />}
+              renderItem={(event) => (
+                <Card
+                  image={
+                    event.image || "/assets/images/churches/youth-revival.jpg"
+                  }
+                  imageAlt={event.title}
+                  title={event.title}
+                  description={event.description}
+                  metadata={[
+                    {
+                      icon: <CalendarDays className="h-4 w-4" />,
+                      text: event.date,
+                    },
+                    {
+                      icon: <MapPin className="h-4 w-4" />,
+                      text: event.location || "Location TBA",
+                    },
+                  ]}
+                  onClick={() => router.push(`/events/${event.slug}`)}
+                  imageHeight="h-32"
+                />
+              )}
               itemsPerPage={9}
             />
           )}
         </div>
 
         <div className="lg:w-1/4 space-y-6">
-          <FeaturedDetails isFeatured={false} />
+          <FeaturedDetail isFeatured={false} />
           <UpcomingEventsSidebar events={eventsData.slice(0, 3)} />
         </div>
       </div>

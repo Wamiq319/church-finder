@@ -1,10 +1,11 @@
+"use client";
+
 import { ArrowRight, ImagePlus } from "lucide-react";
-import { Button } from "./Button";
+import { Button, ComingSoonPopup } from "@/components";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ComingSoonPopup } from "./ComingSoon";
 
-export function BannerCTA() {
+export const BannerCTA = () => {
   const router = useRouter();
   const [showPopup, setShowPopup] = useState(false);
   return (
@@ -37,4 +38,4 @@ export function BannerCTA() {
       </div>
     </div>
   );
-}
+};

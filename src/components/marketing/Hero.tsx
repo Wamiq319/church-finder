@@ -9,7 +9,7 @@ interface HeroSectionProps {
   height?: "sm" | "md" | "lg";
 }
 
-export const HeroSection = ({
+export const Hero = ({
   title,
   subtitle,
   showLogo = true,

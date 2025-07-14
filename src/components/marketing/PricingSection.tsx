@@ -1,12 +1,12 @@
 "use client";
 
 import { CheckCircle, Star, Zap, Clock, X } from "lucide-react";
-import { Button } from "./Button";
+import { Button } from "../ui/Button";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ComingSoonPopup } from "./ComingSoon";
+import { ComingSoonPopup } from "../features/ComingSoon";
 
-export function PricingSection() {
+export const PricingSection = () => {
   const router = useRouter();
   const [showPopup, setShowPopup] = useState(false);
 
@@ -129,4 +129,4 @@ export function PricingSection() {
       </div>
     </div>
   );
-}
+};

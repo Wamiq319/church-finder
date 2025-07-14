@@ -5,10 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Event } from "@/types";
 import { EventDetail } from "../../component/EventDetail";
-import { Loader } from "@/components/ui/Loader";
-import { Button } from "@/components/ui/Button";
+import { Loader, Button, ClientOnly } from "@/components";
 import { ArrowLeft } from "lucide-react";
-import ClientOnly from "@/components/ClientOnly";
 
 export default function DashboardEventPage() {
   const params = useParams();
