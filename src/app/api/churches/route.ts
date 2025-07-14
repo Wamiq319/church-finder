@@ -234,6 +234,22 @@ export async function GET(request: Request) {
       });
     }
 
+    // Filter by slug for single church detail
+    const slug = searchParams.get("slug");
+    if (slug) {
+      const church = await Church.findOne({ slug, status: "published" });
+      if (!church) {
+        return NextResponse.json(
+          { success: false, message: "Church not found" },
+          { status: 404 }
+        );
+      }
+      return NextResponse.json({
+        success: true,
+        data: church,
+      });
+    }
+
     // For other cases, use the existing filtering logic
     const query: any = { status: "published" };
 
@@ -253,13 +269,26 @@ export async function GET(request: Request) {
       }
     });
 
-    // Search in name and description
+    // Search by location (city, state)
     const search = searchParams.get("search");
     if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-      ];
+      // Parse the search query to extract city and state
+      const locationParts = search.split(",").map((part) => part.trim());
+
+      if (locationParts.length === 2) {
+        // User searched for "City, State" format
+        const [city, state] = locationParts;
+        query.$and = [
+          { city: { $regex: city, $options: "i" } },
+          { state: { $regex: state, $options: "i" } },
+        ];
+      } else if (locationParts.length === 1) {
+        // User searched for just city or state
+        query.$or = [
+          { city: { $regex: search, $options: "i" } },
+          { state: { $regex: search, $options: "i" } },
+        ];
+      }
     }
 
     // Pagination
@@ -267,9 +296,26 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const skip = (page - 1) * limit;
 
+    // Check if we need full details or card layout
+    const isCardLayout =
+      searchParams.get("layout") === "card" || !searchParams.get("fields");
+
     // Fields selection
     const fields = searchParams.get("fields");
-    const projection = fields
+    const projection = isCardLayout
+      ? {
+          name: 1,
+          description: 1,
+          image: 1,
+          city: 1,
+          state: 1,
+          isFeatured: 1,
+          slug: 1,
+          denomination: 1,
+          latitude: 1,
+          longitude: 1,
+        }
+      : fields
       ? fields.split(",").reduce((acc, field) => {
           acc[field.trim()] = 1;
           return acc;

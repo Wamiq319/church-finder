@@ -3,6 +3,8 @@
 import { useState, useMemo, useEffect } from "react";
 import events from "@/data/events.json";
 import contentData from "@/data/content.json";
+import nigerianCities from "@/data/nigerianCities.json";
+import nigerianStates from "@/data/nigerianStates.json";
 import {
   Card,
   GridWithPagination,
@@ -44,6 +46,7 @@ export default function ChurchesPage() {
         page: page.toString(),
         limit: "9",
         status: "published",
+        layout: "card",
       });
 
       if (search) {
@@ -82,20 +85,38 @@ export default function ChurchesPage() {
     };
   }, [searchTimeout]);
 
-  // Extract unique matching locations
+  // Generate location suggestions from Nigerian data
   const locationSuggestions = useMemo(() => {
     if (!searchQuery.trim()) return [];
 
     const query = searchQuery.toLowerCase();
+    const suggestions: string[] = [];
 
-    return churches
-      .map((church) => `${church.city}, ${church.state}`)
-      .filter(
-        (loc, idx, arr) =>
-          loc.toLowerCase().includes(query) && arr.indexOf(loc) === idx
-      )
-      .slice(0, 5);
-  }, [searchQuery, churches]);
+    // Search in states first
+    nigerianStates.forEach((state) => {
+      if (state.toLowerCase().includes(query)) {
+        suggestions.push(state);
+      }
+    });
+
+    // Search in cities and create city, state combinations
+    Object.entries(nigerianCities).forEach(([state, cities]) => {
+      cities.forEach((city) => {
+        if (
+          city.toLowerCase().includes(query) ||
+          state.toLowerCase().includes(query)
+        ) {
+          const location = `${city}, ${state}`;
+          if (!suggestions.includes(location)) {
+            suggestions.push(location);
+          }
+        }
+      });
+    });
+
+    // Return top 10 suggestions
+    return suggestions.slice(0, 10);
+  }, [searchQuery]);
 
   function handleSuggestionClick(suggestion: string) {
     setSearchQuery(suggestion);
@@ -110,21 +131,22 @@ export default function ChurchesPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="w-full py-6 px-10">
       <EventCarousel events={events.filter((e) => e.featured)} />
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-6">
         <div className="lg:w-3/4">
           <BannerCTA />
 
           {/* Search Input */}
-          <div className="relative max-w-xl w-full mx-auto mb-6">
+          <div className="relative max-w-2xl w-full mx-auto mb-4">
             <div className="flex items-center gap-2">
               <input
                 type="text"
                 placeholder="Search churches by city, state, or location..."
                 value={searchQuery}
                 onChange={(e) => {
-                  setSearchQuery(e.target.value);
+                  const value = e.target.value;
+                  setSearchQuery(value);
                   setShowSuggestions(true);
 
                   // Clear previous timeout
@@ -132,14 +154,11 @@ export default function ChurchesPage() {
                     clearTimeout(searchTimeout);
                   }
 
-                  // Set new timeout for debounced search
+                  // Set new timeout for debounced search and suggestions
+                  // Only show suggestions, don't search while typing
                   const timeoutId = setTimeout(() => {
-                    if (e.target.value.trim()) {
-                      fetchChurches(e.target.value.trim());
-                    } else {
-                      fetchChurches();
-                    }
-                  }, 500);
+                    // Suggestions are handled by useMemo automatically
+                  }, 300);
 
                   setSearchTimeout(timeoutId);
                 }}
@@ -208,6 +227,8 @@ export default function ChurchesPage() {
                       text: `${church.city}, ${church.state}`,
                     },
                   ]}
+                  slug={church.slug}
+                  isFeatured={church.isFeatured}
                 />
               )}
               itemsPerPage={9}
@@ -219,7 +240,7 @@ export default function ChurchesPage() {
           )}
         </div>
 
-        <div className="lg:w-1/4 space-y-6">
+        <div className="lg:w-1/4 space-y-4">
           <FeaturedDetail isFeatured={false} />
           <UpcomingEventsSidebar events={events.slice(0, 3)} />
         </div>

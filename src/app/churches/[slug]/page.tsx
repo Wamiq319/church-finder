@@ -2,6 +2,7 @@
 
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import { useState, useEffect } from "react";
 import {
   MapPin,
   Mail,
@@ -15,37 +16,79 @@ import {
   ArrowRight,
   PlusCircle,
 } from "lucide-react";
-import churches from "@/data/churches.json";
 import contentData from "@/data/content.json";
-import { Button } from "@/components";
-import Link from "next/link";
+import { Button, Loader } from "@/components";
 import { useParams, useRouter } from "next/navigation";
+import { Church } from "@/types";
 
 export default function ChurchDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const church = churches.find((c) => c.slug === params.slug);
+  const [church, setChurch] = useState<Church | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const content = contentData.churchDetailPage;
 
-  if (!church) {
+  useEffect(() => {
+    const fetchChurch = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`/api/churches?slug=${params.slug}`);
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          setChurch(data.data);
+        } else {
+          setError("Church not found");
+        }
+      } catch (error) {
+        console.error("Error fetching church:", error);
+        setError("Failed to load church details");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (params.slug) {
+      fetchChurch();
+    }
+  }, [params.slug]);
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <div className="flex justify-center py-12">
+          <Loader text="Loading church details..." />
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !church) {
     return notFound();
   }
 
-  // Generate Google Maps URLs
-  const mapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    `${church.address}, ${church.city}, ${church.state}`
-  )}`;
+  // Generate Google Maps URLs with coordinates if available
+  const hasCoordinates = church.latitude && church.longitude;
 
-  const mapsEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(
-    `${church.address}, ${church.city}, ${church.state}`
-  )}&z=15&output=embed&t=m`;
+  const mapsSearchUrl = hasCoordinates
+    ? `https://www.google.com/maps/place/${church.latitude},${church.longitude}`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        `${church.address}, ${church.city}, ${church.state}`
+      )}`;
+
+  const mapsEmbedUrl = hasCoordinates
+    ? `https://maps.google.com/maps?q=${church.latitude},${church.longitude}&z=16&output=embed&t=m&markers=color:red%7C${church.latitude},${church.longitude}`
+    : `https://maps.google.com/maps?q=${encodeURIComponent(
+        `${church.address}, ${church.city}, ${church.state}`
+      )}&z=15&output=embed&t=m`;
 
   return (
     <div className="container mx-auto py-8 px-4">
       {/* Church Header with Image */}
       <div className="relative h-64 md:h-80 w-full rounded-xl overflow-hidden shadow-lg mb-8">
         <Image
-          src={church.image}
+          src={church.image || "/assets/images/churches/st-andrews.jpg"}
           alt={church.name}
           fill
           className="object-cover"
@@ -76,7 +119,7 @@ export default function ChurchDetailPage() {
               {content.servicesTitle}
             </h2>
             <ul className="space-y-3">
-              {church.services.map((service, index) => (
+              {church.services?.map((service, index) => (
                 <li key={index} className="flex items-start">
                   <Cross className="h-5 w-5 text-[#7FC242] mr-2 mt-0.5 flex-shrink-0" />
                   <span className="text-[#555]">{service}</span>
@@ -139,24 +182,24 @@ export default function ChurchDetailPage() {
             <div className="space-y-4">
               <div className="flex items-center">
                 <User className="h-5 w-5 text-[#7FC242] mr-2" />
-                <span className="text-[#555]">{church.pastor.name}</span>
+                <span className="text-[#555]">{church.pastorName}</span>
               </div>
               <div className="flex items-center">
                 <Mail className="h-5 w-5 text-[#7FC242] mr-2" />
                 <a
-                  href={`mailto:${church.pastor.email}`}
+                  href={`mailto:${church.pastorEmail}`}
                   className="text-[#555] hover:text-[#7FC242] transition-colors"
                 >
-                  {church.pastor.email}
+                  {church.pastorEmail}
                 </a>
               </div>
               <div className="flex items-center">
                 <Phone className="h-5 w-5 text-[#7FC242] mr-2" />
                 <a
-                  href={`tel:${church.pastor.phone}`}
+                  href={`tel:${church.pastorPhone}`}
                   className="text-[#555] hover:text-[#7FC242] transition-colors"
                 >
-                  {church.pastor.phone}
+                  {church.pastorPhone}
                 </a>
               </div>
             </div>
@@ -172,19 +215,19 @@ export default function ChurchDetailPage() {
               <div className="flex items-center">
                 <Mail className="h-5 w-5 text-[#7FC242] mr-2" />
                 <a
-                  href={`mailto:${church.contact.email}`}
+                  href={`mailto:${church.contactEmail}`}
                   className="text-[#555] hover:text-[#7FC242] transition-colors"
                 >
-                  {church.contact.email}
+                  {church.contactEmail}
                 </a>
               </div>
               <div className="flex items-center">
                 <Phone className="h-5 w-5 text-[#7FC242] mr-2" />
                 <a
-                  href={`tel:${church.contact.phone}`}
+                  href={`tel:${church.contactPhone}`}
                   className="text-[#555] hover:text-[#7FC242] transition-colors"
                 >
-                  {church.contact.phone}
+                  {church.contactPhone}
                 </a>
               </div>
             </div>
