@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { Button } from "../ui/Button";
+import { Button } from "@/components";
 import { useSession, signOut } from "next-auth/react";
 import content from "@/data/content.json";
 

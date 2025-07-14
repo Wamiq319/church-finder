@@ -4,7 +4,7 @@ import { formatDate } from "@/utils/dateUtils";
 import { Star, Building } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components";
 
 interface FeaturedDetailsProps {
   isFeatured: boolean;

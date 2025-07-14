@@ -2,7 +2,7 @@ import { Event } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
 import Image from "next/image";
 import { Star, Calendar, MapPin, Clock, Edit, Eye } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components";
 import Link from "next/link";
 
 interface EventDetailProps {
@@ -107,7 +107,9 @@ export function EventDetail({ event, churchId }: EventDetailProps) {
       {/* Action Buttons */}
       <div className="flex gap-3">
         <Link
-          href={`/dashboard/create-event?churchId=${churchId}&eventId=${event._id}`}
+          href={`/dashboard/create-event?churchId=${churchId}&eventId=${
+            (event as any)._id || ""
+          }`}
         >
           <Button variant="primary" className="flex items-center gap-2">
             <Edit className="h-4 w-4" />

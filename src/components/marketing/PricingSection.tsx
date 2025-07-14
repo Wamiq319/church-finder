@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckCircle, Star, Zap, Clock, X } from "lucide-react";
-import { Button } from "../ui/Button";
+import { Button } from "@/components";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ComingSoonPopup } from "../features/ComingSoon";

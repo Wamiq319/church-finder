@@ -16,11 +16,10 @@ import {
 import eventsData from "@/data/events.json";
 import churchesData from "@/data/churches.json";
 import contentData from "@/data/content.json";
-import { Button } from "@/components/ui/Button";
+import { Button, ComingSoonPopup } from "@/components";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { ComingSoonPopup } from "@/components/features/ComingSoon";
 
 export default function EventDetailPage() {
   const params = useParams();

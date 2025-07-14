@@ -1,7 +1,7 @@
 "use client";
 
 import { Clock, X } from "lucide-react";
-import { Button } from "../ui/Button";
+import { Button } from "@/components";
 import Image from "next/image";
 
 export const ComingSoonPopup = ({

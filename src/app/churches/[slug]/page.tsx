@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import churches from "@/data/churches.json";
 import contentData from "@/data/content.json";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
