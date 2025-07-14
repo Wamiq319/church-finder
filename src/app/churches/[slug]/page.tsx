@@ -91,6 +91,32 @@ export default function ChurchDetailPage() {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Main Content */}
         <div className="lg:w-2/3">
+          {/* Details Section */}
+          <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+            <h2 className="text-2xl font-bold text-[#1A365D] mb-4 flex items-center">
+              <Home className="text-[#7FC242] mr-2" />
+              Details
+            </h2>
+            <ul className="space-y-3">
+              <li className="flex items-center">
+                <BookOpen className="h-5 w-5 text-[#7FC242] mr-2" />
+                <span className="font-semibold text-[#1A365D] mr-1">
+                  Denomination:
+                </span>
+                <span className="text-[#555]">{church.denomination}</span>
+              </li>
+              <li className="flex items-center">
+                <MapPin className="h-5 w-5 text-[#7FC242] mr-2" />
+                <span className="font-semibold text-[#1A365D] mr-1">
+                  Address:
+                </span>
+                <span className="text-[#555]">
+                  {church.address}, {church.city}, {church.state}
+                </span>
+              </li>
+            </ul>
+          </div>
+
           {/* About Section */}
           <div className="bg-white rounded-xl shadow-md p-6 mb-6">
             <h2 className="text-2xl font-bold text-[#1A365D] mb-4 flex items-center">
@@ -101,7 +127,7 @@ export default function ChurchDetailPage() {
           </div>
 
           {/* Services Section */}
-          <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+          <div className="bg-white rounded-xl shadow-md p-6 mb-6 h-80 overflow-y-auto">
             <h2 className="text-2xl font-bold text-[#1A365D] mb-4 flex items-center">
               <Calendar className="text-[#7FC242] mr-2" />
               {content.servicesTitle}
@@ -114,15 +140,6 @@ export default function ChurchDetailPage() {
                 </li>
               ))}
             </ul>
-          </div>
-
-          {/* Events Section */}
-          <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-            <h2 className="text-2xl font-bold text-[#1A365D] mb-4 flex items-center">
-              <Calendar className="text-[#7FC242] mr-2" />
-              Related Events
-            </h2>
-            <EventsList churchId={church?._id || ""} publicView />
           </div>
         </div>
 
@@ -236,6 +253,15 @@ export default function ChurchDetailPage() {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Events Section - full width at bottom */}
+      <div className="bg-white rounded-xl shadow-md p-6 mt-8">
+        <h2 className="text-2xl font-bold text-[#1A365D] mb-4 flex items-center">
+          <Calendar className="text-[#7FC242] mr-2" />
+          Related Events
+        </h2>
+        <EventsList churchId={church?._id || ""} publicView />
       </div>
     </div>
   );

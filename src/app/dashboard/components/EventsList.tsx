@@ -24,7 +24,11 @@ export function EventsList({
     async function fetchEvents() {
       setLoading(true);
       try {
-        const res = await fetch(`/api/events?action=list&churchId=${churchId}`);
+        let url = `/api/events?action=list&churchId=${churchId}`;
+        if (publicView) {
+          url += `&status=published`;
+        }
+        const res = await fetch(url);
         const data = await res.json();
         if (data.success) {
           setEvents(data.data);
@@ -37,7 +41,7 @@ export function EventsList({
       setLoading(false);
     }
     if (churchId) fetchEvents();
-  }, [churchId, onEventCountChange]);
+  }, [churchId, onEventCountChange, publicView]);
 
   const handleEventClick = (event: EventType) => {
     if (publicView) {

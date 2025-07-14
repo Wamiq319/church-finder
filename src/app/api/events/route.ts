@@ -49,7 +49,13 @@ export async function GET(request: Request) {
 
     if (action === "list" && churchId) {
       // Get list of events for a church (no auth required for public listing)
-      const events = await Event.find({ church: churchId }).sort({ date: 1 });
+      const status = searchParams.get("status");
+      const query: { [key: string]: any } = { church: churchId };
+      if (status) {
+        // Only filter by status if provided
+        query["status"] = status;
+      }
+      const events = await Event.find(query).sort({ date: 1 });
       return NextResponse.json({ success: true, data: events });
     }
 
