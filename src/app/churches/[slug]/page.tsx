@@ -18,14 +18,16 @@ import {
   Globe,
 } from "lucide-react";
 import contentData from "@/data/content.json";
-import { Button, Loader } from "@/components";
+import { Button, Loader, EventsList } from "@/components";
 import { useParams, useRouter } from "next/navigation";
 import { Church } from "@/types";
+
+type ChurchWithId = Church & { _id?: string };
 
 export default function ChurchDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const [church, setChurch] = useState<Church | null>(null);
+  const [church, setChurch] = useState<ChurchWithId | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const content = contentData.churchDetailPage;
@@ -68,21 +70,6 @@ export default function ChurchDetailPage() {
   if (error || !church) {
     return notFound();
   }
-
-  // Generate Google Maps URLs with coordinates if available
-  const hasCoordinates = church.latitude && church.longitude;
-
-  const mapsSearchUrl = hasCoordinates
-    ? `https://www.google.com/maps/place/${church.latitude},${church.longitude}`
-    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-        `${church.address}, ${church.city}, ${church.state}`
-      )}`;
-
-  const mapsEmbedUrl = hasCoordinates
-    ? `https://maps.google.com/maps?q=${church.latitude},${church.longitude}&z=16&output=embed&t=m&markers=color:red%7C${church.latitude},${church.longitude}`
-    : `https://maps.google.com/maps?q=${encodeURIComponent(
-        `${church.address}, ${church.city}, ${church.state}`
-      )}&z=15&output=embed&t=m`;
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -129,46 +116,13 @@ export default function ChurchDetailPage() {
             </ul>
           </div>
 
-          {/* Location Section */}
-          <div className="bg-white rounded-xl shadow-md p-6">
+          {/* Events Section */}
+          <div className="bg-white rounded-xl shadow-md p-6 mb-6">
             <h2 className="text-2xl font-bold text-[#1A365D] mb-4 flex items-center">
-              <MapPin className="text-[#7FC242] mr-2" />
-              {content.locationTitle}
+              <Calendar className="text-[#7FC242] mr-2" />
+              Related Events
             </h2>
-            <div className="space-y-4">
-              <div className="flex items-start">
-                <Home className="h-5 w-5 text-[#7FC242] mr-2 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-[#555] font-medium">{church.address}</p>
-                  <p className="text-[#555]">
-                    {church.city}, {church.state}
-                  </p>
-                </div>
-              </div>
-              {/* Google Maps Embed */}
-              <div className="h-64 w-full rounded-lg mt-4 overflow-hidden border border-gray-200">
-                <iframe
-                  width="100%"
-                  height="100%"
-                  frameBorder="0"
-                  scrolling="no"
-                  marginHeight={0}
-                  marginWidth={0}
-                  src={mapsEmbedUrl}
-                  allowFullScreen
-                  aria-hidden="false"
-                  tabIndex={0}
-                ></iframe>
-              </div>
-              <Button
-                variant="outline"
-                className="w-full mt-4"
-                onClick={() => window.open(mapsSearchUrl, "_blank")}
-              >
-                <MapPin className="h-4 w-4 mr-2" />
-                {content.openInMaps}
-              </Button>
-            </div>
+            <EventsList churchId={church?._id || ""} publicView />
           </div>
         </div>
 

@@ -1,3 +1,4 @@
+"use client";
 import { Event as EventType } from "@/types";
 import { Card, Loader } from "@/components";
 import { useEffect, useState } from "react";
@@ -8,9 +9,11 @@ import { CalendarDays, MapPin } from "lucide-react";
 export function EventsList({
   churchId,
   onEventCountChange,
+  publicView = false,
 }: {
   churchId: string;
   onEventCountChange?: (count: number) => void;
+  publicView?: boolean;
 }) {
   const { data: session } = useSession();
   const router = useRouter();
@@ -37,7 +40,11 @@ export function EventsList({
   }, [churchId, onEventCountChange]);
 
   const handleEventClick = (event: EventType) => {
-    router.push(`/dashboard/event/${event.slug}`);
+    if (publicView) {
+      router.push(`/events/${event.slug}`);
+    } else {
+      router.push(`/dashboard/event/${event.slug}`);
+    }
   };
 
   if (loading) return <Loader text="Loading events..." />;
