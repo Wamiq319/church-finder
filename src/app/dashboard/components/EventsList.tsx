@@ -1,4 +1,4 @@
-import { Event } from "@/types";
+import { Event as EventType } from "@/types";
 import { Card, Loader } from "@/components";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -8,7 +8,7 @@ import { CalendarDays, MapPin } from "lucide-react";
 export function EventsList({ churchId }: { churchId: string }) {
   const { data: session } = useSession();
   const router = useRouter();
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<EventType[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export function EventsList({ churchId }: { churchId: string }) {
     if (churchId) fetchEvents();
   }, [churchId]);
 
-  const handleEventClick = (event: Event) => {
+  const handleEventClick = (event: EventType) => {
     router.push(`/dashboard/event/${event.slug}`);
   };
 

@@ -3,9 +3,9 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/auth.config";
 import dbConnect from "@/lib/dbConnect";
 import User from "@/lib/models/User";
-import Event from "@/lib/models/Event";
+import Event from "@/lib/models/Event"; // Mongoose model
 import { eventSchema } from "@/lib/validations/event";
-import { EventFormData } from "@/types";
+import { Event as EventType } from "@/types"; // TypeScript type aliased
 
 export async function GET(request: Request) {
   try {
@@ -102,8 +102,9 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { churchId, ...eventData }: { churchId?: string } & EventFormData =
-      body;
+    const { churchId, ...eventData } = body as {
+      churchId?: string;
+    } & EventType;
 
     console.log("POST /api/events - Request body:", body);
     console.log("User church:", user.church);
