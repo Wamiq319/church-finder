@@ -14,6 +14,8 @@ export type Event = {
   step: number;
   status: "draft" | "published";
   featuredUntil?: Date;
+  paymentStatus?: "pending" | "completed" | "failed";
+  stripeSessionId?: string;
   createdAt: Date;
   updatedAt: Date;
   organizer?: string;

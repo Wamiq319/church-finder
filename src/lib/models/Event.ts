@@ -61,6 +61,15 @@ const eventSchema: Schema = new Schema(
       type: Date,
       default: null,
     },
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "completed", "failed"],
+      default: "pending",
+    },
+    stripeSessionId: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true,

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/auth.config";
 import { stripe } from "@/lib/stripe";
 import Church from "@/lib/models/Church";
+import { Event } from "@/lib/models/Event";
 import dbConnect from "@/lib/dbConnect";
 
 export async function POST(request: Request) {
@@ -41,6 +42,7 @@ export async function POST(request: Request) {
       checkoutSession.status === "complete"
     ) {
       const churchId = checkoutSession.metadata?.churchId;
+      const eventId = checkoutSession.metadata?.eventId;
 
       if (churchId && checkoutSession.metadata?.type === "featured_church") {
         // Calculate featured until date (1 week from now)
@@ -71,6 +73,42 @@ export async function POST(request: Request) {
         } else {
           return NextResponse.json(
             { success: false, message: "Church not found" },
+            { status: 404 }
+          );
+        }
+      } else if (
+        eventId &&
+        checkoutSession.metadata?.type === "featured_event"
+      ) {
+        // Calculate featured until date (1 week from now)
+        const featuredUntil = new Date();
+        featuredUntil.setDate(featuredUntil.getDate() + 7);
+
+        // Update event to featured
+        const updatedEvent = await Event.findByIdAndUpdate(
+          eventId,
+          {
+            featured: true,
+            featuredUntil,
+            paymentStatus: "completed",
+            step: 2, // Move to step 2 after payment
+          },
+          { new: true }
+        );
+
+        if (updatedEvent) {
+          console.log(
+            `Event ${eventId} marked as featured via session verification`
+          );
+          return NextResponse.json({
+            success: true,
+            message: "Payment verified and event featured",
+            event: updatedEvent,
+            featuredUntil,
+          });
+        } else {
+          return NextResponse.json(
+            { success: false, message: "Event not found" },
             { status: 404 }
           );
         }

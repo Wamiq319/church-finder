@@ -11,6 +11,9 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 export const FEATURED_CHURCH_PRICE_ID =
   process.env.STRIPE_FEATURED_CHURCH_PRICE_ID || "price_featured_church_weekly";
 
+export const FEATURED_EVENT_PRICE_ID =
+  process.env.STRIPE_FEATURED_EVENT_PRICE_ID || "price_featured_event_weekly";
+
 // Helper function to create checkout session for featured church
 export async function createFeaturedChurchCheckoutSession(
   churchId: string,
@@ -40,6 +43,41 @@ export async function createFeaturedChurchCheckoutSession(
     metadata: {
       churchId,
       type: "featured_church",
+    },
+  });
+
+  return session;
+}
+
+// Helper function to create checkout session for featured event
+export async function createFeaturedEventCheckoutSession(
+  eventId: string,
+  eventTitle: string
+) {
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    line_items: [
+      {
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: `Featured Event: ${eventTitle}`,
+            description: "Weekly featured event listing",
+          },
+          unit_amount: 500, // $5.00 in cents
+          recurring: {
+            interval: "week",
+          },
+        },
+        quantity: 1,
+      },
+    ],
+    mode: "subscription",
+    success_url: `${process.env.NEXTAUTH_URL}/dashboard/create-event?step=2&payment=success&session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${process.env.NEXTAUTH_URL}/dashboard/create-event?step=2&payment=cancelled`,
+    metadata: {
+      eventId,
+      type: "featured_event",
     },
   });
 
