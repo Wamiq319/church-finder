@@ -1,4 +1,5 @@
 export { Hero } from "./Hero";
 export { PricingSection } from "./PricingSection";
-export { FeaturedDetail } from "./FeaturedDetail";
+export { ChurchFeaturedDetail } from "./ChurchFeaturedDetail";
+export { EventFeaturedDetail } from "./EventFeaturedDetail";
 export { BannerCTA } from "./BannerCTA";

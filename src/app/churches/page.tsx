@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import events from "@/data/events.json";
 import contentData from "@/data/content.json";
 import nigerianCities from "@/data/nigerianCities.json";
@@ -10,7 +11,7 @@ import {
   GridWithPagination,
   EventCarousel,
   BannerCTA,
-  FeaturedDetail,
+  ChurchFeaturedDetail,
   UpcomingEventsSidebar,
   Loader,
   Button,
@@ -19,6 +20,7 @@ import { Search, MapPin } from "lucide-react";
 import { Church } from "@/types";
 
 export default function ChurchesPage() {
+  const router = useRouter();
   const content = contentData.ChurchesPage;
   const [searchQuery, setSearchQuery] = useState("");
   const [churches, setChurches] = useState<Church[]>([]);
@@ -240,7 +242,10 @@ export default function ChurchesPage() {
         </div>
 
         <div className="lg:w-1/4 space-y-4">
-          <FeaturedDetail isFeatured={false} />
+          <ChurchFeaturedDetail
+            isFeatured={false}
+            onGetFeaturedClick={() => router.push("/dashboard")}
+          />
           <UpcomingEventsSidebar />
         </div>
       </div>

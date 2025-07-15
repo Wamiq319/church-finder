@@ -47,8 +47,33 @@ export async function GET(request: Request) {
 
     // Get list of events for a church (dashboard view - all events)
     if (action === "list" && churchId) {
-      const events = await Event.find({ church: churchId }).sort({ date: 1 });
-      return NextResponse.json({ success: true, data: events });
+      const events = await Event.find({ church: churchId })
+        .select(
+          "_id title description date address image slug featured featuredUntil status"
+        )
+        .sort({ date: 1 });
+
+      // Truncate title and description for better layout
+      const truncatedEvents = events.map((event) => ({
+        _id: event._id,
+        title:
+          event.title.length > 30
+            ? event.title.substring(0, 30) + "..."
+            : event.title,
+        description:
+          event.description.length > 100
+            ? event.description.substring(0, 100) + "..."
+            : event.description,
+        date: event.date,
+        address: event.address,
+        image: event.image,
+        slug: event.slug,
+        featured: event.featured,
+        featuredUntil: event.featuredUntil,
+        status: event.status,
+      }));
+
+      return NextResponse.json({ success: true, data: truncatedEvents });
     }
 
     // Get most recent event for user's church
@@ -100,68 +125,103 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { churchId, ...eventData } = body as {
+    const { churchId, _id, ...eventData } = body as {
       churchId?: string;
+      _id?: string;
     } & EventType;
 
     console.log("POST /api/events - Request body:", body);
     console.log("User church:", user.church);
     console.log("Requested churchId:", churchId);
+    console.log("Event ID:", _id);
 
     // Use churchId from request or fall back to user's church
     const targetChurchId = churchId || user.church;
     console.log("Target church ID:", targetChurchId);
 
-    // Restrict to 3 events per church
-    const eventCount = await Event.countDocuments({ church: targetChurchId });
-    if (eventCount >= 3) {
-      return NextResponse.json(
-        {
-          success: false,
-          message:
-            "Event limit reached. You can only create up to 3 events per church.",
-        },
-        { status: 400 }
-      );
+    // Check if this is an update (has _id) or new creation
+    if (_id) {
+      // This is an update - find existing event
+      const existingEvent = await Event.findById(_id);
+      if (!existingEvent) {
+        return NextResponse.json(
+          { success: false, message: "Event not found" },
+          { status: 404 }
+        );
+      }
+
+      // Validate the update data
+      const result = eventSchema.safeParse(eventData);
+      if (!result.success) {
+        console.log("Validation errors:", result.error.errors);
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Invalid event data",
+            errors: result.error.errors,
+          },
+          { status: 400 }
+        );
+      }
+
+      // Update the existing event
+      Object.assign(existingEvent, result.data);
+      await existingEvent.save();
+      console.log("Event updated successfully:", existingEvent);
+
+      return NextResponse.json({ success: true, data: existingEvent });
+    } else {
+      // This is a new creation - check event limit
+      const eventCount = await Event.countDocuments({ church: targetChurchId });
+      if (eventCount >= 3) {
+        return NextResponse.json(
+          {
+            success: false,
+            message:
+              "Event limit reached. You can only create up to 3 events per church.",
+          },
+          { status: 400 }
+        );
+      }
+
+      // Create new event
+      const result = eventSchema.safeParse(eventData);
+      if (!result.success) {
+        console.log("Validation errors:", result.error.errors);
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Invalid event data",
+            errors: result.error.errors,
+          },
+          { status: 400 }
+        );
+      }
+
+      // Generate base slug
+      let slug = result.data.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+
+      // Ensure slug is unique
+      let uniqueSlug = slug;
+      let counter = 1;
+      while (await Event.findOne({ slug: uniqueSlug })) {
+        uniqueSlug = `${slug}-${counter++}`;
+      }
+
+      const event = new Event({
+        ...result.data,
+        church: targetChurchId,
+        slug: uniqueSlug,
+        step: result.data.step || 1,
+      });
+      await event.save();
+      console.log("Event created successfully:", event);
+
+      return NextResponse.json({ success: true, data: event });
     }
-
-    // Always create a new event (do not update existing)
-    const result = eventSchema.safeParse(eventData);
-    if (!result.success) {
-      console.log("Validation errors:", result.error.errors);
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid event data",
-          errors: result.error.errors,
-        },
-        { status: 400 }
-      );
-    }
-
-    // Generate base slug
-    let slug = result.data.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-
-    // Ensure slug is unique
-    let uniqueSlug = slug;
-    let counter = 1;
-    while (await Event.findOne({ slug: uniqueSlug })) {
-      uniqueSlug = `${slug}-${counter++}`;
-    }
-
-    const event = new Event({
-      ...result.data,
-      church: targetChurchId,
-      slug: uniqueSlug,
-      step: result.data.step || 1,
-    });
-    await event.save();
-    console.log("Event created successfully:", event);
-
-    return NextResponse.json({ success: true, data: event });
   } catch (error) {
     console.error("Error creating/updating event:", error);
     return NextResponse.json(

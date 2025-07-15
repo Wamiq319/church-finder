@@ -21,6 +21,7 @@ export default function CreateEventPage() {
   const { data: session } = useSession();
   const churchId = searchParams.get("churchId");
   const eventId = searchParams.get("eventId");
+  const stepParam = searchParams.get("step");
 
   const [formData, setFormData] = useState<
     Partial<Event> & { step: number; _id?: string }
@@ -45,6 +46,18 @@ export default function CreateEventPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
 
+  // Add timeout to prevent infinite loading
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (isLoading) {
+        console.log("Loading timeout reached, setting loading to false");
+        setIsLoading(false);
+      }
+    }, 10000); // 10 seconds timeout
+
+    return () => clearTimeout(timeout);
+  }, [isLoading]);
+
   // Function to fetch and update event data
   const fetchEventData = async () => {
     if (!eventId) return; // Only fetch if editing
@@ -62,9 +75,12 @@ export default function CreateEventPage() {
         }
 
         // Update formData with backend data
+        const stepFromUrl = stepParam
+          ? parseInt(stepParam, 10)
+          : data.data.step;
         setFormData({
           ...data.data,
-          step: data.data.step, // Use the actual step from database
+          step: Math.min(Math.max(stepFromUrl, 1), 2), // Use step from URL or database, ensure it's between 1 and 2
         });
 
         if (data.data.image) {
@@ -81,11 +97,21 @@ export default function CreateEventPage() {
 
   // Initial data load
   useEffect(() => {
+    console.log(
+      "CreateEvent useEffect - session:",
+      !!session?.user?.id,
+      "churchId:",
+      churchId,
+      "eventId:",
+      eventId
+    );
+
     if (session?.user?.id && churchId) {
       if (eventId) {
         fetchEventData();
       } else {
         setIsLoading(false); // New event, no need to fetch
+        const initialStep = stepParam ? parseInt(stepParam, 10) : 1;
         setFormData({
           title: "",
           address: "",
@@ -94,7 +120,7 @@ export default function CreateEventPage() {
           description: "",
           image: "",
           featured: false,
-          step: 1,
+          step: Math.min(Math.max(initialStep, 1), 2), // Ensure step is between 1 and 2
           status: "draft",
         });
         setImagePreview(null);
@@ -102,8 +128,16 @@ export default function CreateEventPage() {
     } else if (session === null) {
       // User is not authenticated, middleware will handle redirect
       setIsLoading(false);
+    } else {
+      // Session is loading or missing required params
+      console.log(
+        "Session loading or missing params - session:",
+        session,
+        "churchId:",
+        churchId
+      );
     }
-  }, [session, router, churchId, eventId]);
+  }, [session, router, churchId, eventId, stepParam]);
 
   // Check for payment status from URL params
   useEffect(() => {
@@ -141,7 +175,11 @@ export default function CreateEventPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ ...formData, churchId }),
+        body: JSON.stringify({
+          ...formData,
+          churchId,
+          _id: formData._id, // Include _id for updates
+        }),
       });
 
       const data = await response.json();
@@ -453,6 +491,7 @@ export default function CreateEventPage() {
                           method: "PATCH",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({
+                            eventId: formData._id,
                             status: "published",
                             step: 2,
                           }),

@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import {
   ClientOnly,
   Loader,
   ComingSoonPopup,
-  FeaturedDetail,
+  ChurchFeaturedDetail,
 } from "@/components";
 import {
   NoChurchCTA,
@@ -24,6 +25,7 @@ type DashboardChurch = Church & {
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
+  const router = useRouter();
   const [church, setChurch] = useState<DashboardChurch | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -132,9 +134,12 @@ export default function Dashboard() {
               )}
               <QuickActions churchId={church._id} eventCount={eventCount} />
 
-              <FeaturedDetail
+              <ChurchFeaturedDetail
                 isFeatured={church.isFeatured || false}
                 featuredUntil={church.featuredUntil}
+                onGetFeaturedClick={() =>
+                  router.push("/dashboard/create-church/checkout")
+                }
               />
               {church?.services && (
                 <ChurchServices services={church.services} />

@@ -6,19 +6,26 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components";
 
-interface FeaturedDetailsProps {
+interface ChurchFeaturedDetailProps {
   isFeatured: boolean;
   featuredUntil?: Date | string;
+  onGetFeaturedClick?: () => void;
 }
 
-export const FeaturedDetail = ({
+export const ChurchFeaturedDetail = ({
   isFeatured,
   featuredUntil,
-}: FeaturedDetailsProps) => {
+  onGetFeaturedClick,
+}: ChurchFeaturedDetailProps) => {
   const router = useRouter();
 
   const handleGetFeaturedClick = () => {
-    router.push("/dashboard/create-church/checkout");
+    if (onGetFeaturedClick) {
+      onGetFeaturedClick();
+    } else {
+      // Default behavior - redirect to create-church checkout
+      router.push("/dashboard/create-church/checkout");
+    }
   };
   if (!isFeatured) {
     return (

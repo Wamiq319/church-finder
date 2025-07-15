@@ -60,12 +60,39 @@ export async function GET(request: Request) {
           ...baseQuery,
           featured: true,
         })
+          .select(
+            "_id title description date address image slug featured featuredUntil status church"
+          )
           .sort({ createdAt: -1 })
           .limit(3)
           .populate("church", "name address city state");
 
-        console.log("Found featured events:", featuredEvents.length);
-        return NextResponse.json({ success: true, data: featuredEvents });
+        // Truncate title and description for better layout
+        const truncatedFeaturedEvents = featuredEvents.map((event) => ({
+          _id: event._id,
+          title:
+            event.title.length > 30
+              ? event.title.substring(0, 30) + "..."
+              : event.title,
+          description:
+            event.description.length > 100
+              ? event.description.substring(0, 100) + "..."
+              : event.description,
+          date: event.date,
+          address: event.address,
+          image: event.image,
+          slug: event.slug,
+          featured: event.featured,
+          featuredUntil: event.featuredUntil,
+          status: event.status,
+          church: event.church,
+        }));
+
+        console.log("Found featured events:", truncatedFeaturedEvents.length);
+        return NextResponse.json({
+          success: true,
+          data: truncatedFeaturedEvents,
+        });
 
       case "upcoming":
         // Get upcoming events (next 3 events by date)
@@ -75,17 +102,47 @@ export async function GET(request: Request) {
           ...baseQuery,
           date: { $gte: today }, // Events from today onwards
         })
+          .select(
+            "_id title description date address image slug featured featuredUntil status church"
+          )
           .sort({ date: 1 })
           .limit(3)
           .populate("church", "name address city state");
 
-        console.log("Found upcoming events:", upcomingEvents.length);
-        return NextResponse.json({ success: true, data: upcomingEvents });
+        // Truncate title and description for better layout
+        const truncatedUpcomingEvents = upcomingEvents.map((event) => ({
+          _id: event._id,
+          title:
+            event.title.length > 30
+              ? event.title.substring(0, 30) + "..."
+              : event.title,
+          description:
+            event.description.length > 100
+              ? event.description.substring(0, 100) + "..."
+              : event.description,
+          date: event.date,
+          address: event.address,
+          image: event.image,
+          slug: event.slug,
+          featured: event.featured,
+          featuredUntil: event.featuredUntil,
+          status: event.status,
+          church: event.church,
+        }));
+
+        console.log("Found upcoming events:", truncatedUpcomingEvents.length);
+        return NextResponse.json({
+          success: true,
+          data: truncatedUpcomingEvents,
+        });
 
       case "list":
         // Get paginated list of all published events
         const [events, total] = await Promise.all([
           Event.find(baseQuery)
+            .select(
+              "_id title description date address image slug featured featuredUntil status church"
+            )
             .sort({ date: 1 })
             .skip(skip)
             .limit(limit)
@@ -93,10 +150,36 @@ export async function GET(request: Request) {
           Event.countDocuments(baseQuery),
         ]);
 
-        console.log("Found events for list:", events.length, "Total:", total);
+        // Truncate title and description for better layout
+        const truncatedEvents = events.map((event) => ({
+          _id: event._id,
+          title:
+            event.title.length > 30
+              ? event.title.substring(0, 30) + "..."
+              : event.title,
+          description:
+            event.description.length > 100
+              ? event.description.substring(0, 100) + "..."
+              : event.description,
+          date: event.date,
+          address: event.address,
+          image: event.image,
+          slug: event.slug,
+          featured: event.featured,
+          featuredUntil: event.featuredUntil,
+          status: event.status,
+          church: event.church,
+        }));
+
+        console.log(
+          "Found events for list:",
+          truncatedEvents.length,
+          "Total:",
+          total
+        );
         return NextResponse.json({
           success: true,
-          data: events,
+          data: truncatedEvents,
           pagination: {
             page,
             limit,
@@ -110,11 +193,38 @@ export async function GET(request: Request) {
       default:
         // Default: return recent published events
         const recentEvents = await Event.find(baseQuery)
+          .select(
+            "_id title description date address image slug featured featuredUntil status church"
+          )
           .sort({ createdAt: -1 })
           .limit(6)
           .populate("church", "name address city state");
 
-        return NextResponse.json({ success: true, data: recentEvents });
+        // Truncate title and description for better layout
+        const truncatedRecentEvents = recentEvents.map((event) => ({
+          _id: event._id,
+          title:
+            event.title.length > 30
+              ? event.title.substring(0, 30) + "..."
+              : event.title,
+          description:
+            event.description.length > 100
+              ? event.description.substring(0, 100) + "..."
+              : event.description,
+          date: event.date,
+          address: event.address,
+          image: event.image,
+          slug: event.slug,
+          featured: event.featured,
+          featuredUntil: event.featuredUntil,
+          status: event.status,
+          church: event.church,
+        }));
+
+        return NextResponse.json({
+          success: true,
+          data: truncatedRecentEvents,
+        });
     }
   } catch (error) {
     console.error("Error fetching frontend events:", error);

@@ -45,7 +45,7 @@ export const Card = ({
 
   return (
     <div
-      className={`bg-white rounded-xl shadow-md p-4 flex flex-col cursor-pointer hover:shadow-lg transition-shadow relative ${className}`}
+      className={`bg-white rounded-xl shadow-md p-4 flex flex-col cursor-pointer hover:shadow-lg transition-shadow relative h-96 ${className}`}
       onClick={handleCardClick}
     >
       {/* Featured Badge */}
@@ -67,11 +67,11 @@ export const Card = ({
       </h3>
 
       {metadata && metadata.length > 0 && (
-        <div className="space-y-2 mb-4">
+        <div className="space-y-2 mb-3 flex-shrink-0">
           {metadata.map((item, index) => (
             <div key={index} className="flex items-center text-[#7FC242]">
-              <span className="mr-1">{item.icon}</span>
-              <span className="text-sm text-[#555] line-clamp-1">
+              <span className="mr-1 flex-shrink-0">{item.icon}</span>
+              <span className="text-sm text-[#555] line-clamp-1 min-w-0">
                 {item.text}
               </span>
             </div>
@@ -80,11 +80,13 @@ export const Card = ({
       )}
 
       {description && (
-        <p className="text-sm text-[#555] mb-4 line-clamp-2">{description}</p>
+        <p className="text-sm text-[#555] mb-3 line-clamp-2 flex-1 min-h-0">
+          {description}
+        </p>
       )}
 
       <button
-        className="mt-auto inline-block text-[#2D9C6F] hover:underline font-semibold text-sm"
+        className="mt-auto inline-block text-[#2D9C6F] hover:underline font-semibold text-sm flex-shrink-0"
         onClick={(e) => {
           e.stopPropagation();
           if (onClick) {

@@ -8,7 +8,7 @@ import {
   GridWithPagination,
   EventCarousel,
   BannerCTA,
-  FeaturedDetail,
+  EventFeaturedDetail,
   UpcomingEventsSidebar,
   Loader,
   Card,
@@ -204,7 +204,10 @@ export default function EventsPage() {
           )}
         </div>
         <div className="lg:w-1/4 space-y-4">
-          <FeaturedDetail isFeatured={false} />
+          <EventFeaturedDetail
+            isFeatured={false}
+            onGetFeaturedClick={() => router.push("/dashboard")}
+          />
           <UpcomingEventsSidebar />
         </div>
       </div>
