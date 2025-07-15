@@ -37,7 +37,8 @@ export async function POST(request: Request) {
       // Create Stripe checkout session for event
       const stripeSession = await createFeaturedEventCheckoutSession(
         event._id.toString(),
-        event.title
+        event.title,
+        event.church.toString()
       );
 
       // Update event with Stripe session ID

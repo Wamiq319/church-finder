@@ -86,6 +86,13 @@ export default function CreateEventPage() {
         if (data.data.image) {
           setImagePreview(data.data.image);
         }
+
+        // If we don't have churchId in URL but have it in event data, update URL
+        if (!churchId && data.data.church) {
+          const newUrl = new URL(window.location.href);
+          newUrl.searchParams.set("churchId", data.data.church.toString());
+          window.history.replaceState({}, "", newUrl.toString());
+        }
       }
     } catch (error) {
       console.error("Error loading event data:", error);
@@ -106,11 +113,13 @@ export default function CreateEventPage() {
       eventId
     );
 
-    if (session?.user?.id && churchId) {
+    if (session?.user?.id) {
       if (eventId) {
+        // If we have eventId, fetch the event data regardless of churchId
         fetchEventData();
-      } else {
-        setIsLoading(false); // New event, no need to fetch
+      } else if (churchId) {
+        // New event with churchId
+        setIsLoading(false);
         const initialStep = stepParam ? parseInt(stepParam, 10) : 1;
         setFormData({
           title: "",
@@ -124,18 +133,19 @@ export default function CreateEventPage() {
           status: "draft",
         });
         setImagePreview(null);
+      } else {
+        // Missing both eventId and churchId - redirect to dashboard
+        console.log(
+          "Missing both eventId and churchId, redirecting to dashboard"
+        );
+        router.push("/dashboard");
       }
     } else if (session === null) {
       // User is not authenticated, middleware will handle redirect
       setIsLoading(false);
     } else {
-      // Session is loading or missing required params
-      console.log(
-        "Session loading or missing params - session:",
-        session,
-        "churchId:",
-        churchId
-      );
+      // Session is loading
+      console.log("Session loading");
     }
   }, [session, router, churchId, eventId, stepParam]);
 
@@ -169,7 +179,12 @@ export default function CreateEventPage() {
   const saveStep = async () => {
     try {
       setApiError(null);
-      console.log("Saving step data:", { ...formData, churchId });
+      // Use churchId from URL or from formData.church
+      const targetChurchId = churchId || formData.church;
+      console.log("Saving step data:", {
+        ...formData,
+        churchId: targetChurchId,
+      });
 
       const response = await fetch("/api/events", {
         method: "POST",
@@ -177,7 +192,7 @@ export default function CreateEventPage() {
         credentials: "include",
         body: JSON.stringify({
           ...formData,
-          churchId,
+          churchId: targetChurchId,
           _id: formData._id, // Include _id for updates
         }),
       });

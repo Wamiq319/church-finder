@@ -38,8 +38,8 @@ export async function createFeaturedChurchCheckoutSession(
       },
     ],
     mode: "subscription",
-    success_url: `${process.env.NEXTAUTH_URL}/dashboard/create-church?step=4&payment=success&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.NEXTAUTH_URL}/dashboard/create-church?step=4&payment=cancelled`,
+    success_url: `${process.env.NEXTAUTH_URL}/dashboard/create-church?step=4&payment=success&session_id={CHECKOUT_SESSION_ID}&churchId=${churchId}`,
+    cancel_url: `${process.env.NEXTAUTH_URL}/dashboard/create-church?step=4&payment=cancelled&churchId=${churchId}`,
     metadata: {
       churchId,
       type: "featured_church",
@@ -52,7 +52,8 @@ export async function createFeaturedChurchCheckoutSession(
 // Helper function to create checkout session for featured event
 export async function createFeaturedEventCheckoutSession(
   eventId: string,
-  eventTitle: string
+  eventTitle: string,
+  churchId?: string
 ) {
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
@@ -73,8 +74,16 @@ export async function createFeaturedEventCheckoutSession(
       },
     ],
     mode: "subscription",
-    success_url: `${process.env.NEXTAUTH_URL}/dashboard/create-event?step=2&payment=success&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.NEXTAUTH_URL}/dashboard/create-event?step=2&payment=cancelled`,
+    success_url: `${
+      process.env.NEXTAUTH_URL
+    }/dashboard/create-event?step=2&payment=success&session_id={CHECKOUT_SESSION_ID}&eventId=${eventId}${
+      churchId ? `&churchId=${churchId}` : ""
+    }`,
+    cancel_url: `${
+      process.env.NEXTAUTH_URL
+    }/dashboard/create-event?step=2&payment=cancelled&eventId=${eventId}${
+      churchId ? `&churchId=${churchId}` : ""
+    }`,
     metadata: {
       eventId,
       type: "featured_event",
