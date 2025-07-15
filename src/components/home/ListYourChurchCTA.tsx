@@ -59,7 +59,7 @@ export const ListYourChurchCTA = () => {
 
         <div className="text-center">
           <button
-            onClick={() => router.push("/list-your-church")}
+            onClick={() => router.push("/dashboard/create-church")}
             className="group relative inline-flex items-center justify-center px-10 py-5 bg-[#7FC242] hover:bg-[#5A7D2C] text-white font-bold text-xl rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
           >
             <span className="relative z-10 flex items-center">

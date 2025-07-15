@@ -95,7 +95,7 @@ export const HeroSection = () => {
         <div className="flex flex-col sm:flex-row gap-4">
           <Button
             variant="primary"
-            onClick={() => router.push("/updates")}
+            onClick={() => router.push("/register")}
             className="px-8 py-3 text-base rounded-md"
           >
             {hero.ctaEmail}
@@ -103,7 +103,7 @@ export const HeroSection = () => {
 
           <Button
             variant="outline"
-            onClick={() => router.push("/list-your-church")}
+            onClick={() => router.push("/dashboard/create-church")}
             className="px-8 py-3 text-base rounded-md border-2"
           >
             {hero.ctaCall}
