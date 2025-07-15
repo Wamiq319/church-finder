@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Input, Button, Loader } from "@/components";
 import { signupSchema } from "@/lib/validations/auth";
 import { ZodError } from "zod";
+import { useSession } from "next-auth/react";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -15,6 +16,28 @@ export default function RegisterPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  // Redirect logged-in users to dashboard
+  useEffect(() => {
+    if (status === "authenticated" && session) {
+      router.push("/dashboard");
+    }
+  }, [session, status, router]);
+
+  // Show loading while checking authentication status
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[#f0f7ea] to-white flex items-center justify-center">
+        <Loader text="Loading..." />
+      </div>
+    );
+  }
+
+  // Don't render the form if user is authenticated
+  if (status === "authenticated") {
+    return null;
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

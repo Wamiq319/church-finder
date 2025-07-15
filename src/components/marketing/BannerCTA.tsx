@@ -1,16 +1,14 @@
 "use client";
 
 import { ArrowRight, ImagePlus } from "lucide-react";
-import { Button, ComingSoonPopup } from "@/components";
+import { Button } from "@/components";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 export const BannerCTA = () => {
   const router = useRouter();
-  const [showPopup, setShowPopup] = useState(false);
+
   return (
     <div className="bg-gradient-to-r from-[#7FC242] to-[#A5D76E] rounded-xl p-6 mb-8 text-white shadow-md">
-      <ComingSoonPopup show={showPopup} onClose={() => setShowPopup(false)} />
       <div className="flex flex-col md:flex-row justify-between gap-6 md:items-stretch">
         <div className="flex-1 flex flex-col justify-between">
           <div>
@@ -30,7 +28,7 @@ export const BannerCTA = () => {
             variant="secondary"
             rounded
             className="px-8 py-3 whitespace-nowrap"
-            onClick={() => setShowPopup(true)}
+            onClick={() => router.push("/dashboard")}
           >
             Place Your Banner <ArrowRight className="ml-2" />
           </Button>
