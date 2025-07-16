@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { Button, ClientOnly } from "@/components";
 import { formatDate } from "@/utils/dateUtils";
 import { ArrowLeft, ArrowRight, Building2 } from "lucide-react";
@@ -20,7 +20,7 @@ import {
   Step4Promotion,
 } from "./components";
 
-export default function CreateChurchPage() {
+function CreateChurchContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
@@ -542,5 +542,19 @@ export default function CreateChurchPage() {
         </div>
       </div>
     </ClientOnly>
+  );
+}
+
+export default function CreateChurchPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7FC242]"></div>
+        </div>
+      }
+    >
+      <CreateChurchContent />
+    </Suspense>
   );
 }

@@ -7,13 +7,13 @@ export const Footer = () => {
   const t = content.Footer;
   const currentYear = new Date().getFullYear();
 
-  const linkKeys = ["home", "about", "events", "contact"];
+  const linkKeys = ["home", "about", "events", "contact"] as const;
   const serviceKeys = [
     "church_search",
     "event_listings",
     "church_listings",
     "community_support",
-  ];
+  ] as const;
 
   return (
     <footer className="bg-[#1A1A1A] text-white py-12">
@@ -35,7 +35,7 @@ export const Footer = () => {
                     href={`/${key === "home" ? "" : key}`}
                     className="text-[#B3B3B3] hover:text-[#7FC242] transition-colors"
                   >
-                    {t.links.names[key]}
+                    {t.links.names[key as keyof typeof t.links.names]}
                   </Link>
                 </li>
               ))}
@@ -52,7 +52,7 @@ export const Footer = () => {
                     href="#"
                     className="text-[#B3B3B3] hover:text-[#7FC242] transition-colors"
                   >
-                    {t.services.names[key]}
+                    {t.services.names[key as keyof typeof t.services.names]}
                   </Link>
                 </li>
               ))}

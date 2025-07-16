@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { Button, Input, ClientOnly } from "@/components";
 import { formatDate } from "@/utils/dateUtils";
 import { ArrowLeft, ArrowRight, Calendar } from "lucide-react";
@@ -15,7 +15,7 @@ import { Step1EventDetails, Step2EventPromotion } from "./components";
 
 // Use Event type directly, no need for extension since Event type already has all fields
 
-export default function CreateEventPage() {
+function CreateEventContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
@@ -540,5 +540,19 @@ export default function CreateEventPage() {
         </div>
       </div>
     </ClientOnly>
+  );
+}
+
+export default function CreateEventPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7FC242]"></div>
+        </div>
+      }
+    >
+      <CreateEventContent />
+    </Suspense>
   );
 }
